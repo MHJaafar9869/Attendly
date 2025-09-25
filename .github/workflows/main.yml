@@ -22,7 +22,7 @@ jobs:
       - name: Copy .env
         run: cp .env.test .env
 
-      - name: Install app
+      - name: Install Dependencies (without dev)
         run: composer install --optimize-autoloader --no-dev --no-progress --no-interaction --prefer-dist
 
       - name: Install Node-js
@@ -30,17 +30,20 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install NPM packages
+      - name: Install NPM Packages
         run: npm install
 
       - name: Build NPM assets
         run: npm run build
 
-      - name: Run migrations
+      - name: Run Migrations
         run: php artisan migrate
 
       - name: Test PHPStan
-        run: ./vendor/bin/phpstan analyse
+        uses: php-actions/phpstan@v3
+        with:
+          path: src
+          level: 5
 
       - name: Test PHPUnit
         run: ./vendor/bin/phpunit
