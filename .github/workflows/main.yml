@@ -22,8 +22,8 @@ jobs:
       - name: Copy .env
         run: cp .env.test .env
 
-      - name: Install Dependencies (without dev)
-        run: composer install --optimize-autoloader --no-dev --no-progress --no-interaction --prefer-dist
+      - name: Install Dependencies (with dev)
+        run: composer install --optimize-autoloader --no-progress --no-interaction --prefer-dist
 
       - name: Install Node-js
         uses: actions/setup-node@v3
@@ -39,13 +39,10 @@ jobs:
       - name: Run Migrations
         run: php artisan migrate
 
-      - name: Test PHPStan
-        uses: php-actions/phpstan@v3
-        with:
-          path: src
-          level: 5
+      - name: Test With PHPStan
+        run: ./vendor/bin/phpstan analyze
 
-      - name: Test PHPUnit
+      - name: Test With PHPUnit
         run: ./vendor/bin/phpunit
 
       # - name: Synchoronize Files To Server
