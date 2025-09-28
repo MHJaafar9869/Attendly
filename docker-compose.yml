@@ -52,6 +52,18 @@ services:
                 - "-p${DB_PASSWORD}"
             retries: 3
             timeout: 5s
+    pma:
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - "8081:80"
+        networks:
+            - sail
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+            PMA_USER: "${DB_USERNAME}"
+            PMA_PASSWORD: "${DB_PASSWORD}"
+            UPLOAD_LIMIT: 100M
     redis:
         image: "redis:alpine"
         ports:

@@ -4,5 +4,7 @@ includes:
 parameters:
     paths:
         - app/
-        - Modules
-    level: 5
+        - Modules/
+    level: 7
+    tips:
+        treatPhpDocTypesAsCertain: false

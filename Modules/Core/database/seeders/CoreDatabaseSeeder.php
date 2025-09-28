@@ -11,6 +11,12 @@ class CoreDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // $this->call(Setting\SettingSeeder::class);
+        // $this->call(Permission\PermissionSeeder::class);
+        // $this->call(Type\TypeSeeder::class);
+        $this->call(Status\StatusSeeder::class);
+        $this->call(Role\RoleSeeder::class);
+        // $this->call(User\UserSeeder::class);
         // $this->call([]);
     }
 }
