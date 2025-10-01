@@ -63,7 +63,7 @@ class ControllerGeneratorService
 
 declare(strict_types=1);
 
-namespace Modules\\{$module}\\Http\\Controllers\\Api\\{$model};
+namespace Modules\\{$module}\\Http\\Controllers\\Api;
 
 use {$namespaceRepo};
 use App\Traits\ResponseJson;

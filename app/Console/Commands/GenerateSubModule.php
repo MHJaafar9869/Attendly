@@ -28,7 +28,7 @@ class GenerateSubModule extends Command
     protected $signature = 'make:crud {models : Comma-separated list of model names} {module}
                         {--only= : Comma-separated list of generators to run (e.g. controller,resource)}
                         {--except= : Comma-separated list of generators to skip (e.g. seeder,routes)}
-                        {--soft_deletes= : Model with SoftDeletes}';
+                        {--soft_deletes : Enable SoftDeletes for the model}';
 
     /**
      * Command description shown in "php artisan list".
@@ -66,7 +66,7 @@ class GenerateSubModule extends Command
 
         $only = $this->option('only') ? array_map('trim', explode(',', rtrim($this->option('only'), ','))) : [];
         $except = $this->option('except') ? array_map('trim', explode(',', rtrim($this->option('except'), ','))) : [];
-        $softDeletes = $this->option('soft_deletes') && in_array($this->option('soft_deletes'), [true, false]) ? $this->option('soft_deletes') : false;
+        $softDeletes = $this->option('soft_deletes');
 
         // Determine which services to run
         $services = $this->serviceMap;
@@ -105,7 +105,9 @@ class GenerateSubModule extends Command
         foreach ($models as $model) {
             foreach ($services as $key => $service) {
                 try {
-                    $messages[] = $service::generate($module, $model);
+                    $messages[] = $key === 'controller'
+                        ? $service::generate($module, $model, $softDeletes)
+                        : $service::generate($module, $model);
                 } catch (\Exception $e) {
                     $messages[] = [
                         'status' => 'failed',

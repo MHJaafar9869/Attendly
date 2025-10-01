@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Core\Http\Controllers\Api\User;
+namespace Modules\Core\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Traits\ResponseJson;

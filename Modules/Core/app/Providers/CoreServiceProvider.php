@@ -2,8 +2,12 @@
 
 namespace Modules\Core\Providers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\Core\Repositories\Payment\PaymentRepository;
+use Modules\Core\Repositories\Payment\PaymentRepositoryInterface;
+use Modules\Core\Repositories\PaymentGateway\PaymentGatewayRepositoryInterface;
 use Modules\Core\Repositories\Permission\PermissionRepository;
 use Modules\Core\Repositories\Permission\PermissionRepositoryInterface;
 use Modules\Core\Repositories\Role\RoleRepository;
@@ -16,9 +20,11 @@ use Modules\Core\Repositories\Type\TypeRepository;
 use Modules\Core\Repositories\Type\TypeRepositoryInterface;
 use Modules\Core\Repositories\User\UserRepository;
 use Modules\Core\Repositories\User\UserRepositoryInterface;
+use Modules\Core\Services\PaymentGatewayService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Stripe\StripeClient;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -55,6 +61,14 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->bind(TypeRepositoryInterface::class, TypeRepository::class);
         $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
         $this->app->bind(SettingRepositoryInterface::class, SettingRepository::class);
+        $this->app->bind(PaymentRepositoryInterface::class, PaymentRepository::class);
+        $this->app->singleton(StripeClient::class, fn ($app) => new StripeClient(config('services.gateways.stripe.secret')));
+        $this->app->bind(PaymentGatewayRepositoryInterface::class, function ($app) {
+            $gateway = $app->make(Request::class)->input('gateway', config('services.gateways.default', 'stripe'));
+
+            return $app->make(PaymentGatewayService::class)->resolve($gateway);
+        });
+
     }
 
     /**

@@ -11,6 +11,7 @@ class CoreDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(Payment\PaymentSeeder::class);
         // $this->call(Setting\SettingSeeder::class);
         // $this->call(Permission\PermissionSeeder::class);
         // $this->call(Type\TypeSeeder::class);

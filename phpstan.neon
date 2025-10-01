@@ -5,6 +5,6 @@ parameters:
     paths:
         - app/
         - Modules/
-    level: 7
+    level: 5
     tips:
         treatPhpDocTypesAsCertain: false

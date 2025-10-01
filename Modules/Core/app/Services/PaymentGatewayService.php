@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Core\Services;
+
+use InvalidArgumentException;
+use Modules\Core\Repositories\PaymentGateway\PaymentGatewayRepositoryInterface;
+use Modules\Core\Repositories\PaymentGateway\PayPalRepository;
+use Modules\Core\Repositories\PaymentGateway\StripeRepository;
+
+class PaymentGatewayService
+{
+    public function __construct(
+        protected StripeRepository $stripe,
+        protected PayPalRepository $paypal
+    ) {}
+
+    public function resolve(string $gateway): PaymentGatewayRepositoryInterface
+    {
+        return match ($gateway) {
+            'stripe' => $this->stripe,
+            'paypal' => $this->paypal,
+            default => throw new InvalidArgumentException("Unsupported payment gateway: {$gateway}"),
+        };
+    }
+}

@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'auth' => \App\Http\Middleware\JwtAuthMiddleware::class,
+            'auth-user' => \App\Http\Middleware\JwtAuthMiddleware::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'permission' => \App\Http\Middleware\PermissionMiddleware::class,
             'multi-auth' => \App\Http\Middleware\MultiAuthMiddleware::class,

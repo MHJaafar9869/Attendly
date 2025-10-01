@@ -29,13 +29,11 @@ class JwtAuthMiddleware
             if ($payload->get('token_version') !== $user->token_version) {
                 return $this->respondError('Token expired due to role/permission change', 401);
             }
-
             auth()->setUser($user);
         } catch (\Exception $e) {
             return $this->respondError('Unauthorized', 401);
         }
 
         return $next($request);
-
     }
 }
