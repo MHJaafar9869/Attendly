@@ -6,20 +6,34 @@ class AuditObserver
 {
     public function creating($model)
     {
-        if ($this->check($model, 'created_at') && empty($model->created_by)) {
+        if ($this->check($model, 'created_by') && empty($model->created_by)) {
             $model->created_by = auth()->id();
         }
     }
 
     public function updating($model)
     {
-        if ($this->check($model, 'updated_at')) {
+        if ($this->check($model, 'updated_by')) {
             $model->updated_by = auth()->id();
         }
     }
 
-    private function check($model, string $fillable): bool
+    public function deleting($model)
     {
-        return auth()->check() && $model->isFillable($fillable);
+        if ($this->check($model, 'deleted_by') && empty($model->deleted_by)) {
+            $model->deleted_by = auth()->id();
+        }
+    }
+
+    public function restoring($model)
+    {
+        if ($this->check($model, 'deleted_by')) {
+            $model->deleted_by = null;
+        }
+    }
+
+    private function check($model, string $column): bool
+    {
+        return auth()->check() && $model->getConnection()->getSchemaBuilder()->hasColumn($model->getTable(), $column);
     }
 }

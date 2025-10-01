@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->boolean('is_verified')->default(0);
 
-            $table->foreignId('role_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('status_id')->constrained()->onDelete('cascade');
             $table->text('device')->nullable();
 
@@ -44,7 +43,6 @@ return new class extends Migration
 
             $table->index('slug_name');
             $table->index('last_visited_at');
-            $table->index('role_id');
             $table->index('deleted_at');
         });
 

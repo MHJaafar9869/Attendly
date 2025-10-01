@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Modules\Core\Repositories\PaymentGateway;
 
-interface PaymentGatewayRepositoryInterface
+use App\Repositories\BaseRepository\BaseRepositoryInterface;
+
+interface PaymentGatewayRepositoryInterface extends BaseRepositoryInterface
 {
-    /**
-     * @return \Stripe\Charge|array
-     */
     public function charge(string $customerId, string $ownerId, int $amount, array $productData);
 
     public function refund(string $transactionId, int $amount);

@@ -16,8 +16,18 @@ return new class extends Migration
             $table->string('key')->unique();
             $table->string('value');
             $table->string('type')->default('string');
-            $table->json('meta')->nullable();
+            $table->text('description')->nullable();
+
+            $table->ulid('created_by');
+            $table->ulid('updated_by');
+            $table->ulid('deleted_by');
+
+            $table->foreign('created_by')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreign('updated_by')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreign('deleted_by')->references('id')->on('users')->cascadeOnDelete();
+
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

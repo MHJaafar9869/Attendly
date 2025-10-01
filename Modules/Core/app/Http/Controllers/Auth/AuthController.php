@@ -3,8 +3,8 @@
 namespace Modules\Core\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Traits\OTP;
 use App\Traits\ResponseJson;
-use App\Traits\SendEmail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Core\Http\Requests\Auth\LoginRequest;
@@ -17,7 +17,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
-    use ResponseJson, SendEmail;
+    use OTP, ResponseJson;
 
     /**
      * Create a new AuthController instance.

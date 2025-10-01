@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace Modules\Core\Repositories\PaymentGateway;
 
 use App\Repositories\BaseRepository\BaseRepository;
-use Modules\Core\Models\Payment;
-use Modules\Core\Repositories\Payment\PaymentRepositoryInterface;
+use Modules\Core\Models\StripePayment;
 use Stripe\StripeClient;
 
 class StripeRepository extends BaseRepository implements PaymentGatewayRepositoryInterface
 {
     public function __construct(
-        protected Payment $payment,
-        protected StripeClient $stripe,
-        protected PaymentRepositoryInterface $paymentRepo
+        protected StripePayment $payment,
+        protected StripeClient $stripe
     ) {
         parent::__construct($payment);
     }

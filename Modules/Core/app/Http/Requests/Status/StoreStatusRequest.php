@@ -24,7 +24,8 @@ class StoreStatusRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'unique:statuses,name'],
             'context' => ['required', 'string', 'max:255', 'unique:statuses,context'],
-            'color' => ['required', 'string', 'max:255'],
+            'bg_color' => ['required', 'string', 'max:255'],
+            'text_color' => ['required', 'string', 'max:255'],
         ];
     }
 

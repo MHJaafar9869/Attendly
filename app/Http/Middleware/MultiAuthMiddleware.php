@@ -17,7 +17,7 @@ class MultiAuthMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, array ...$guard): Response
+    public function handle(Request $request, Closure $next, array ...$guards): Response
     {
         if (empty($guards)) {
             $guards = ['api'];

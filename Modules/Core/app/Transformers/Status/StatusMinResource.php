@@ -18,7 +18,8 @@ class StatusMinResource extends JsonResource
             'id' => $resource->id,
             'name' => $resource->name,
             'context' => $resource->context,
-            'color' => $resource->color,
+            'bg_color' => $resource->bg_color,
+            'text_color' => $resource->text_color,
             'created_at' => $resource->created_at,
             'updated_at' => $resource->updated_at,
         ];

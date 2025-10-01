@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-trait SendEmail
+trait OTP
 {
     public function generateOtp(): string
     {

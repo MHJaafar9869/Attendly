@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\Core\Transformers\Image;
+namespace Modules\Core\Transformers\Comment;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ImageResource extends JsonResource
+class CommentMinResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,16 +16,14 @@ class ImageResource extends JsonResource
 
         return [
             'id' => $resource->id,
-            'imageable' => $resource->imageable?->name,
-            'imageable_type' => $resource->imageable_type,
-            'disk' => $resource->disk,
-            'image_path' => $resource->image_path,
-            'image_url' => $resource->image_url,
-            'image_mime' => $resource->image_mime,
-            'image_alt' => $resource->image_alt,
+            'commentable' => $resource->commentable?->name,
+            'commentable_type' => $resource->commentable_type,
+            'content' => $resource->content,
+            'user' => $resource->user?->name,
             'is_flagged' => $resource->is_flagged,
             'flagged_by' => $resource->flagged_by,
             'flagged_at' => $resource->flagged_at,
+            'parent' => $resource->parent?->name,
             'created_at' => $resource->created_at,
             'updated_at' => $resource->updated_at,
             'deleted_at' => $resource->deleted_at,

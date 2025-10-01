@@ -22,16 +22,24 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'slug_name' => ['nullable', 'string', 'max:255', 'unique:users,slug_name'],
             'email' => ['required', 'string', 'max:255', 'unique:users,email'],
-            'email_verified_at' => ['nullable', 'date'],
             'phone' => ['nullable', 'string', 'max:255', 'unique:users,phone'],
-            'address' => ['nullable', 'string'],
             'password' => ['required', 'string', 'max:255'],
+            'address' => ['nullable', 'string'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', 'max:255'],
+            'is_verified' => ['required', 'boolean'],
             'role_id' => ['nullable', 'integer', 'exists:roles,id'],
-            'is_active' => ['required', 'boolean'],
-            'type_id' => ['nullable', 'integer', 'exists:types,id'],
             'status_id' => ['required', 'integer', 'exists:statuses,id'],
+            'device' => ['nullable', 'string'],
+            'token_version' => ['required', 'integer'],
+            'otp' => ['nullable', 'string', 'max:255'],
+            'otp_expires_at' => ['nullable', 'date'],
+            'last_visited_at' => ['nullable', 'date'],
+            'email_verified_at' => ['nullable', 'date'],
             'remember_token' => ['nullable', 'string', 'max:255'],
         ];
     }

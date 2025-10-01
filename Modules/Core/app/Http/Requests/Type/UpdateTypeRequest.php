@@ -24,7 +24,8 @@ class UpdateTypeRequest extends FormRequest
         return [
             'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:types,name,'.$this->route('type').',id'],
             'context' => ['sometimes', 'required', 'string', 'max:255', 'unique:types,context,'.$this->route('type').',id'],
-            'color' => ['sometimes', 'required', 'string', 'max:255'],
+            'text_color' => ['sometimes', 'required', 'string', 'max:255'],
+            'bg_color' => ['sometimes', 'required', 'string', 'max:255'],
         ];
     }
 

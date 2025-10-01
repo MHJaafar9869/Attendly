@@ -24,7 +24,8 @@ class StoreTypeRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'unique:types,name'],
             'context' => ['required', 'string', 'max:255', 'unique:types,context'],
-            'color' => ['required', 'string', 'max:255'],
+            'text_color' => ['required', 'string', 'max:255'],
+            'bg_color' => ['required', 'string', 'max:255'],
         ];
     }
 

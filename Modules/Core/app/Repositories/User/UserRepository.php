@@ -3,8 +3,8 @@
 namespace Modules\Core\Repositories\User;
 
 use App\Repositories\BaseRepository\BaseRepository;
+use App\Traits\OTP;
 use App\Traits\ResponseArray;
-use App\Traits\SendEmail;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -14,7 +14,7 @@ use Modules\Core\Notifications\SendOtp;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
-    use ResponseArray, SendEmail;
+    use OTP, ResponseArray;
 
     public function __construct(User $model)
     {

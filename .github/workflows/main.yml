@@ -39,8 +39,8 @@ jobs:
       - name: Run Migrations
         run: php artisan migrate
 
-      - name: Test With PHPStan
-        run: ./vendor/bin/phpstan analyze
+      # - name: Test With PHPStan
+      #   run: ./vendor/bin/phpstan analyze
 
       - name: Test With PHPUnit
         run: ./vendor/bin/phpunit

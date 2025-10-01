@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\Core\Http\Requests\Abdu;
+namespace Modules\Core\Http\Requests\PayPalPayment;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class StoreAbduRequest extends FormRequest
+class UpdatePayPalPaymentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,14 @@ class StoreAbduRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'height' => ['required', 'string', 'max:255'],
+            'user_id' => ['sometimes', 'required', 'string', 'max:255', 'exists:users,id'],
+            'payable_id' => ['sometimes', 'required', 'string', 'max:255'],
+            'payable_type' => ['sometimes', 'required', 'string', 'max:255'],
+            'paypal_transaction_id' => ['sometimes', 'required', 'string', 'max:255'],
+            'amount_cents' => ['sometimes', 'required', 'integer'],
+            'currency' => ['sometimes', 'required', 'string', 'max:255'],
+            'product_data' => ['nullable', 'sometimes', 'array'],
+            'status_id' => ['sometimes', 'required', 'integer', 'exists:statuses,id'],
         ];
     }
 

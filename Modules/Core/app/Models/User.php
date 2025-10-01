@@ -22,7 +22,7 @@ class User extends Authenticatable implements JWTSubject
         'first_name', 'last_name', 'slug_name',
         'email', 'phone', 'password',
         'address', 'city', 'country',
-        'role_id', 'status_id', 'device',
+        'status_id', 'device',
     ];
 
     protected $hidden = [
@@ -97,6 +97,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(Status::class);
     }
 
+    public function actions()
+    {
+        return $this->belongsToMany(Action::class, 'user_actions');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Role & Permission Helpers
@@ -105,31 +110,33 @@ class User extends Authenticatable implements JWTSubject
 
     public function hasRole(string $role): bool
     {
-        return strtolower($this->role?->name ?? '') === $role;
+        return $this->roles->pluck('name')->map(fn ($r) => strtolower($r))->contains(strtolower($role));
     }
 
     public function hasAnyRole(array $roles): bool
     {
-        return in_array($this->role?->name, $roles, true);
+        $lowerRoles = array_map('strtolower', $roles);
+
+        return $this->roles->pluck('name')->map(fn ($r) => strtolower($r))->intersect($lowerRoles)->isNotEmpty();
     }
 
     public function hasPermission(string $permission): bool
     {
-        $rolePermissions = $this->role->flatMap->permissions->pluck('name')->contains($permission) ?? false;
-        $userPermissions = $this->permissions->contains('name', $permission) ?? false;
+        $rolePermissions = $this->roles->flatMap->permissions->pluck('name')->map(fn ($p) => strtolower($p));
+        $userPermissions = $this->permissions->pluck('name')->map(fn ($p) => strtolower($p));
 
-        return $userPermissions || $rolePermissions;
+        return $rolePermissions->contains(strtolower($permission)) || $userPermissions->contains(strtolower($permission));
     }
 
     public function getRoles(): array
     {
-        return $this->roles?->pluck('name')->toArray();
+        return $this->roles->pluck('name')->toArray();
     }
 
     public function getPermissions(): array
     {
-        $userPermissions = $this->permissions?->pluck('name')->toArray();
-        $rolePermissions = $this->roles?->flatMap->permissions->pluck('name')->toArray();
+        $userPermissions = $this->permissions->pluck('name')->toArray();
+        $rolePermissions = $this->roles->flatMap->permissions->pluck('name')->toArray();
 
         return $rolePermissions->merge($userPermissions)->unique()->toArray();
     }

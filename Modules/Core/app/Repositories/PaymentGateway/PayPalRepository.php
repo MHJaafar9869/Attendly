@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Modules\Core\Repositories\PaymentGateway;
 
-class PayPalRepository implements PaymentGatewayRepositoryInterface
+use App\Repositories\BaseRepository\BaseRepository;
+use Modules\Core\Models\PayPalPayment;
+
+class PayPalRepository extends BaseRepository implements PaymentGatewayRepositoryInterface
 {
     public function __construct(
-        //
+        protected PayPalPayment $payPal
     ) {
-        //
+        parent::__construct($payPal);
     }
 
     public function charge(string $customerId, string $ownerId, int $amount, array $productData)

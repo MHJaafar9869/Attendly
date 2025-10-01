@@ -18,6 +18,7 @@ class FavoriteResource extends JsonResource
             'id' => $resource->id,
             'favoriteable' => $resource->favoriteable?->name,
             'favoriteable_type' => $resource->favoriteable_type,
+            'collection' => $resource->collection,
             'user' => $resource->user?->name,
             'favorites_count' => $resource->favorites_count,
             'created_at' => $resource->created_at,

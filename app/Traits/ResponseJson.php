@@ -23,13 +23,24 @@ trait ResponseJson
         ];
 
         if ($data !== null) {
-            if ($paginate && $data instanceof \Illuminate\Http\Resources\Json\ResourceCollection || $data instanceof \Illuminate\Pagination\AbstractPaginator) {
-                $response['data'] = $data->items();
+            if ($paginate && $data instanceof \Illuminate\Http\Resources\Json\ResourceCollection) {
+                $collection = $data->resource;
+                $response['data'] = $collection->items();
                 $response['meta'] = [
-                    'total' => $data->total(),
-                    'per_page' => $data->perPage(),
-                    'current_page' => $data->currentPage(),
-                    'last_page' => $data->lastPage(),
+                    'total' => $collection->total(),
+                    'per_page' => $collection->perPage(),
+                    'current_page' => $collection->currentPage(),
+                    'last_page' => $collection->lastPage(),
+                ];
+            } elseif ($paginate && $data instanceof \Illuminate\Pagination\AbstractPaginator) {
+                /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+                $paginator = $data;
+                $response['data'] = $paginator->items();
+                $response['meta'] = [
+                    'total' => $paginator->total(),
+                    'per_page' => $paginator->perPage(),
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
                 ];
             } else {
                 $response['data'] = $data;

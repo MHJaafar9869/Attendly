@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('favoriteable_id', 26);
             $table->string('favoriteable_type');
+            $table->string('collection')->default('My Favorites');
 
             $table->ulid('user_id');
             $table->unsignedBigInteger('favorites_count')->default(0);

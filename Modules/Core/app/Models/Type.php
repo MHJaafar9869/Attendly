@@ -2,8 +2,9 @@
 
 namespace Modules\Core\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
 // use Modules\Core\Database\Factories\TypeFactory;
 
 class Type extends Model
@@ -13,7 +14,12 @@ class Type extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = [];
+    protected $fillable = [
+        'name',
+        'context',
+        'bg_color',
+        'text_color',
+    ];
 
     // protected static function newFactory(): TypeFactory
     // {

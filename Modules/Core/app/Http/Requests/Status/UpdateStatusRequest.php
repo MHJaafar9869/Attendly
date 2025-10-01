@@ -24,7 +24,8 @@ class UpdateStatusRequest extends FormRequest
         return [
             'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:statuses,name,'.$this->route('status').',id'],
             'context' => ['sometimes', 'required', 'string', 'max:255', 'unique:statuses,context,'.$this->route('status').',id'],
-            'color' => ['sometimes', 'required', 'string', 'max:255'],
+            'bg_color' => ['sometimes', 'required', 'string', 'max:255'],
+            'text_color' => ['sometimes', 'required', 'string', 'max:255'],
         ];
     }
 

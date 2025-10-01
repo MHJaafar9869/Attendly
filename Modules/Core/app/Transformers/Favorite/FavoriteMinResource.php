@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\Core\Transformers\Like;
+namespace Modules\Core\Transformers\Favorite;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class LikeResource extends JsonResource
+class FavoriteMinResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,11 @@ class LikeResource extends JsonResource
 
         return [
             'id' => $resource->id,
-            'likeable' => $resource->likeable?->name,
-            'likeable_type' => $resource->likeable_type,
+            'favoriteable' => $resource->favoriteable?->name,
+            'favoriteable_type' => $resource->favoriteable_type,
+            'collection' => $resource->collection,
             'user' => $resource->user?->name,
-            'likes_count' => $resource->likes_count,
+            'favorites_count' => $resource->favorites_count,
             'created_at' => $resource->created_at,
             'updated_at' => $resource->updated_at,
         ];
