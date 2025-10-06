@@ -1,0 +1,61 @@
+name: fix-code-style
+
+on:
+  push:
+
+jobs:
+  fix-code-style:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # required for committing changes
+      pull-requests: write
+
+    steps:
+      - name: 🧩 Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0 # ensures full git history for commits
+
+      - name: 🧰 Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          tools: composer
+          coverage: none
+
+      - name: 🧱 Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: 📦 Install dependencies
+        run: |
+          composer install --no-interaction --no-progress
+          npm ci
+
+      - name: 🧹 Run Rector
+        run: composer rector -- --no-interaction
+
+      - name: 🎨 Run Laravel Pint
+        run: composer pint -- --verbose
+
+      - name: 💅 Run Prettier
+        run: npm run prettier -- --write .
+
+      - name: ✅ Check for changes
+        id: git_diff
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 💾 Commit and push changes
+        if: steps.git_diff.outputs.changed == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: fix code style"
