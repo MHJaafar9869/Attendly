@@ -16,7 +16,7 @@ class BaseRepository implements BaseRepositoryInterface
         $this->model = $model;
     }
 
-    public function select(string|array $columns): Builder
+    public function select(string | array $columns): Builder
     {
         return $this->model->query()->select($columns);
     }
@@ -26,7 +26,7 @@ class BaseRepository implements BaseRepositoryInterface
         return $this->model->all();
     }
 
-    public function allWithRelations(string|array $relations): Builder
+    public function allWithRelations(string | array $relations): Builder
     {
         return $this->model->with($relations);
     }
@@ -36,12 +36,12 @@ class BaseRepository implements BaseRepositoryInterface
         return $this->model->paginate();
     }
 
-    public function find(int|string $id)
+    public function find(int | string $id)
     {
         return $this->model->findOrFail($id);
     }
 
-    public function findWithRelation(int|string $id, string|array $relations): Builder
+    public function findWithRelation(int | string $id, string | array $relations): Builder
     {
         return $this->model->query()->findOrFail($id)->with($relations);
     }
@@ -51,7 +51,7 @@ class BaseRepository implements BaseRepositoryInterface
         return $this->model->create($data);
     }
 
-    public function update(int|string $id, array $data)
+    public function update(int | string $id, array $data)
     {
         $record = $this->find($id);
         $record->update($data);
@@ -59,14 +59,14 @@ class BaseRepository implements BaseRepositoryInterface
         return $record;
     }
 
-    public function delete(int|string $id)
+    public function delete(int | string $id)
     {
         $record = $this->find($id);
 
         return $record->delete();
     }
 
-    public function restore(int|string $id)
+    public function restore(int | string $id)
     {
         $item = $this->model->onlyTrashed()->findOrFail($id);
         $item->restore();
@@ -74,7 +74,7 @@ class BaseRepository implements BaseRepositoryInterface
         return $item;
     }
 
-    public function forceDelete(int|string $id)
+    public function forceDelete(int | string $id)
     {
         return $this->model->withTrashed()->find($id)->forceDelete();
     }

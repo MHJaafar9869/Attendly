@@ -19,7 +19,7 @@ class ControllerGeneratorService
     {
         // Build the directory and file path for the controller
         $controllerDir = module_path($module, 'app/Http/Controllers/Api');
-        $controllerPath = $controllerDir."/{$model}Controller.php";
+        $controllerPath = $controllerDir . "/{$model}Controller.php";
 
         // Lowercase version of the model (used in variable names)
         $modelSmallCase = strtolower($model);

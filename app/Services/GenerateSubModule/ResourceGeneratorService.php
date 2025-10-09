@@ -32,7 +32,7 @@ class ResourceGeneratorService
 
         // Define base and model folders for transformers
         $baseFolder = module_path($module, 'app/Transformers');
-        $modelFolder = $baseFolder."/{$model}";
+        $modelFolder = $baseFolder . "/{$model}";
 
         // Create directories if missing
         if (! File::exists($modelFolder)) {

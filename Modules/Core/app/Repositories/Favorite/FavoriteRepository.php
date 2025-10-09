@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Core\Repositories\Favorite;
 
-use Modules\Core\Repositories\Favorite\FavoriteRepositoryInterface;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Core\Models\Favorite;
 

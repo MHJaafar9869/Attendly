@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\GenerateSubModule;
 
+use Exception;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -16,7 +17,7 @@ class ApiRouteService
      * @param  string  $model  The model name (e.g. "Post").
      * @return string[]
      *
-     * @throws \Exception If the api.php file already exists on first creation attempt.
+     * @throws Exception If the api.php file already exists on first creation attempt.
      */
     public static function generate(string $module, string $model)
     {

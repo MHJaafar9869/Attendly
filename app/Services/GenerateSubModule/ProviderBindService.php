@@ -42,7 +42,7 @@ class ProviderBindService
         // If `use` lines not already present, insert them right after namespace declaration
         if (! str_contains($content, $interfaceUse)) {
             $content = preg_replace(
-                '/(namespace\s+Modules\\\\'.$module.'\\\\Providers;)/',
+                '/(namespace\s+Modules\\\\' . $module . '\\\\Providers;)/',
                 "$1\n\n{$interfaceUse}\n{$repositoryUse}",
                 $content,
                 1

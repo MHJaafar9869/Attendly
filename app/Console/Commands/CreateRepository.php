@@ -41,12 +41,15 @@ class CreateRepository extends Command
         switch ($result['status']) {
             case 'success':
                 $this->info($result['message']);
+
                 break;
             case 'exists':
                 $this->line($result['message']);
+
                 break;
             case 'failed':
                 $this->error($result['message']);
+
                 break;
         }
     }

@@ -5,6 +5,7 @@ namespace Modules\Core\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Traits\OTP;
 use App\Traits\ResponseJson;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Core\Http\Requests\Auth\ForgotPasswordRequest;
@@ -18,7 +19,8 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
-    use OTP, ResponseJson;
+    use OTP;
+    use ResponseJson;
 
     /**
      * Create a new AuthController instance.
@@ -128,7 +130,7 @@ class AuthController extends Controller
         return $this->{$method}($result['message']);
     }
 
-    public function resetPassword(ResetPasswordRequest $request, int|string $id)
+    public function resetPassword(ResetPasswordRequest $request, int | string $id)
     {
         $validated = $request->validated();
 
@@ -139,7 +141,7 @@ class AuthController extends Controller
                 $validated['old_password'],
                 $validated['token']
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->respondError("Failed to reset password, with error(s): {$e->getMessage()}");
         }
 

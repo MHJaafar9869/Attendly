@@ -11,7 +11,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Setting extends Model
 {
-    use HasFactory, HasUserStamps, SoftDeletes;
+    use HasFactory;
+    use HasUserStamps;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

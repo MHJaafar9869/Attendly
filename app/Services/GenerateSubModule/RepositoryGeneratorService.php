@@ -19,8 +19,8 @@ class RepositoryGeneratorService
     {
         // Define repository directory and file paths
         $repositoryDir = module_path($module, "app/Repositories/{$model}");
-        $repositoryPath = $repositoryDir."/{$model}Repository.php";
-        $interfacePath = $repositoryDir."/{$model}RepositoryInterface.php";
+        $repositoryPath = $repositoryDir . "/{$model}Repository.php";
+        $interfacePath = $repositoryDir . "/{$model}RepositoryInterface.php";
 
         // Ensure directory exists
         if (! File::isDirectory($repositoryDir)) {

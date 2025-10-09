@@ -11,7 +11,7 @@ trait UploadFile
 {
     public function uploadFile(UploadedFile $file, string $folder = 'uploads', string $disk = 'public'): string
     {
-        $filename = Str::ulid().'.'.$file->getClientOriginalExtension();
+        $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
         $path = Storage::disk($disk)->putFileAs($folder, $file, $filename);
 
         return $path;

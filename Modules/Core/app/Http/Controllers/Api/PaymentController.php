@@ -29,7 +29,7 @@ class PaymentController extends Controller
         return $this->respondWithData(StripePaymentResource::collection($data), 'Payment list retrieved successfully');
     }
 
-    public function show(int|string $id): JsonResponse
+    public function show(int | string $id): JsonResponse
     {
         $data = $this->paymentRepo->find($id);
 
@@ -47,14 +47,14 @@ class PaymentController extends Controller
         return $this->respondWithData(StripePaymentResource::make($data), 'Payment created successfully', 201);
     }
 
-    public function update(UpdatePaymentRequest $request, int|string $id): JsonResponse
+    public function update(UpdatePaymentRequest $request, int | string $id): JsonResponse
     {
         $data = $this->paymentRepo->update($id, $request->validated());
 
         return $this->respondWithData(StripePaymentResource::make($data), 'Payment updated successfully');
     }
 
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(int | string $id): JsonResponse
     {
         $this->paymentRepo->delete($id);
 

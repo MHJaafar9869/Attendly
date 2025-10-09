@@ -20,10 +20,6 @@ class StripePayment extends Model
         'currency', 'product_data', 'status_id',
     ];
 
-    protected $casts = [
-        'product_data' => 'array',
-    ];
-
     // protected static function newFactory(): PaymentFactory
     // {
     //     // return PaymentFactory::new();
@@ -49,5 +45,12 @@ class StripePayment extends Model
     public function status()
     {
         return $this->belongsTo(Status::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'product_data' => 'array',
+        ];
     }
 }

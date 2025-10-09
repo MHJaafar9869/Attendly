@@ -29,7 +29,7 @@ class ResetPasswordRequest extends FormRequest
                 'confirmed',
                 'different:old_password',
                 Password::defaults(),
-                new StrongPassword(username: $this->input('first_name').' '.$this->input('last_name')),
+                new StrongPassword(username: $this->input('first_name') . ' ' . $this->input('last_name')),
             ],
             'old_password' => ['required', 'string'],
         ];

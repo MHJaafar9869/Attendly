@@ -2,9 +2,9 @@
 
 namespace Modules\Core\Http\Requests\Permission;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
 class UpdatePermissionRequest extends FormRequest
 {
@@ -22,7 +22,7 @@ class UpdatePermissionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:permissions,name,'.$this->route('permission').',id'],
+            'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:permissions,name,' . $this->route('permission') . ',id'],
         ];
     }
 
@@ -34,7 +34,7 @@ class UpdatePermissionRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation errors',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

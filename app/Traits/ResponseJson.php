@@ -3,6 +3,9 @@
 namespace App\Traits;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Pagination\AbstractPaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 trait ResponseJson
 {
@@ -23,7 +26,7 @@ trait ResponseJson
         ];
 
         if ($data !== null) {
-            if ($paginate && $data instanceof \Illuminate\Http\Resources\Json\ResourceCollection) {
+            if ($paginate && $data instanceof ResourceCollection) {
                 $collection = $data->resource;
                 $response['data'] = $collection->items();
                 $response['meta'] = [
@@ -32,8 +35,8 @@ trait ResponseJson
                     'current_page' => $collection->currentPage(),
                     'last_page' => $collection->lastPage(),
                 ];
-            } elseif ($paginate && $data instanceof \Illuminate\Pagination\AbstractPaginator) {
-                /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+            } elseif ($paginate && $data instanceof AbstractPaginator) {
+                /** @var LengthAwarePaginator $paginator */
                 $paginator = $data;
                 $response['data'] = $paginator->items();
                 $response['meta'] = [

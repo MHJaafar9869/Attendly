@@ -2,9 +2,9 @@
 
 namespace Modules\Core\Http\Requests\Setting;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
 class UpdateSettingRequest extends FormRequest
 {
@@ -22,7 +22,7 @@ class UpdateSettingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'key' => ['sometimes', 'required', 'string', 'max:255', 'unique:settings,key,'.$this->route('setting').',id'],
+            'key' => ['sometimes', 'required', 'string', 'max:255', 'unique:settings,key,' . $this->route('setting') . ',id'],
             'value' => ['sometimes', 'required', 'string', 'max:255'],
             'type' => ['sometimes', 'required', 'string', 'max:255'],
             'meta' => ['nullable', 'sometimes', 'array'],
@@ -37,7 +37,7 @@ class UpdateSettingRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation errors',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

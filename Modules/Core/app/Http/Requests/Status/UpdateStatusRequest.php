@@ -2,9 +2,9 @@
 
 namespace Modules\Core\Http\Requests\Status;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
 class UpdateStatusRequest extends FormRequest
 {
@@ -22,8 +22,8 @@ class UpdateStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:statuses,name,'.$this->route('status').',id'],
-            'context' => ['sometimes', 'required', 'string', 'max:255', 'unique:statuses,context,'.$this->route('status').',id'],
+            'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:statuses,name,' . $this->route('status') . ',id'],
+            'context' => ['sometimes', 'required', 'string', 'max:255', 'unique:statuses,context,' . $this->route('status') . ',id'],
             'bg_color' => ['sometimes', 'required', 'string', 'max:255'],
             'text_color' => ['sometimes', 'required', 'string', 'max:255'],
         ];
@@ -37,7 +37,7 @@ class UpdateStatusRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation errors',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

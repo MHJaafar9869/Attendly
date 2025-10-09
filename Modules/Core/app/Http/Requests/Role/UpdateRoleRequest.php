@@ -2,9 +2,9 @@
 
 namespace Modules\Core\Http\Requests\Role;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
 class UpdateRoleRequest extends FormRequest
 {
@@ -22,7 +22,7 @@ class UpdateRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:roles,name,'.$this->route('role').',id'],
+            'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:roles,name,' . $this->route('role') . ',id'],
         ];
     }
 
@@ -34,7 +34,7 @@ class UpdateRoleRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation errors',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

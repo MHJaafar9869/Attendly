@@ -29,7 +29,7 @@ class TypeController extends Controller
         return $this->respondWithData(TypeResource::collection($data), 'Type list retrieved successfully');
     }
 
-    public function show(int|string $id): JsonResponse
+    public function show(int | string $id): JsonResponse
     {
         $data = $this->typeRepo->find($id);
         if (! $data) {
@@ -46,14 +46,14 @@ class TypeController extends Controller
         return $this->respondWithData(TypeResource::make($data), 'Type created successfully', 201);
     }
 
-    public function update(UpdateTypeRequest $request, int|string $id): JsonResponse
+    public function update(UpdateTypeRequest $request, int | string $id): JsonResponse
     {
         $data = $this->typeRepo->update($id, $request->validated());
 
         return $this->respondWithData(TypeResource::make($data), 'Type updated successfully');
     }
 
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(int | string $id): JsonResponse
     {
         $this->typeRepo->delete($id);
 

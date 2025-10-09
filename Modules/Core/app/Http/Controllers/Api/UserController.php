@@ -31,7 +31,7 @@ class UserController extends Controller
         return $this->respondWithData(UserResource::collection($data), 'User list retrieved successfully');
     }
 
-    public function show(int|string $id): JsonResponse
+    public function show(int | string $id): JsonResponse
     {
         $data = $this->userRepo->find($id);
 
@@ -49,14 +49,14 @@ class UserController extends Controller
         return $this->respondWithData(UserResource::make($data), 'User created successfully', 201);
     }
 
-    public function update(UpdateUserRequest $request, int|string $id): JsonResponse
+    public function update(UpdateUserRequest $request, int | string $id): JsonResponse
     {
         $data = $this->userRepo->update($id, $request->validated());
 
         return $this->respondWithData(UserResource::make($data), 'User updated successfully');
     }
 
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(int | string $id): JsonResponse
     {
         $this->userRepo->delete($id);
 

@@ -2,7 +2,6 @@
 
 namespace Modules\Core\Repositories\Permission;
 
-use Modules\Core\Repositories\Permission\PermissionRepositoryInterface;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Core\Models\Permission;
 

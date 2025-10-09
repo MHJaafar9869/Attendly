@@ -23,7 +23,7 @@ class RequestGeneratorService
 
         // Base folder for Requests
         $baseFolder = module_path($module, 'app/Http/Requests');
-        $modelFolder = $baseFolder."/{$model}";
+        $modelFolder = $baseFolder . "/{$model}";
 
         // Ensure Requests directory exists
         if (! File::isDirectory($baseFolder)) {
@@ -110,11 +110,7 @@ class RequestGeneratorService
                 // Unique constraint detection (skip foreign keys)
                 $indexes = DB::select("SHOW INDEX FROM {$table} WHERE Column_name='{$column}' AND Non_unique=0");
                 if (! empty($indexes) && ! Str::endsWith($column, '_id')) {
-                    if ($isUpdate) {
-                        $ruleSet[] = "unique:{$table},{$column},'.\$this->route('{$routeParam}').',id";
-                    } else {
-                        $ruleSet[] = "unique:{$table},{$column}";
-                    }
+                    $ruleSet[] = $isUpdate ? "unique:{$table},{$column},'.\$this->route('{$routeParam}').',id" : "unique:{$table},{$column}";
                 }
 
                 // Add required/nullable logic
@@ -124,12 +120,10 @@ class RequestGeneratorService
                     } else {
                         array_unshift($ruleSet, 'sometimes', 'required');
                     }
+                } elseif ($isNullable) {
+                    array_unshift($ruleSet, 'nullable');
                 } else {
-                    if ($isNullable) {
-                        array_unshift($ruleSet, 'nullable');
-                    } else {
-                        array_unshift($ruleSet, 'required');
-                    }
+                    array_unshift($ruleSet, 'required');
                 }
 
                 $rules[$column] = $ruleSet;

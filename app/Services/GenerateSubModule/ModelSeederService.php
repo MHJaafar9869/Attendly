@@ -177,12 +177,10 @@ class {$module}DatabaseSeeder extends Seeder
         $content = File::get($moduleSeederPath);
         $seederClass = "{$model}\\{$model}Seeder::class";
 
-        if (! str_contains($content, $seederClass)) {
-            if (preg_match('/public function run\(\): void\s*\{/', $content, $matches, PREG_OFFSET_CAPTURE)) {
-                $pos = $matches[0][1] + strlen($matches[0][0]);
-                $content = substr_replace($content, "\n        \$this->call({$seederClass});", $pos, 0);
-                File::put($moduleSeederPath, $content);
-            }
+        if (! str_contains($content, $seederClass) && preg_match('/public function run\(\): void\s*\{/', $content, $matches, PREG_OFFSET_CAPTURE)) {
+            $pos = $matches[0][1] + strlen($matches[0][0]);
+            $content = substr_replace($content, "\n        \$this->call({$seederClass});", $pos, 0);
+            File::put($moduleSeederPath, $content);
         }
     }
 

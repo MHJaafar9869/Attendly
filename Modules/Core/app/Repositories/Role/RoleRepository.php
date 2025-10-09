@@ -2,7 +2,6 @@
 
 namespace Modules\Core\Repositories\Role;
 
-use Modules\Core\Repositories\Role\RoleRepositoryInterface;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Core\Models\Role;
 

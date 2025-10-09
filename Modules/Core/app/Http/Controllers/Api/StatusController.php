@@ -29,7 +29,7 @@ class StatusController extends Controller
         return $this->respondWithData(StatusResource::collection($data), 'Status list retrieved successfully');
     }
 
-    public function show(int|string $id): JsonResponse
+    public function show(int | string $id): JsonResponse
     {
         $data = $this->statusRepo->find($id);
         if (! $data) {
@@ -46,14 +46,14 @@ class StatusController extends Controller
         return $this->respondWithData(StatusResource::make($data), 'Status created successfully', 201);
     }
 
-    public function update(UpdateStatusRequest $request, int|string $id): JsonResponse
+    public function update(UpdateStatusRequest $request, int | string $id): JsonResponse
     {
         $data = $this->statusRepo->update($id, $request->validated());
 
         return $this->respondWithData(StatusResource::make($data), 'Status updated successfully');
     }
 
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(int | string $id): JsonResponse
     {
         $this->statusRepo->delete($id);
 

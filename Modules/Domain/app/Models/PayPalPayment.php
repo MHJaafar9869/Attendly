@@ -26,10 +26,6 @@ class PayPalPayment extends Model
         'status_id',
     ];
 
-    protected $casts = [
-        'product_data' => 'array',
-    ];
-
     // protected static function newFactory(): PayPalPaymentFactory
     // {
     //     // return PayPalPaymentFactory::new();
@@ -55,5 +51,12 @@ class PayPalPayment extends Model
     public function status()
     {
         return $this->belongsTo(Status::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'product_data' => 'array',
+        ];
     }
 }

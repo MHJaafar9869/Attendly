@@ -2,9 +2,9 @@
 
 namespace Modules\Core\Http\Requests\User;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -24,9 +24,9 @@ class UpdateUserRequest extends FormRequest
         return [
             'first_name' => ['sometimes', 'required', 'string', 'max:255'],
             'last_name' => ['sometimes', 'required', 'string', 'max:255'],
-            'slug_name' => ['nullable', 'sometimes', 'string', 'max:255', 'unique:users,slug_name,'.$this->route('user').',id'],
-            'email' => ['sometimes', 'required', 'string', 'max:255', 'unique:users,email,'.$this->route('user').',id'],
-            'phone' => ['nullable', 'sometimes', 'string', 'max:255', 'unique:users,phone,'.$this->route('user').',id'],
+            'slug_name' => ['nullable', 'sometimes', 'string', 'max:255', 'unique:users,slug_name,' . $this->route('user') . ',id'],
+            'email' => ['sometimes', 'required', 'string', 'max:255', 'unique:users,email,' . $this->route('user') . ',id'],
+            'phone' => ['nullable', 'sometimes', 'string', 'max:255', 'unique:users,phone,' . $this->route('user') . ',id'],
             'password' => ['sometimes', 'required', 'string', 'max:255'],
             'address' => ['nullable', 'sometimes', 'string'],
             'city' => ['nullable', 'sometimes', 'string', 'max:255'],
@@ -52,7 +52,7 @@ class UpdateUserRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation errors',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

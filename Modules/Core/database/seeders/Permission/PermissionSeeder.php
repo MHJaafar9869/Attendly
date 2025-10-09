@@ -10,23 +10,23 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         Permission::firstOrCreate([
-                'name' => 'Sample name 1',
+            'name' => 'Sample name 1',
         ]);
 
         Permission::firstOrCreate([
-                'name' => 'Sample name 2',
+            'name' => 'Sample name 2',
         ]);
 
         Permission::firstOrCreate([
-                'name' => 'Sample name 3',
+            'name' => 'Sample name 3',
         ]);
 
         Permission::firstOrCreate([
-                'name' => 'Sample name 4',
+            'name' => 'Sample name 4',
         ]);
 
         Permission::firstOrCreate([
-                'name' => 'Sample name 5',
+            'name' => 'Sample name 5',
         ]);
 
     }

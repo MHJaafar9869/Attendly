@@ -10,6 +10,7 @@ use App\Services\GenerateSubModule\ProviderBindService;
 use App\Services\GenerateSubModule\RepositoryGeneratorService;
 use App\Services\GenerateSubModule\RequestGeneratorService;
 use App\Services\GenerateSubModule\ResourceGeneratorService;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
@@ -60,7 +61,7 @@ class GenerateSubModule extends Command
         $modelsInput = $this->argument('models'); // e.g. "User,Post,Comment"
         $messages = [];
 
-        $models = $models = str_contains($modelsInput, ',') !== false
+        $models = $models = str_contains($modelsInput, ',')
             ? array_map('trim', explode(',', rtrim($modelsInput, ',')))
             : [$modelsInput];
 
@@ -71,10 +72,10 @@ class GenerateSubModule extends Command
         // Determine which services to run
         $services = $this->serviceMap;
 
-        if (! empty($only)) {
+        if ($only !== []) {
             $invalid = array_diff($only, array_keys($this->serviceMap));
-            if (! empty($invalid)) {
-                $this->error('Invalid --only options: '.implode(', ', $invalid));
+            if ($invalid !== []) {
+                $this->error('Invalid --only options: ' . implode(', ', $invalid));
 
                 return SymfonyCommand::FAILURE;
             }
@@ -86,10 +87,10 @@ class GenerateSubModule extends Command
             );
         }
 
-        if (! empty($except)) {
+        if ($except !== []) {
             $invalid = array_diff($except, array_keys($this->serviceMap));
-            if (! empty($invalid)) {
-                $this->error('Invalid --except options: '.implode(', ', $invalid));
+            if ($invalid !== []) {
+                $this->error('Invalid --except options: ' . implode(', ', $invalid));
 
                 return SymfonyCommand::FAILURE;
             }
@@ -108,10 +109,10 @@ class GenerateSubModule extends Command
                     $messages[] = $key === 'controller'
                         ? $service::generate($module, $model, $softDeletes)
                         : $service::generate($module, $model);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $messages[] = [
                         'status' => 'failed',
-                        'message' => "Exception in {$key} for model {$model}: ".$e->getMessage(),
+                        'message' => "Exception in {$key} for model {$model}: " . $e->getMessage(),
                     ];
                 }
             }
@@ -122,16 +123,21 @@ class GenerateSubModule extends Command
             switch ($msg['status']) {
                 case 'success':
                     $this->info($msg['message']);
+
                     break;
                 case 'exists':
                     $this->line($msg['message']);
+
                     break;
                 case 'failed':
                     $this->error($msg['message']);
+
                     break;
             }
         }
 
         Artisan::call('optimize');
+
+        return null;
     }
 }

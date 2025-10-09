@@ -15,7 +15,8 @@ use Modules\Core\Notifications\SendOtp;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
-    use OTP, ResponseArray;
+    use OTP;
+    use ResponseArray;
 
     public function __construct(User $model)
     {
@@ -32,7 +33,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         $request['password'] = Hash::make($request['password']);
         $request['role_id'] ??= 4;
         $request['status_id'] = 1;
-        $request['slug_name'] = Str::slug($request['first_name'].' '.$request['last_name']).'-'.uniqid();
+        $request['slug_name'] = Str::slug($request['first_name'] . ' ' . $request['last_name']) . '-' . uniqid();
         $user = $this->create($request);
 
         $otp = $this->generateOtp();
@@ -53,7 +54,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         ]);
     }
 
-    public function verifyOtp(string|int $userId, string $otp, ?bool $remember = false): array
+    public function verifyOtp(string | int $userId, string $otp, ?bool $remember = false): array
     {
         $user = $this->find($userId);
 

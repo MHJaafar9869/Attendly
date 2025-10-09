@@ -29,7 +29,7 @@ class RoleController extends Controller
         return $this->respondWithData(RoleResource::collection($data), 'Role list retrieved successfully');
     }
 
-    public function show(int|string $id): JsonResponse
+    public function show(int | string $id): JsonResponse
     {
         $data = $this->roleRepo->find($id);
         if (! $data) {
@@ -46,14 +46,14 @@ class RoleController extends Controller
         return $this->respondWithData(RoleResource::make($data), 'Role created successfully', 201);
     }
 
-    public function update(UpdateRoleRequest $request, int|string $id): JsonResponse
+    public function update(UpdateRoleRequest $request, int | string $id): JsonResponse
     {
         $data = $this->roleRepo->update($id, $request->validated());
 
         return $this->respondWithData(RoleResource::make($data), 'Role updated successfully');
     }
 
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(int | string $id): JsonResponse
     {
         $this->roleRepo->delete($id);
 

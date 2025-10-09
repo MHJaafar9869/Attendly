@@ -2,9 +2,9 @@
 
 namespace Modules\Core\Http\Requests\Type;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
 class UpdateTypeRequest extends FormRequest
 {
@@ -22,8 +22,8 @@ class UpdateTypeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:types,name,'.$this->route('type').',id'],
-            'context' => ['sometimes', 'required', 'string', 'max:255', 'unique:types,context,'.$this->route('type').',id'],
+            'name' => ['sometimes', 'required', 'string', 'max:255', 'unique:types,name,' . $this->route('type') . ',id'],
+            'context' => ['sometimes', 'required', 'string', 'max:255', 'unique:types,context,' . $this->route('type') . ',id'],
             'text_color' => ['sometimes', 'required', 'string', 'max:255'],
             'bg_color' => ['sometimes', 'required', 'string', 'max:255'],
         ];
@@ -37,7 +37,7 @@ class UpdateTypeRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation errors',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

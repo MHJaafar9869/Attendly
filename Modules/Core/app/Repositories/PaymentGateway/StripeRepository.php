@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Modules\Core\Repositories\PaymentGateway;
 
 use App\Repositories\BaseRepository\BaseRepository;
+use Exception;
 use Modules\Core\Models\StripePayment;
+use Stripe\Account;
+use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentIntent;
+use Stripe\Refund;
 use Stripe\StripeClient;
 
 class StripeRepository extends BaseRepository implements PaymentGatewayRepositoryInterface
@@ -17,7 +22,7 @@ class StripeRepository extends BaseRepository implements PaymentGatewayRepositor
         parent::__construct($payment);
     }
 
-    public function charge(string $customerId, string $ownerId, int $amount, array $productData): \Stripe\PaymentIntent
+    public function charge(string $customerId, string $ownerId, int $amount, array $productData): PaymentIntent
     {
         $payment = $this->create([
             'merchant_id' => $ownerId,
@@ -46,16 +51,17 @@ class StripeRepository extends BaseRepository implements PaymentGatewayRepositor
 
             return $paymentIntent;
 
-        } catch (\Stripe\Exception\ApiErrorException $e) {
+        } catch (ApiErrorException $e) {
             $this->update($payment->id, [
                 'status' => 'failed',
                 'error_message' => $e->getMessage(),
             ]);
+
             throw $e;
         }
     }
 
-    public function refund(string $transactionId, int $amount): \Stripe\Refund
+    public function refund(string $transactionId, int $amount): Refund
     {
         $refund = $this->stripe->refunds->create([
             'payment_intent' => $transactionId,
@@ -77,12 +83,12 @@ class StripeRepository extends BaseRepository implements PaymentGatewayRepositor
                 'available' => $balance->available,
                 'pending' => $balance->pending,
             ];
-        } catch (\Stripe\Exception\ApiErrorException $e) {
-            throw new \Exception('Failed to retrieve balance: '.$e->getMessage());
+        } catch (ApiErrorException $e) {
+            throw new Exception('Failed to retrieve balance: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
-    public function createAccount(array $options = []): \Stripe\Account
+    public function createAccount(array $options = []): Account
     {
         try {
             $account = $this->stripe->accounts->create(array_merge([
@@ -108,8 +114,8 @@ class StripeRepository extends BaseRepository implements PaymentGatewayRepositor
 
             return $account;
 
-        } catch (\Stripe\Exception\ApiErrorException $e) {
-            throw new \Exception('Failed to create account: '.$e->getMessage());
+        } catch (ApiErrorException $e) {
+            throw new Exception('Failed to create account: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 }

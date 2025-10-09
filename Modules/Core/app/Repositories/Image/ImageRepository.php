@@ -2,7 +2,6 @@
 
 namespace Modules\Core\Repositories\Image;
 
-use Modules\Core\Repositories\Image\ImageRepositoryInterface;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Core\Models\Image;
 
