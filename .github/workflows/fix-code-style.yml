@@ -1,16 +1,14 @@
-name: fix-code-style
+name: fix-code-syntax
 
 on:
   push:
 
 jobs:
-  fix-code-style:
+  fix-code-syntax:
     runs-on: ubuntu-latest
-
     permissions:
-      contents: write # required for committing changes
+      contents: write
       pull-requests: write
-
     steps:
       - name: 🧩 Checkout code
         uses: actions/checkout@v4
@@ -22,8 +20,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.4
-          tools: composer
-          coverage: none
 
       - name: 🧱 Set up Node.js
         uses: actions/setup-node@v3
@@ -32,17 +28,14 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          composer install --no-interaction --no-progress
+          composer install --optimize-autoloader --no-progress --no-interaction --prefer-dist
           npm ci
 
-      - name: 🧹 Run Rector
-        run: composer rector -- --no-interaction
+      - name: Lint Application
+        run: composer lint
 
-      - name: 🎨 Run Laravel Pint
-        run: composer pint -- --verbose
-
-      - name: 💅 Run Prettier
-        run: npm run prettier -- --write .
+      - name: Run Prettier
+        run: npm run prettier
 
       - name: ✅ Check for changes
         id: git_diff

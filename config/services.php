@@ -36,7 +36,7 @@ return [
     ],
 
     'gateways' => [
-        'default' => '',
+        'default' => env('DEFAULT_GATEWAY'),
 
         'stripe' => [
             'secret' => env('STRIPE_SECRET'),

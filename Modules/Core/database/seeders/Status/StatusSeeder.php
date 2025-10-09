@@ -9,34 +9,47 @@ class StatusSeeder extends Seeder
 {
     public function run(): void
     {
-        Status::firstOrCreate([
-            'name' => 'Pending Verification',
-            'context' => 'user',
-            'color' => '#f59e0b', // amber
-        ]);
+        $statuses = [
+            [
+                'name' => 'Pending Verification',
+                'context' => 'user',
+                'bg_color' => '#f59e0b', // amber
+                'text_color' => '#78350f', // darker amber
+            ],
+            [
+                'name' => 'Active',
+                'context' => 'user',
+                'bg_color' => '#10b981', // green
+                'text_color' => '#064e3b', // darker green
+            ],
+            [
+                'name' => 'Inactive',
+                'context' => 'user',
+                'bg_color' => '#6b7280', // gray
+                'text_color' => '#1f2937', // dark gray
+            ],
+            [
+                'name' => 'Suspended',
+                'context' => 'user',
+                'bg_color' => '#ef4444', // red
+                'text_color' => '#7f1d1d', // deep red
+            ],
+            [
+                'name' => 'Banned',
+                'context' => 'user',
+                'bg_color' => '#7f1d1d', // dark red
+                'text_color' => '#450a0a', // darker variant
+            ],
+        ];
 
-        Status::firstOrCreate([
-            'name' => 'Active',
-            'context' => 'user',
-            'color' => '#10b981', // green
-        ]);
-
-        Status::firstOrCreate([
-            'name' => 'Inactive',
-            'context' => 'user',
-            'color' => '#6b7280', // gray
-        ]);
-
-        Status::firstOrCreate([
-            'name' => 'Suspended',
-            'context' => 'user',
-            'color' => '#ef4444', // red
-        ]);
-
-        Status::firstOrCreate([
-            'name' => 'Banned',
-            'context' => 'user',
-            'color' => '#7f1d1d', // dark red
-        ]);
+        foreach ($statuses as $status) {
+            Status::firstOrCreate(
+                ['name' => $status['name'], 'context' => $status['context']],
+                [
+                    'bg_color' => $status['bg_color'],
+                    'text_color' => $status['text_color'],
+                ]
+            );
+        }
     }
 }

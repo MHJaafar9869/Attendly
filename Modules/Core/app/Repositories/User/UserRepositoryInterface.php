@@ -13,5 +13,7 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
 
     public function verifyOtp(string|int $userId, string $otp, ?bool $remember = false);
 
+    public function forgotPassword(array $credentials);
+
     public function resetPassword(User $user, string $password, string $oldPassword, string $token);
 }

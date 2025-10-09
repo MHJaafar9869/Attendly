@@ -2,11 +2,15 @@
 
 namespace Modules\Domain\Providers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\Domain\Repositories\PaymentGateway\PaymentGatewayRepositoryInterface;
+use Modules\Domain\Services\PaymentGatewayService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Stripe\StripeClient;
 
 class DomainServiceProvider extends ServiceProvider
 {
@@ -36,6 +40,12 @@ class DomainServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        $this->app->singleton(StripeClient::class, fn ($app) => new StripeClient(config('services.gateways.stripe.secret')));
+        $this->app->bind(function ($app): PaymentGatewayRepositoryInterface {
+            $gateway = $app->make(Request::class)->input('gateway', config('services.gateways.default', 'stripe'));
+
+            return $app->make(PaymentGatewayService::class)->resolve($gateway);
+        });
     }
 
     /**
@@ -129,7 +139,7 @@ class DomainServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->nameLower);
 
-        Blade::componentNamespace(config('modules.namespace').'\\' . $this->name . '\\View\\Components', $this->nameLower);
+        Blade::componentNamespace(config('modules.namespace').'\\'.$this->name.'\\View\\Components', $this->nameLower);
     }
 
     /**

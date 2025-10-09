@@ -24,10 +24,14 @@ class ResetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'token' => 'required|string',
-            'username' => 'required|username|exists:users,username',
-            'password' => ['required', 'confirmed', 'different:old_password', Password::defaults(), new StrongPassword($this->input('username'))],
-            'old_password' => ['sometimes', 'required', 'string'],
+            'new_password' => [
+                'required',
+                'confirmed',
+                'different:old_password',
+                Password::defaults(),
+                new StrongPassword(username: $this->input('first_name').' '.$this->input('last_name')),
+            ],
+            'old_password' => ['required', 'string'],
         ];
     }
 
@@ -37,6 +41,6 @@ class ResetPasswordRequest extends FormRequest
             'success' => false,
             'message' => 'Validation errors',
             'error' => $validator->errors(),
-        ]));
+        ], 422));
     }
 }

@@ -1,5 +1,6 @@
 includes:
     - vendor/larastan/larastan/extension.neon
+	- phpstan-stubs/JWTGuard.stub
 
 parameters:
     paths:
@@ -8,3 +9,6 @@ parameters:
     level: 5
     tips:
         treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        - '#Trait App\\Traits\\HasImages is used zero times#'
+        - '#Trait App\\Traits\\UploadFile is used zero times#'

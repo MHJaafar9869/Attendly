@@ -1,25 +1,39 @@
+# Logs
 *.log
+
+# System files
 .DS_Store
+Thumbs.db
+
+# Environment files
 .env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
+.db_encription
+
+# IDE / Editor configs
 /.fleet
 /.idea
 /.nova
 /.phpunit.cache
 /.vscode
 /.zed
+/.cursor
+.phpactor.json
+
+# PHPUnit
+.phpunit.result.cache
+
+# Composer auth
 /auth.json
+
+# Node / vendor / build folders
 /node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
 /vendor
+/public
+/storage
+
+# Homestead configs
 Homestead.json
 Homestead.yaml
-Thumbs.db
 /skeleton-todo-list.md

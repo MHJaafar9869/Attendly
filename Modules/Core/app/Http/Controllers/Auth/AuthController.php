@@ -7,6 +7,7 @@ use App\Traits\OTP;
 use App\Traits\ResponseJson;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Core\Http\Requests\Auth\ForgotPasswordRequest;
 use Modules\Core\Http\Requests\Auth\LoginRequest;
 use Modules\Core\Http\Requests\Auth\RegisterRequest;
 use Modules\Core\Http\Requests\Auth\ResetPasswordRequest;
@@ -27,7 +28,7 @@ class AuthController extends Controller
     public function __construct(
         protected UserRepositoryInterface $userRepo
     ) {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'verifyOtp']]);
+        $this->middleware('auth-user', ['except' => ['login', 'register', 'verifyOtp', 'forgotPassword']]);
     }
 
     /**
@@ -40,8 +41,8 @@ class AuthController extends Controller
         $user = $this->userRepo->findByEmail($credentials['email']);
 
         try {
-            if (! $user->is_verified) {
-                return $this->respondError('Email isn\'t verified');
+            if (! $user->email_verified_at) {
+                return $this->respondError('Email is not verified');
             }
 
             if ($remember) {
@@ -52,7 +53,9 @@ class AuthController extends Controller
                 return $this->respondError('Invalid credentials', 401);
             }
 
-            $user = jwtGuard()->user()->load('roles');
+            $user = jwtGuard()->user()->load(['roles.permissions', 'status']);
+            $user->last_visited_at = now();
+            $user->save();
 
             return $this->respondWithToken($token, $user, 'Login Successful');
         } catch (JWTException $e) {
@@ -64,7 +67,10 @@ class AuthController extends Controller
     {
         $response = $this->userRepo->register($request->validated());
 
-        return $this->respondWithData($response['data'], $response['message']);
+        return $this->respondWithData([
+            'user' => $response['data']['user'],
+            'authorization' => $response['data']['authorization'],
+        ], $response['message']);
     }
 
     public function verifyOtp(Request $request, string $otp, string $id)
@@ -80,7 +86,7 @@ class AuthController extends Controller
      */
     public function me(): JsonResponse
     {
-        return $this->respondWithData(UserResource::make(auth()->user()));
+        return $this->respondWithData(UserResource::make(jwtGuard()->user()));
     }
 
     /**
@@ -111,13 +117,24 @@ class AuthController extends Controller
         }
     }
 
+    public function forgotPassword(ForgotPasswordRequest $request)
+    {
+        $validated = $request->validated();
+        $result = $this->userRepo->forgotPassword($validated);
+        $method = $result['success']
+            ? 'respondSuccess'
+            : 'respondError';
+
+        return $this->{$method}($result['message']);
+    }
+
     public function resetPassword(ResetPasswordRequest $request, int|string $id)
     {
         $validated = $request->validated();
 
         try {
-            $response = $this->userRepo->resetPassword(
-                auth()->user(),
+            $result = $this->userRepo->resetPassword(
+                jwtGuard()->user(),
                 $validated['password'],
                 $validated['old_password'],
                 $validated['token']
@@ -126,9 +143,9 @@ class AuthController extends Controller
             return $this->respondError("Failed to reset password, with error(s): {$e->getMessage()}");
         }
 
-        $response['status'] === 'success'
-          ? $this->respondSuccess($response['message'])
-          : $this->respondError($response['message'], 422);
+        $method = $result['success'] ? 'respondSuccess' : 'respondError';
+
+        return $this->{$method}($result['message'], $result['status']);
     }
 
     /**
@@ -137,10 +154,12 @@ class AuthController extends Controller
     protected function respondWithToken(string $token, ?User $user = null, ?string $message = null): JsonResponse
     {
         $data = [
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => jwtGuard()->factory()->getTTL() * 60,
-            'user' => new UserResource($user ?? auth()->user()),
+            'authorization' => [
+                'token_type' => 'bearer',
+                'expires_in_sec' => jwtGuard()->factory()->getTTL() * 60,
+                'token' => $token,
+            ],
+            'user' => new UserResource($user ?? jwtGuard()->user()),
         ];
 
         if ($message) {

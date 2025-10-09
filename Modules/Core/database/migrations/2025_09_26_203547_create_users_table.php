@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Core\Models\Status;
 
 return new class extends Migration
 {
@@ -25,9 +26,8 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->string('city')->nullable();
             $table->string('country')->nullable();
-            $table->boolean('is_verified')->default(0);
 
-            $table->foreignId('status_id')->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Status::class)->nullable()->constrained()->nullOnDelete();
             $table->text('device')->nullable();
 
             $table->unsignedBigInteger('token_version')->default(1);
@@ -44,6 +44,7 @@ return new class extends Migration
             $table->index('slug_name');
             $table->index('last_visited_at');
             $table->index('deleted_at');
+            $table->unique(['first_name', 'last_name']);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

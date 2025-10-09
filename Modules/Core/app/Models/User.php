@@ -2,6 +2,9 @@
 
 namespace Modules\Core\Models;
 
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,9 +14,12 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 // use Modules\Core\Database\Factories\UserFactory;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
 {
-    use HasFactory, HasUlids, Notifiable, SoftDeletes;
+    use HasFactory;
+    use HasUlids;
+    use Notifiable;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -51,7 +57,7 @@ class User extends Authenticatable implements JWTSubject
 
     /*
     |--------------------------------------------------------------------------
-    |  JWT
+    |  JWT & Filament
     |--------------------------------------------------------------------------
     |
     */
@@ -75,6 +81,16 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasRole('super_admin');
+    }
+
+    public function getFilamentName(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
     /*
     |--------------------------------------------------------------------------
     |  Relations
@@ -87,19 +103,19 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Role::class, 'user_roles');
     }
 
-    public function permissions()
-    {
-        return $this->belongsToMany(Permission::class, 'user_permissions');
-    }
-
     public function status()
     {
         return $this->belongsTo(Status::class);
     }
 
-    public function actions()
+    public function userActions()
     {
         return $this->belongsToMany(Action::class, 'user_actions');
+    }
+
+    public function images()
+    {
+        return $this->morphMany(Image::class, 'imageable', 'imageable_type', 'imageable_id');
     }
 
     /*
@@ -123,9 +139,8 @@ class User extends Authenticatable implements JWTSubject
     public function hasPermission(string $permission): bool
     {
         $rolePermissions = $this->roles->flatMap->permissions->pluck('name')->map(fn ($p) => strtolower($p));
-        $userPermissions = $this->permissions->pluck('name')->map(fn ($p) => strtolower($p));
 
-        return $rolePermissions->contains(strtolower($permission)) || $userPermissions->contains(strtolower($permission));
+        return $rolePermissions->contains(strtolower($permission));
     }
 
     public function getRoles(): array
@@ -135,9 +150,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function getPermissions(): array
     {
-        $userPermissions = $this->permissions->pluck('name')->toArray();
-        $rolePermissions = $this->roles->flatMap->permissions->pluck('name')->toArray();
-
-        return $rolePermissions->merge($userPermissions)->unique()->toArray();
+        return $this->roles->flatMap->permissions->pluck('name')->toArray();
     }
 }

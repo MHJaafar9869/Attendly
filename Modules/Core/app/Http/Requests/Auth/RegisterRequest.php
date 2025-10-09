@@ -30,7 +30,7 @@ class RegisterRequest extends FormRequest
             'phone' => ['sometimes', 'nullable', 'regex:/^\+?[0-9]{7,15}$/', 'unique:users,phone'],
             'role_id' => ['sometimes', 'nullable', 'integer', 'exists:roles,id'],
             'type_id' => ['sometimes', 'nullable', 'integer', 'exists:types,id'],
-            'password' => ['required', 'confirmed', Password::defaults(), new StrongPassword(username: $this->input('name'))],
+            'password' => ['required', 'confirmed', Password::defaults(), new StrongPassword(username: $this->input('first_name').' '.$this->input('last_name'))],
         ];
     }
 
@@ -40,6 +40,6 @@ class RegisterRequest extends FormRequest
             'success' => false,
             'message' => 'Validation errors',
             'errors' => $validator->errors(),
-        ]));
+        ], 422));
     }
 }

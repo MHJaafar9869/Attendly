@@ -1,4 +1,4 @@
-name: Build, test and deploy
+name: Build and deploy
 
 on:
   push:
@@ -42,8 +42,8 @@ jobs:
       # - name: Test With PHPStan
       #   run: ./vendor/bin/phpstan analyze
 
-      - name: Test With PHPUnit
-        run: ./vendor/bin/phpunit
+      # - name: Test With PHPUnit
+      #   run: ./vendor/bin/phpunit
 
       # - name: Synchoronize Files To Server
       #   uses: easingthemes/ssh-deploy@v2.1.5

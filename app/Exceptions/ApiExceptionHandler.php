@@ -4,56 +4,47 @@ declare(strict_types=1);
 
 namespace App\Exceptions;
 
+use App\Traits\ResponseJson;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Throwable;
 
 class ApiExceptionHandler extends Exception
 {
-    public function handleApiException(Throwable $e, Request $request)
+    use ResponseJson;
+
+    public function handleApiException(Throwable $e)
     {
         if ($e instanceof AuthenticationException) {
-            return response()->json([
-                'success' => false,
-                'status' => 401,
-                'message' => 'Unauthenticated',
-            ], 401);
+            return $this->respondError('Unauthenticated', 401);
         }
 
         if ($e instanceof AuthorizationException) {
-            return response()->json([
-                'success' => false,
-                'status' => 403,
-                'message' => 'Action is unauthorized',
-            ], 403);
+            return $this->respondError('Action is unauthorized', 403);
         }
 
-        if ($e instanceof ModelNotFoundException || $e instanceof NotFoundHttpException) {
-            return response()->json([
-                'success' => false,
-                'status' => 404,
-                'message' => 'Resource not found',
-            ], 404);
+        if ($e instanceof ModelNotFoundException) {
+            return $this->respondError('Model not found', 400);
+        }
+
+        if ($e instanceof NotFoundHttpException || $e instanceof RouteNotFoundException) {
+            return $this->respondError('Route not found', 500);
         }
 
         if ($e instanceof ValidationException) {
-            return response()->json([
-                'success' => false,
-                'status' => 422,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
+            return $this->respondError('Validation failed', 422);
         }
 
-        return response()->json([
-            'success' => false,
-            'status' => 500,
-            'message' => 'Internal server error',
-        ], 500);
+        if ($e instanceof MethodNotAllowedHttpException) {
+            return $this->respondError('Method not allowed', 405);
+        }
+
+        return $this->respondError('Internal server error', 500);
     }
 }

@@ -27,7 +27,7 @@ trait HasImages
     /**
      * Attach an image to this model.
      */
-    public function addImage(string $path, string $disk, string $mime, ?string $alt = null): Image
+    public function addImage(string $path, string $mime, string $disk = 'public', ?string $alt = null): Image
     {
         return $this->images()->create([
             'image_path' => $path,

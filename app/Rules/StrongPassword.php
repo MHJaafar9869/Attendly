@@ -9,7 +9,7 @@ class StrongPassword implements ValidationRule
 {
     public function __construct(
         protected ?string $username = null,
-        protected ?int $minLengthMatch = 3
+        protected ?int $minLengthMatch = 4
     ) {}
 
     /**
