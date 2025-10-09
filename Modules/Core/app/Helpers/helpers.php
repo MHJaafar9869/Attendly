@@ -12,6 +12,9 @@ if (! function_exists('jwtGuard')) {
      */
     function jwtGuard()
     {
-        return auth('api');
+        /** @var JWTGuard $guard */
+        $guard = auth('api');
+
+        return $guard;
     }
 }
