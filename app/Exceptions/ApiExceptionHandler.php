@@ -21,6 +21,10 @@ class ApiExceptionHandler extends Exception
 
     public function handleApiException(Throwable $e)
     {
+        if ($e instanceof ModelNotFoundException) {
+            return $this->respondError('Model not found', 400);
+        }
+
         if ($e instanceof AuthenticationException) {
             return $this->respondError('Unauthenticated', 401);
         }
@@ -29,20 +33,20 @@ class ApiExceptionHandler extends Exception
             return $this->respondError('Action is unauthorized', 403);
         }
 
-        if ($e instanceof ModelNotFoundException) {
-            return $this->respondError('Model not found', 400);
-        }
-
-        if ($e instanceof NotFoundHttpException || $e instanceof RouteNotFoundException) {
-            return $this->respondError('Route not found', 500);
-        }
-
-        if ($e instanceof ValidationException) {
-            return $this->respondError('Validation failed', 422);
+        if ($e instanceof NotFoundHttpException) {
+            return $this->respondError('Not found', 404);
         }
 
         if ($e instanceof MethodNotAllowedHttpException) {
             return $this->respondError('Method not allowed', 405);
+        }
+
+        if ($e instanceof ValidationException) {
+            return $this->respondError('Failed validation', 422);
+        }
+
+        if ($e instanceof RouteNotFoundException) {
+            return $this->respondError('Route not found', 500);
         }
 
         return $this->respondError('Internal server error', 500);

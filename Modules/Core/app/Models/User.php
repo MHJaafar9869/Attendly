@@ -28,7 +28,8 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
         'first_name', 'last_name', 'slug_name',
         'email', 'phone', 'password',
         'address', 'city', 'country',
-        'status_id', 'device',
+        'status_id', 'device', 'last_visited_at',
+        'email_verified_at',
     ];
 
     protected $hidden = [
@@ -36,15 +37,18 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
         'remember_token',
         'otp',
         'otp_expires_at',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'otp_expires_at' => 'datetime',
+            'email_verified_at' => 'datetime',
             'last_visited_at' => 'datetime',
             'password' => 'hashed',
+            'two_factor_recovery_codes' => 'array',
         ];
     }
 

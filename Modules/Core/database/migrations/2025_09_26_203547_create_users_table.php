@@ -34,6 +34,9 @@ return new class extends Migration
             $table->string('otp', 6)->nullable();
             $table->timestamp('otp_expires_at')->nullable();
 
+            $table->string('two_factor_secret')->nullable();
+            $table->json('two_factor_recovery_codes')->nullable();
+
             $table->timestamp('last_visited_at')->nullable();
             $table->timestamp('email_verified_at')->nullable();
 
