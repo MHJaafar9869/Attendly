@@ -20,6 +20,14 @@ class Image extends Model
         'flagged_by', 'flagged_at',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'is_flagged' => 'boolean',
+            'flagged_at' => 'datetime',
+        ];
+    }
+
     // protected static function newFactory(): ImageFactory
     // {
     //     // return ImageFactory::new();
@@ -40,13 +48,5 @@ class Image extends Model
     public function flagger()
     {
         return $this->belongsTo(User::class, 'flagged_by');
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'is_flagged' => 'boolean',
-            'flagged_at' => 'datetime',
-        ];
     }
 }
