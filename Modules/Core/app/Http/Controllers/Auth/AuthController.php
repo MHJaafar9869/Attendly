@@ -17,7 +17,7 @@ use Modules\Core\Repositories\User\UserRepositoryInterface;
 use Modules\Core\Transformers\User\UserResource;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
-class AuthController extends Controller
+final readonly class AuthController extends Controller
 {
     use OTP;
     use ResponseJson;
@@ -130,7 +130,7 @@ class AuthController extends Controller
         return $this->{$method}($result['message']);
     }
 
-    public function resetPassword(ResetPasswordRequest $request, int | string $id)
+    public function resetPassword(ResetPasswordRequest $request, int|string $id)
     {
         $validated = $request->validated();
 
@@ -153,12 +153,12 @@ class AuthController extends Controller
     /**
      * Get the token array structure.
      */
-    protected function respondWithToken(string $token, ?User $user = null, ?string $message = null): JsonResponse
+    private function respondWithToken(string $token, ?User $user = null, ?string $message = null): JsonResponse
     {
         $data = [
             'authorization' => [
                 'token_type' => 'bearer',
-                'expires_in_sec' => jwtGuard()->factory()->getTTL() * 60,
+                'expires_after_sec' => jwtGuard()->factory()->getTTL() * 60,
                 'token' => $token,
             ],
             'user' => new UserResource($user ?? jwtGuard()->user()),

@@ -9,7 +9,7 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 class StrongPassword implements ValidationRule
 {
     public function __construct(
-        protected ?string $username = null,
+        protected ?string $name = null,
         protected ?int $minLengthMatch = 4
     ) {}
 
@@ -20,11 +20,11 @@ class StrongPassword implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (! $this->username) {
+        if (! $this->name) {
             return;
         }
 
-        $parts = preg_split('/[^a-zA-Z0-9]/', $this->username);
+        $parts = preg_split('/[^a-zA-Z0-9]/', $this->name);
 
         foreach ($parts as $part) {
             $part = trim($part);
@@ -34,7 +34,7 @@ class StrongPassword implements ValidationRule
                     $substring = substr($part, $i, $this->minLengthMatch);
 
                     if (stripos($value, $substring) !== false) {
-                        $fail('The password must not contain parts of your username.');
+                        $fail('The password must not contain parts of your name.');
 
                         return;
                     }

@@ -33,7 +33,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         $request['password'] = Hash::make($request['password']);
         $request['role_id'] ??= 4;
         $request['status_id'] = 1;
-        $request['slug_name'] = Str::slug($request['first_name'] . ' ' . $request['last_name']) . '-' . uniqid();
+        $request['slug_name'] = Str::slug($request['first_name'].' '.$request['last_name']).'-'.uniqid();
         $user = $this->create($request);
 
         $otp = $this->generateOtp();
@@ -46,15 +46,16 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         $user->notify(new SendOtp($otp, $user->last_name));
 
         return $this->arrayResponseSuccess(message: 'otp sent successfully', data: [
-            'user' => $user,
             'authorization' => [
-                'token' => $token,
                 'type' => 'bearer',
+                'expires_after_sec' => jwtGuard()->factory()->getTTL() * 60,
+                'token' => $token,
             ],
+            'user' => $user,
         ]);
     }
 
-    public function verifyOtp(string | int $userId, string $otp, ?bool $remember = false): array
+    public function verifyOtp(string|int $userId, string $otp, ?bool $remember = false): array
     {
         $user = $this->find($userId);
 
@@ -107,10 +108,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     public function resetPassword(User $user, string $password, string $oldPassword, string $token): array
     {
-        if ($oldPassword !== '' && ! Hash::check($oldPassword, $user->password)) {
-            return $this->arrayResponseError('Old password is incorrect.', 422);
-        }
-
         $status = Password::reset(
             ['email' => $user->email, 'password' => $password, 'password_confirmation' => $password, 'token' => $token],
             function ($user, $password) {

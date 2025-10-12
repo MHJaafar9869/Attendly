@@ -46,7 +46,10 @@ return [
             'client_id' => env('PAYPAL_CLIENT_ID'),
             'secret' => env('PAYPAL_SECRET'),
         ],
+    ],
 
-        // ...
+    'huggingface' => [
+        'key' => env('HUGGINGFACE_API_KEY'),
+        'url' => 'https://api-inference.huggingface.co/models/',
     ],
 ];
