@@ -18,7 +18,7 @@ use Modules\Core\Repositories\User\UserRepositoryInterface;
 use Modules\Core\Transformers\User\UserResource;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
-class AuthController extends Controller
+final readonly class AuthController extends Controller
 {
     use OTP;
     use ResponseJson;
@@ -122,7 +122,7 @@ class AuthController extends Controller
         return $this->{$method}($result['message'], $result['status']);
     }
 
-    public function resetPassword(ResetPasswordRequest $request, int | string $id)
+    public function resetPassword(ResetPasswordRequest $request, int|string $id)
     {
         $validated = $request->validated();
 
