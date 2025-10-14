@@ -68,7 +68,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     {
         return DB::transaction(function () use ($data) {
             $data['status_id'] = 1;
-            $data['slug_name'] = Str::slug($data['first_name'].' '.$data['last_name']).'-'.uniqid();
+            $data['slug_name'] = Str::slug($data['first_name'] . ' ' . $data['last_name']) . '-' . uniqid();
             $user = $this->create($data);
 
             $otp = $this->generateOtp();
@@ -91,7 +91,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         });
     }
 
-    public function verifyOtp(string|int $userId, string $otp, ?bool $remember = false): array
+    public function verifyOtp(string | int $userId, string $otp, ?bool $remember = false): array
     {
         return DB::transaction(function () use ($userId, $otp, $remember) {
             $user = $this->find($userId);

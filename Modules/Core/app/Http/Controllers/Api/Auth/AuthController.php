@@ -122,7 +122,7 @@ final readonly class AuthController extends Controller
         return $this->{$method}($result['message'], $result['status']);
     }
 
-    public function resetPassword(ResetPasswordRequest $request, int|string $id)
+    public function resetPassword(ResetPasswordRequest $request, int | string $id)
     {
         $validated = $request->validated();
 
