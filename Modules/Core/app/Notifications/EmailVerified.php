@@ -7,18 +7,14 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SendOtp extends Notification implements ShouldQueue
+class EmailVerified extends Notification implements ShouldQueue
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(
-        protected string $otp,
-    ) {
-        // ....
-    }
+    public function __construct() {}
 
     /**
      * Get the notification's delivery channels.
@@ -34,11 +30,10 @@ class SendOtp extends Notification implements ShouldQueue
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Verify Your OTP')
+            ->subject('Email verification')
             ->greeting("Hello {$notifiable->last_name},")
-            ->line("Your one-time password (OTP) is: **{$this->otp}**")
-            ->action('Verify Now', url("api/v1/auth/{$notifiable->id}/verify-otp/{$this->otp}"))
-            ->line('This OTP will expire in 10 minutes.')
+            ->line('Email has been successfully verified.')
+            ->action('Redirect', url('dashboard'))
             ->line('If you did not request this, please ignore this message.')
             ->line('Thank you for using our application!');
     }

@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Middleware;
+declare(strict_types=1);
+
+namespace Modules\Core\Http\Middleware;
 
 use App\Traits\ResponseJson;
 use Closure;
@@ -25,6 +27,10 @@ class JwtAuthMiddleware
 
             if (! jwtGuard()->authenticate()) {
                 return $this->respondError('Unauthenticated', 401);
+            }
+
+            if (! $user->email_verified_at) {
+                return $this->respondError(`Email is not verified. Please verify you'r email first`);
             }
 
             if ($payload->get('token_version') !== $user->token_version) {

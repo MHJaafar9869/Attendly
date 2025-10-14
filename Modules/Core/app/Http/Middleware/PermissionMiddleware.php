@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Middleware;
+namespace Modules\Core\Http\Middleware;
 
 use App\Traits\ResponseJson;
 use Closure;

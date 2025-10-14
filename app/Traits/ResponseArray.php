@@ -6,30 +6,35 @@ trait ResponseArray
 {
     protected function respond(
         bool $success,
-        string $message,
-        ?string $status = null,
-        mixed $data = []
+        ?string $message = null,
+        ?int $status = 200,
+        ?array $data = null
     ): array {
-        return [
+        $response = [
             'success' => $success,
             'message' => $message,
             'status' => $status,
-            'data' => $data,
         ];
+
+        if ($data !== []) {
+            $response['data'] = $data;
+        }
+
+        return $response;
     }
 
     protected function arrayResponseSuccess(
         string $message = 'Request has been successful',
-        string $status = 'success',
+        int $status = 200,
         bool $success = true,
-        mixed $data = null
+        ?array $data = null
     ) {
         return $this->respond($success, $message, $status, $data);
     }
 
     protected function arrayResponseError(
         string $message = 'Request Failed',
-        string $status = 'failed',
+        int $status = 400,
         bool $success = false
     ) {
         return $this->respond($success, $message, $status);

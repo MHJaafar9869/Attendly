@@ -6,6 +6,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Modules\Core\Models\User;
+use Modules\Core\Transformers\User\UserResource;
 
 trait ResponseJson
 {
@@ -15,7 +17,7 @@ trait ResponseJson
     protected function respond(
         bool $success,
         ?string $message = null,
-        mixed $data = null,
+        ?array $data = null,
         int $status = 200,
         array $extra = [],
         bool $paginate = false,
@@ -26,24 +28,25 @@ trait ResponseJson
         ];
 
         if ($data !== null) {
-            if ($paginate && $data instanceof ResourceCollection) {
-                $collection = $data->resource;
-                $response['data'] = $collection->items();
-                $response['meta'] = [
-                    'total' => $collection->total(),
-                    'per_page' => $collection->perPage(),
-                    'current_page' => $collection->currentPage(),
-                    'last_page' => $collection->lastPage(),
-                ];
-            } elseif ($paginate && $data instanceof AbstractPaginator) {
+            if ($paginate && ($data instanceof AbstractPaginator || $data instanceof ResourceCollection)) {
                 /** @var LengthAwarePaginator $paginator */
                 $paginator = $data;
-                $response['data'] = $paginator->items();
-                $response['meta'] = [
-                    'total' => $paginator->total(),
-                    'per_page' => $paginator->perPage(),
-                    'current_page' => $paginator->currentPage(),
-                    'last_page' => $paginator->lastPage(),
+                $response[] = [
+                    'data' => $paginator->items(),
+                    'meta' => [
+                        'current_page' => $paginator->currentPage(),
+                        'per_page' => $paginator->perPage(),
+                        'from' => $paginator->firstItem(),
+                        'to' => $paginator->lastItem(),
+                        'total' => $paginator->total(),
+                        'last_page' => $paginator->lastPage(),
+                    ],
+                    'links' => [
+                        'first' => $paginator->url(1),
+                        'last' => $paginator->url($paginator->lastPage()),
+                        'prev' => $paginator->previousPageUrl(),
+                        'next' => $paginator->nextPageUrl(),
+                    ],
                 ];
             } else {
                 $response['data'] = $data;
@@ -90,7 +93,7 @@ trait ResponseJson
     /**
      * Error with optional data.
      */
-    protected function respondWithErrorData(string $message = 'Failed to retrieve data', mixed $data = null, int $status = 400): JsonResponse
+    protected function respondWithErrorData(string $message = 'Failed to retrieve data', ?array $data = null, int $status = 400): JsonResponse
     {
         return $this->respond(false, $message, $data, $status);
     }
@@ -101,5 +104,19 @@ trait ResponseJson
     protected function respondUnauthorized(string $message = 'Unauthorized', int $status = 401): JsonResponse
     {
         return $this->respond(false, $message, null, $status);
+    }
+
+    protected function respondWithToken(string $token, ?User $user = null, string $message = 'Token retrieved successfully'): JsonResponse
+    {
+        $data = [
+            'authorization' => [
+                'token_type' => 'bearer',
+                'expires_in_sec' => jwtGuard()->factory()->getTTL() * 60,
+                'token' => $token,
+            ],
+            'user' => new UserResource($user ?? jwtGuard()->user()),
+        ];
+
+        return $this->respond(true, $message, $data);
     }
 }

@@ -34,7 +34,7 @@ class ApiExceptionHandler extends Exception
         }
 
         if ($e instanceof NotFoundHttpException) {
-            return $this->respondError('Not found', 404);
+            return $this->respondError('Not found: ' . $e->getMessage(), 404);
         }
 
         if ($e instanceof MethodNotAllowedHttpException) {

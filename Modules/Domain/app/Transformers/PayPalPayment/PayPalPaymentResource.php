@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Transformers\PayPalPayment;
+namespace Modules\Domain\Transformers\PayPalPayment;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

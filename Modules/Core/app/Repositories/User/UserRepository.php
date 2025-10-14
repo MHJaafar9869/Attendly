@@ -6,11 +6,12 @@ use App\Repositories\BaseRepository\BaseRepository;
 use App\Traits\OTP;
 use App\Traits\ResponseArray;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Modules\Core\Models\User;
+use Modules\Core\Notifications\EmailVerified;
 use Modules\Core\Notifications\SendOtp;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
@@ -28,64 +29,104 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return $this->addQuery()->where('email', $email)->first();
     }
 
-    public function register(array $request): mixed
+    public function login(array $data)
     {
-        $request['password'] = Hash::make($request['password']);
-        $request['role_id'] ??= 4;
-        $request['status_id'] = 1;
-        $request['slug_name'] = Str::slug($request['first_name'] . ' ' . $request['last_name']) . '-' . uniqid();
-        $user = $this->create($request);
+        $user = $this->findByEmail($data['email']);
+        $remember = $data['remember'] ?? false;
 
-        $otp = $this->generateOtp();
-        $user->otp = $otp;
-        $user->otp_expires_at = now()->addMinutes(10);
+        if (! $user) {
+            return $this->arrayResponseError('User not found', 404);
+        }
+
+        if (! $user->email_verified_at) {
+            return $this->arrayResponseError('Email is not verified');
+        }
+
+        if (! $token = jwtGuard()->attempt($data)) {
+            return $this->arrayResponseError('Invalid credentials', 401);
+        }
+
+        if ($remember) {
+            jwtGuard()->factory()->setTTL(60 * 24 * 30); // 30 days
+        }
+
+        $user = jwtGuard()->user()->load(['roles.permissions', 'status']);
+        $user->last_visited_at = now();
         $user->save();
 
-        $token = Auth::login($user);
-
-        $user->notify(new SendOtp($otp, $user->last_name));
-
-        return $this->arrayResponseSuccess(message: 'otp sent successfully', data: [
+        return $this->arrayResponseSuccess('Login Successful', data: [
             'user' => $user,
             'authorization' => [
-                'token' => $token,
                 'type' => 'bearer',
+                'expires_in_sec' => jwtGuard()->factory()->getTTL() * 60,
+                'token' => $token,
             ],
         ]);
     }
 
+    public function register(array $data): mixed
+    {
+        return DB::transaction(function () use ($data) {
+            $data['status_id'] = 1;
+            $data['slug_name'] = Str::slug($data['first_name'] . ' ' . $data['last_name']) . '-' . uniqid();
+            $user = $this->create($data);
+
+            $otp = $this->generateOtp();
+            $user->otp = $otp;
+            $user->otp_expires_at = now()->addMinutes(10);
+            $user->save();
+
+            $token = jwtGuard()->login($user);
+
+            DB::afterCommit(fn () => $user->notify(new SendOtp($otp)));
+
+            return $this->arrayResponseSuccess(message: 'otp sent successfully', data: [
+                'user' => $user->load(['roles.permissions', 'status']),
+                'authorization' => [
+                    'type' => 'bearer',
+                    'expires_in_sec' => jwtGuard()->factory()->getTTL() * 60,
+                    'token' => $token,
+                ],
+            ]);
+        });
+    }
+
     public function verifyOtp(string | int $userId, string $otp, ?bool $remember = false): array
     {
-        $user = $this->find($userId);
+        return DB::transaction(function () use ($userId, $otp, $remember) {
+            $user = $this->find($userId);
 
-        if (! $user) {
-            return $this->arrayResponseError("User with id: {$userId} not found");
-        }
+            if (! $user) {
+                return $this->arrayResponseError("User with id: {$userId} not found");
+            }
 
-        if ((bool) $user->email_verified_at) {
-            return $this->arrayResponseSuccess('User already verified');
-        }
+            if ($user->email_verified_at !== null) {
+                return $this->arrayResponseSuccess('User already verified');
+            }
 
-        if (! $user->otp || ! $user->otp_expires_at || $user->otp_expires_at->lt(now())) {
-            return $this->arrayResponseError('OTP expired or invalid');
-        }
+            if (! $user->otp || ! $user->otp_expires_at || $user->otp_expires_at->lt(now())) {
+                return $this->arrayResponseError('OTP expired or invalid');
+            }
 
-        if ((string) $otp !== (string) $user->otp) {
-            return $this->arrayResponseError('Invalid otp please try again');
-        }
+            if ((string) $otp !== (string) $user->otp) {
+                return $this->arrayResponseError('Invalid otp please try again');
+            }
 
-        $user->otp_expires_at = null;
-        $user->otp = null;
-        $user->email_verified_at = now();
-        $user->status_id = 2;
-        $user->save();
+            $user->otp_expires_at = null;
+            $user->otp = null;
+            $user->email_verified_at = now();
+            $user->status_id = 2;
+            $user->save();
 
-        if ($remember) {
-            $ttl = 60 * 24 * 30;
-            jwtGuard()->factory()->setTTL($ttl);
-        }
+            DB::afterCommit(fn () => $user->notify(new EmailVerified));
 
-        return $this->arrayResponseSuccess('Otp verified successfully');
+            if ($remember) {
+                $ttl = 60 * 24 * 30;
+                jwtGuard()->factory()->setTTL($ttl);
+            }
+
+            return $this->arrayResponseSuccess('Otp verified successfully');
+        });
     }
 
     public function forgotPassword(array $credentials)

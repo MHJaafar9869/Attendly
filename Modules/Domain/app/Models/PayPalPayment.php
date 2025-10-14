@@ -1,11 +1,13 @@
 <?php
 
-namespace Modules\Core\Models;
+namespace Modules\Domain\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Core\Models\Status;
+use Modules\Core\Models\User;
 
-// use Modules\Core\Database\Factories\PayPalPaymentFactory;
+// use Modules\Domain\Database\Factories\PayPalPaymentFactory;
 
 class PayPalPayment extends Model
 {

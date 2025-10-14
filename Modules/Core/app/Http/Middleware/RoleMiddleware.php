@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Middleware;
+declare(strict_types=1);
+
+namespace Modules\Core\Http\Middleware;
 
 use App\Traits\ResponseJson;
 use Closure;

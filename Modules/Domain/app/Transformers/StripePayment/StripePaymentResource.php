@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Transformers\StripePayment;
+namespace Modules\Domain\Transformers\StripePayment;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

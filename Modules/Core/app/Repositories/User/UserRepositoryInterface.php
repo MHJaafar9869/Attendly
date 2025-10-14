@@ -9,7 +9,9 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
 {
     public function findByEmail(string $email);
 
-    public function register(array $request);
+    public function login(array $data);
+
+    public function register(array $data);
 
     public function verifyOtp(string | int $userId, string $otp, ?bool $remember = false);
 

@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 // use Modules\Core\Database\Factories\UserFactory;
@@ -41,6 +43,8 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
         'two_factor_recovery_codes',
     ];
 
+    protected $with = ['roles'];
+
     protected function casts(): array
     {
         return [
@@ -51,8 +55,6 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
             'two_factor_recovery_codes' => 'array',
         ];
     }
-
-    protected $with = ['roles'];
 
     // protected static function newFactory(): UserFactory
     // {
@@ -155,5 +157,44 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
     public function getPermissions(): array
     {
         return $this->roles->flatMap->permissions->pluck('name')->toArray();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Two Factor Authentication - Recovery Codes
+    |--------------------------------------------------------------------------
+    */
+
+    public function generateRecoveryCodes(int $amount = 8): array
+    {
+        $codes = [];
+
+        for ($idx = 0; $idx <= $amount; $idx++) {
+            $codes[] = Str::random(10);
+        }
+
+        $hashed = collect($codes)->map(fn ($code) => Hash::make($code))->toArray();
+
+        return [
+            'plain' => $codes,
+            'hashed' => $hashed,
+        ];
+    }
+
+    public function verifyRecoveryCode(string $code): bool
+    {
+        foreach ($this->two_factor_recovery_codes as $idx => $hash) {
+            if (Hash::check($code, $hash)) { // Authenticate code
+                // Remove used code
+                $codes = $this->two_factor_recovery_codes;
+                unset($codes[$idx]);
+                $this->two_factor_recovery_codes = array_values($codes);
+                $this->save();
+
+                return true;
+            }
+        }
+
+        return false; // Failed authentication
     }
 }

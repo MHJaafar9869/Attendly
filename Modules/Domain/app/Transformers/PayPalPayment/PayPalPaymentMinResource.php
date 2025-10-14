@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\Core\Transformers\StripePayment;
+namespace Modules\Domain\Transformers\PayPalPayment;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class StripePaymentMinResource extends JsonResource
+class PayPalPaymentMinResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,10 @@ class StripePaymentMinResource extends JsonResource
 
         return [
             'id' => $resource->id,
-            'buyer' => $resource->buyer?->name,
+            'user' => $resource->user?->name,
             'payable' => $resource->payable?->name,
             'payable_type' => $resource->payable_type,
-            'stripePaymentIntent' => $resource->stripePaymentIntent?->name,
+            'paypalTransaction' => $resource->paypalTransaction?->name,
             'amount_cents' => $resource->amount_cents,
             'currency' => $resource->currency,
             'product_data' => $this->getTranslations('product_data'),

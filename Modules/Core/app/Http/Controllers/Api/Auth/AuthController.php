@@ -1,6 +1,8 @@
 <?php
 
-namespace Modules\Core\Http\Controllers\Auth;
+declare(strict_types=1);
+
+namespace Modules\Core\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Traits\OTP;
@@ -12,7 +14,6 @@ use Modules\Core\Http\Requests\Auth\ForgotPasswordRequest;
 use Modules\Core\Http\Requests\Auth\LoginRequest;
 use Modules\Core\Http\Requests\Auth\RegisterRequest;
 use Modules\Core\Http\Requests\Auth\ResetPasswordRequest;
-use Modules\Core\Models\User;
 use Modules\Core\Repositories\User\UserRepositoryInterface;
 use Modules\Core\Transformers\User\UserResource;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -30,7 +31,7 @@ class AuthController extends Controller
     public function __construct(
         protected UserRepositoryInterface $userRepo
     ) {
-        $this->middleware('auth-user', ['except' => ['login', 'register', 'verifyOtp', 'forgotPassword']]);
+        $this->middleware('auth-user', ['only' => ['me', 'logout', 'refresh']]);
     }
 
     /**
@@ -38,44 +39,35 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $credentials = $request->validated();
-        $remember = $request->boolean('remember');
-        $user = $this->userRepo->findByEmail($credentials['email']);
-
-        try {
-            if (! $user->email_verified_at) {
-                return $this->respondError('Email is not verified');
-            }
-
-            if ($remember) {
-                jwtGuard()->factory()->setTTL(60 * 24 * 30); // 30 days
-            }
-
-            if (! $token = jwtGuard()->attempt($credentials)) {
-                return $this->respondError('Invalid credentials', 401);
-            }
-
-            $user = jwtGuard()->user()->load(['roles.permissions', 'status']);
-            $user->last_visited_at = now();
-            $user->save();
-
-            return $this->respondWithToken($token, $user, 'Login Successful');
-        } catch (JWTException $e) {
-            return $this->respondError('Could not create token', 500);
-        }
+        return $this->handleAuth($request->validated(), 'login', 'Login Failed');
     }
 
     public function register(RegisterRequest $request): JsonResponse
     {
-        $response = $this->userRepo->register($request->validated());
-
-        return $this->respondWithData([
-            'user' => $response['data']['user'],
-            'authorization' => $response['data']['authorization'],
-        ], $response['message']);
+        return $this->handleAuth($request->validated(), 'register', 'Registeration Failed');
     }
 
-    public function verifyOtp(Request $request, string $otp, string $id)
+    public function handleAuth(array $data, string $method, string $errMessage): JsonResponse
+    {
+        try {
+            $response = $this->userRepo->{$method}($data);
+        } catch (Exception $e) {
+            return $this->respondError($errMessage);
+        }
+
+        if ($response['success'] === false) {
+            return $this->respondError($response['message'], $response['status']);
+        }
+
+        $responseData = $response['data'];
+
+        return $this->respondWithData([
+            'authorization' => $responseData['authorization'],
+            'user' => UserResource::make($responseData['user'] ?? jwtGuard()->user()),
+        ], $response['message'], $response['status']);
+    }
+
+    public function verifyOtp(Request $request, string $id, string $otp)
     {
         $response = $this->userRepo->verifyOtp($id, $otp, $request->boolean('remember'));
         $method = $response['success'] ? 'respondSuccess' : 'respondError';
@@ -127,7 +119,7 @@ class AuthController extends Controller
             ? 'respondSuccess'
             : 'respondError';
 
-        return $this->{$method}($result['message']);
+        return $this->{$method}($result['message'], $result['status']);
     }
 
     public function resetPassword(ResetPasswordRequest $request, int | string $id)
@@ -148,26 +140,5 @@ class AuthController extends Controller
         $method = $result['success'] ? 'respondSuccess' : 'respondError';
 
         return $this->{$method}($result['message'], $result['status']);
-    }
-
-    /**
-     * Get the token array structure.
-     */
-    protected function respondWithToken(string $token, ?User $user = null, ?string $message = null): JsonResponse
-    {
-        $data = [
-            'authorization' => [
-                'token_type' => 'bearer',
-                'expires_in_sec' => jwtGuard()->factory()->getTTL() * 60,
-                'token' => $token,
-            ],
-            'user' => new UserResource($user ?? jwtGuard()->user()),
-        ];
-
-        if ($message) {
-            return $this->respondWithData($data, $message);
-        }
-
-        return $this->respondWithData($data);
     }
 }
