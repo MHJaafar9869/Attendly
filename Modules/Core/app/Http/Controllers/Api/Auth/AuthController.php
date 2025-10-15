@@ -18,7 +18,7 @@ use Modules\Core\Repositories\User\UserRepositoryInterface;
 use Modules\Core\Transformers\User\UserResource;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
-final readonly class AuthController extends Controller
+final class AuthController extends Controller
 {
     use OTP;
     use ResponseJson;

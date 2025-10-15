@@ -19,36 +19,30 @@ class ApiExceptionHandler extends Exception
 {
     use ResponseJson;
 
-    public function handleApiException(Throwable $e)
+    public function handleApiException(Throwable $th)
     {
-        if ($e instanceof ModelNotFoundException) {
-            return $this->respondError('Model not found', 400);
+        $exceptions = [
+            AuthenticationException::class => ['Unauthenticated', 401],
+            AuthorizationException::class => ['Action is unauthorized', 403],
+            ModelNotFoundException::class => ['Model not found', 404],
+            RouteNotFoundException::class => ['Route not found', 404],
+            NotFoundHttpException::class => ['Not found', 404],
+            MethodNotAllowedHttpException::class => ['Method not allowed', 405],
+            ValidationException::class => ['Failed validation', 422],
+        ];
+
+        foreach ($exceptions as $ex => [$message, $code]) {
+            if ($th instanceof $ex) {
+                if (app()->environment('local')) {
+                    return $this->respondError('Failed with error: '.$th->getMessage(), $code);
+                }
+
+                return $this->respondError($message, $code);
+            }
         }
 
-        if ($e instanceof AuthenticationException) {
-            return $this->respondError('Unauthenticated', 401);
+        if (app()->environment('local')) {
+            return $this->respondError('Failed with error: '.$th->getMessage(), $th->getCode());
         }
-
-        if ($e instanceof AuthorizationException) {
-            return $this->respondError('Action is unauthorized', 403);
-        }
-
-        if ($e instanceof NotFoundHttpException) {
-            return $this->respondError('Not found: ' . $e->getMessage(), 404);
-        }
-
-        if ($e instanceof MethodNotAllowedHttpException) {
-            return $this->respondError('Method not allowed', 405);
-        }
-
-        if ($e instanceof ValidationException) {
-            return $this->respondError('Failed validation', 422);
-        }
-
-        if ($e instanceof RouteNotFoundException) {
-            return $this->respondError('Route not found', 500);
-        }
-
-        return $this->respondError('Internal server error', 500);
     }
 }
