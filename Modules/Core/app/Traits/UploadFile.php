@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace Modules\Core\Traits;
 
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;

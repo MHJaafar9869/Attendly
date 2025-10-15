@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Pipelines;
+namespace Modules\Core\Pipelines;
 
 use Closure;
 use Illuminate\Database\Eloquent\Builder;

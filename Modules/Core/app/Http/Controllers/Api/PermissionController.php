@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Modules\Core\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Traits\ResponseJson;
 use Illuminate\Http\JsonResponse;
 use Modules\Core\Http\Requests\Permission\StorePermissionRequest;
 use Modules\Core\Http\Requests\Permission\UpdatePermissionRequest;
 use Modules\Core\Repositories\Permission\PermissionRepositoryInterface;
+use Modules\Core\Traits\ResponseJson;
 use Modules\Core\Transformers\Permission\PermissionResource;
 
 class PermissionController extends Controller

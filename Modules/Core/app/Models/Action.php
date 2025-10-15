@@ -14,7 +14,7 @@ class Action extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'meta'];
 
     // protected static function newFactory(): ActionFactory
     // {

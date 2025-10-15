@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Modules\Core\Http\Middleware;
 
-use App\Traits\ResponseJson;
 use Closure;
 use Exception;
 use Illuminate\Http\Request;
+use Modules\Core\Traits\ResponseJson;
 use Symfony\Component\HttpFoundation\Response;
 
 class JwtAuthMiddleware

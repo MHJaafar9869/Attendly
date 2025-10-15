@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Modules\Core\Http\Middleware;
 
-use App\Traits\ResponseJson;
 use Closure;
 use Illuminate\Http\Request;
+use Modules\Core\Traits\ResponseJson;
 
 class TwoFactorDisabled
 {

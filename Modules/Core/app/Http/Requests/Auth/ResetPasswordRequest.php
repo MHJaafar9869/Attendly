@@ -2,11 +2,11 @@
 
 namespace Modules\Core\Http\Requests\Auth;
 
-use App\Rules\StrongPassword;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rules\Password;
+use Modules\Core\Rules\StrongPassword;
 
 class ResetPasswordRequest extends FormRequest
 {
@@ -29,7 +29,7 @@ class ResetPasswordRequest extends FormRequest
                 'confirmed',
                 'different:old_password',
                 Password::defaults(),
-                new StrongPassword(username: $this->input('first_name') . ' ' . $this->input('last_name')),
+                new StrongPassword(name: $this->input('first_name') . ' ' . $this->input('last_name')),
             ],
             'old_password' => ['required', 'string', 'current_password:api'],
         ];

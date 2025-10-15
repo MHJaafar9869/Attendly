@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Modules\Core\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Traits\ResponseJson;
 use Illuminate\Http\JsonResponse;
 use Modules\Core\Http\Requests\User\StoreUserRequest;
 use Modules\Core\Http\Requests\User\UpdateUserRequest;
 use Modules\Core\Repositories\Image\ImageRepositoryInterface;
 use Modules\Core\Repositories\User\UserRepositoryInterface;
+use Modules\Core\Traits\ResponseJson;
 use Modules\Core\Transformers\User\UserResource;
 
 class UserController extends Controller

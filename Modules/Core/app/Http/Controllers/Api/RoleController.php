@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Modules\Core\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Traits\ResponseJson;
 use Illuminate\Http\JsonResponse;
 use Modules\Core\Http\Requests\Role\StoreRoleRequest;
 use Modules\Core\Http\Requests\Role\UpdateRoleRequest;
 use Modules\Core\Repositories\Role\RoleRepositoryInterface;
+use Modules\Core\Traits\ResponseJson;
 use Modules\Core\Transformers\Role\RoleResource;
 
 class RoleController extends Controller

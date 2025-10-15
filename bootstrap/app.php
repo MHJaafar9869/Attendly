@@ -1,10 +1,10 @@
 <?php
 
-use App\Exceptions\ApiExceptionHandler;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Modules\Core\Exceptions\ApiExceptionHandler;
 use Modules\Core\Http\Middleware\EnforceTwoFactor;
 use Modules\Core\Http\Middleware\JwtAuthMiddleware;
 use Modules\Core\Http\Middleware\MultiAuthMiddleware;
@@ -27,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'multi-auth' => MultiAuthMiddleware::class,
 
-            // Two Factor Authentication
+            // Two Factor Authentication -- TODO
             '2fa_enforced' => EnforceTwoFactor::class,
             '2fa_disabled' => TwoFactorDisabled::class,
         ]);

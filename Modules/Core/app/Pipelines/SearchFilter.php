@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Pipelines;
+declare(strict_types=1);
+
+namespace Modules\Core\Pipelines;
 
 use Closure;
 use Illuminate\Database\Eloquent\Builder;

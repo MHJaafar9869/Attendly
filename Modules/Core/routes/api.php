@@ -9,7 +9,7 @@ Route::prefix('v1')->group(function () {
     |  Auth
     |--------------------------------------------------------------------------
     |
-    */
+   \*/
     Route::prefix('auth')->controller(AuthController::class)->group(function () {
         Route::post('login', 'login');
         Route::post('register', 'register');

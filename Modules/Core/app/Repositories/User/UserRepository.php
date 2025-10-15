@@ -3,8 +3,6 @@
 namespace Modules\Core\Repositories\User;
 
 use App\Repositories\BaseRepository\BaseRepository;
-use App\Traits\OTP;
-use App\Traits\ResponseArray;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +11,8 @@ use Illuminate\Support\Str;
 use Modules\Core\Models\User;
 use Modules\Core\Notifications\EmailVerified;
 use Modules\Core\Notifications\SendOtp;
+use Modules\Core\Traits\OTP;
+use Modules\Core\Traits\ResponseArray;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
@@ -93,7 +93,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     public function verifyOtp(string | int $userId, string $otp, ?bool $remember = false): array
     {
-        return DB::transaction(function () use ($userId, $otp, $remember) {
+        return DB::transaction(function () use ($userId, $otp, $remember): array {
             $user = $this->find($userId);
 
             if (! $user) {
@@ -129,7 +129,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         });
     }
 
-    public function forgotPassword(array $credentials)
+    public function forgotPassword(array $credentials): array // FIXME
     {
         $user = $this->findByEmail($credentials['email']);
 
@@ -146,7 +146,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return $this->{$result['method']}($result['message']);
     }
 
-    public function resetPassword(User $user, string $password, string $oldPassword, string $token): array
+    public function resetPassword(User $user, string $password, string $oldPassword, string $token): array // FIXME
     {
         $status = Password::reset(
             ['email' => $user->email, 'password' => $password, 'password_confirmation' => $password, 'token' => $token],

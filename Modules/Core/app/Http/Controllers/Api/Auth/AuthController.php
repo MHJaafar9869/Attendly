@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Modules\Core\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Traits\OTP;
-use App\Traits\ResponseJson;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,6 +13,8 @@ use Modules\Core\Http\Requests\Auth\LoginRequest;
 use Modules\Core\Http\Requests\Auth\RegisterRequest;
 use Modules\Core\Http\Requests\Auth\ResetPasswordRequest;
 use Modules\Core\Repositories\User\UserRepositoryInterface;
+use Modules\Core\Traits\OTP;
+use Modules\Core\Traits\ResponseJson;
 use Modules\Core\Transformers\User\UserResource;
 use Tymon\JWTAuth\Exceptions\JWTException;
 

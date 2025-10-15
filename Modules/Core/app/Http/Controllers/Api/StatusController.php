@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Modules\Core\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Traits\ResponseJson;
 use Illuminate\Http\JsonResponse;
 use Modules\Core\Http\Requests\Status\StoreStatusRequest;
 use Modules\Core\Http\Requests\Status\UpdateStatusRequest;
 use Modules\Core\Repositories\Status\StatusRepositoryInterface;
+use Modules\Core\Traits\ResponseJson;
 use Modules\Core\Transformers\Status\StatusResource;
 
 class StatusController extends Controller

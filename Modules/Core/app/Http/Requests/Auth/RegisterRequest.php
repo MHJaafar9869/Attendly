@@ -2,11 +2,11 @@
 
 namespace Modules\Core\Http\Requests\Auth;
 
-use App\Rules\StrongPassword;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rules\Password;
+use Modules\Core\Rules\StrongPassword;
 
 class RegisterRequest extends FormRequest
 {
@@ -30,7 +30,12 @@ class RegisterRequest extends FormRequest
             'phone' => ['sometimes', 'nullable', 'regex:/^\+?[0-9]{7,15}$/', 'unique:users,phone'],
             'role_id' => ['sometimes', 'nullable', 'integer', 'exists:roles,id'],
             'type_id' => ['sometimes', 'nullable', 'integer', 'exists:types,id'],
-            'password' => ['required', 'confirmed', Password::defaults(), new StrongPassword(name: $this->input('first_name') . ' ' . $this->input('last_name'))],
+            'password' => [
+                'required',
+                'confirmed',
+                Password::defaults(),
+                new StrongPassword(name: $this->input('first_name') . ' ' . $this->input('last_name')),
+            ],
         ];
     }
 

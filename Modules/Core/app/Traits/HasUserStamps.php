@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Traits;
+namespace Modules\Core\Traits;
 
-use App\Observers\AuditObserver;
+use Modules\Core\Observers\AuditObserver;
 
 trait HasUserStamps
 {
