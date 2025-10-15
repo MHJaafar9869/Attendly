@@ -34,7 +34,7 @@ class ApiExceptionHandler extends Exception
         foreach ($exceptions as $ex => [$message, $code]) {
             if ($th instanceof $ex) {
                 if (app()->environment('local')) {
-                    return $this->respondError('Failed with error: '.$th->getMessage(), $code);
+                    return $this->respondError('Failed with error: ' . $th->getMessage(), $code);
                 }
 
                 return $this->respondError($message, $code);
@@ -42,7 +42,9 @@ class ApiExceptionHandler extends Exception
         }
 
         if (app()->environment('local')) {
-            return $this->respondError('Failed with error: '.$th->getMessage(), $th->getCode());
+            return $this->respondError('Failed with error: ' . $th->getMessage(), $th->getCode());
         }
+
+        return null;
     }
 }
