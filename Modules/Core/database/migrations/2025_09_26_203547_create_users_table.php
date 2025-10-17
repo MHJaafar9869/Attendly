@@ -27,6 +27,8 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('country')->nullable();
 
+            $table->string('national_id', 20)->unique();
+
             $table->foreignIdFor(Status::class)->nullable()->constrained()->nullOnDelete();
             $table->text('device')->nullable();
 

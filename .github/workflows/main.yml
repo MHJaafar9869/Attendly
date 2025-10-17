@@ -16,28 +16,42 @@ jobs:
         with:
           php-version: 8.4
 
-      - name: Create Database
-        run: touch ./database/database.sqlite
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
 
       - name: Copy .env
-        run: cp .env.test .env
+        run: cp .env.example .env
 
-      - name: Install Dependencies (with dev)
-        run: composer install --optimize-autoloader --no-progress --no-interaction --prefer-dist
+      - name: Install Dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Install Node-js
         uses: actions/setup-node@v3
         with:
           node-version: "20"
 
-      - name: Install NPM Packages
-        run: npm install
+      - name: Cache NPM dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
-      - name: Build NPM assets
-        run: npm run build
+      - name: Install NPM Packages and Build Assets
+        run: |
+          npm ci
+          npm run build
 
-      - name: Run Migrations
-        run: php artisan migrate
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            vendor
+            public/build
+            bootstrap/cache
 
       # - name: Test With PHPStan
       #   run: ./vendor/bin/phpstan analyze
@@ -45,22 +59,33 @@ jobs:
       # - name: Test With PHPUnit
       #   run: ./vendor/bin/phpunit
 
-      # - name: Synchoronize Files To Server
-      #   uses: easingthemes/ssh-deploy@v2.1.5
-      #   env:
-      #     SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     SOURCE: "."
-      #     REMOTE_HOST: ${{ secrets.VPS_HOST }}
-      #     REMOTE_USER: ${{ secrets.VPS_USER }}
-      #     TARGET: "/var/www/html/{project_file}"
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download build artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: build-artifacts
 
-      # - name: Run Remote/Artisan Commands
-      #   uses: appleboy/ssh-action@v0.1.6
-      #   with:
-      #     host: ${{ secrets.VPS_HOST }}
-      #     username: ${{ secrets.VPS_USER }}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     script: |
-      #       cd /var/www/html/{project_file}
-      #       php artisan migrate --force
-      #       php artisan optimize
+  #     - name: Synchronize Files To Server
+  #       uses: easingthemes/ssh-deploy@v2.1.5
+  #       with:
+  #         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         SOURCE: "."
+  #         REMOTE_HOST: ${{ secrets.VPS_HOST }}
+  #         REMOTE_USER: ${{ secrets.VPS_USER }}
+  #         TARGET: "/var/www/html/my_project"
+  #         ARGS: "-avz --delete --exclude-from=.rsyncignore"
+
+  #     - name: Run Remote Commands
+  #       uses: appleboy/ssh-action@v0.1.6
+  #       with:
+  #         host: ${{ secrets.VPS_HOST }}
+  #         username: ${{ secrets.VPS_USER }}
+  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         script: |
+  #           cd /var/www/html/my_project
+  #           php artisan migrate --force
+  #           php artisan optimize:clear
+  #           php artisan optimize

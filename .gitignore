@@ -30,8 +30,12 @@ Thumbs.db
 # Node / vendor / build folders
 /node_modules
 /vendor
-/public
-/storage
+/public/build
+/public/storage
+/storage/*.key
+/storage/app
+/storage/framework
+/storage/logs
 
 # Homestead configs
 Homestead.json
