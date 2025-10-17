@@ -17,7 +17,10 @@ return new class extends Migration
             $table->ulid('user_id');
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->foreignIdFor(Action::class)->constrained()->cascadeOnDelete();
+            $table->timestamp('performed_at');
             $table->timestamps();
+            $table->index('created_at');
+            $table->index('performed_at');
         });
     }
 

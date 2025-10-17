@@ -24,14 +24,13 @@ class ResetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'new_password' => [
+            'email' => 'required|email',
+            'password' => [
                 'required',
                 'confirmed',
-                'different:old_password',
                 Password::defaults(),
                 new StrongPassword(name: $this->input('first_name') . ' ' . $this->input('last_name')),
             ],
-            'old_password' => ['required', 'string', 'current_password:api'],
         ];
     }
 

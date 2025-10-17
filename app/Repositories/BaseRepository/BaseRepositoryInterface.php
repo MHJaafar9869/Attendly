@@ -5,18 +5,21 @@ declare(strict_types=1);
 namespace App\Repositories\BaseRepository;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface BaseRepositoryInterface
 {
     public function select(string | array $columns): Builder;
 
-    public function all();
+    public function all(): Collection;
 
     public function allWithRelations(string | array $relations): Builder;
 
-    public function paginate();
+    public function paginate(): LengthAwarePaginator;
 
-    public function addQuery();
+    public function addQuery(): Builder;
 
     public function find(int | string $id);
 
@@ -26,9 +29,17 @@ interface BaseRepositoryInterface
 
     public function update(int | string $id, array $data);
 
-    public function delete(int | string $id);
+    public function delete(int | string $id): bool;
 
-    public function restore(int | string $id);
+    public function restore(int | string $id): bool;
 
-    public function forceDelete(int | string $id);
+    public function forceDelete(int | string $id): bool;
+
+    public function findBy(string $column, mixed $value): ?Model;
+
+    public function findOneBy(array $criteria): ?Model;
+
+    public function count(array $criteria = []): int;
+
+    public function exists(array $criteria): bool;
 }

@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace App\Repositories\BaseRepository;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class BaseRepository implements BaseRepositoryInterface
 {
-    protected $model;
+    protected Model $model;
 
     public function __construct(Model $model)
     {
         $this->model = $model;
     }
 
-    public function select(string | array $columns): Builder
+    public function addQuery(): Builder
     {
-        return $this->model->query()->select($columns);
+        return $this->model->query();
     }
 
-    public function all()
+    public function all(): Collection
     {
         return $this->model->all();
     }
@@ -31,9 +33,19 @@ class BaseRepository implements BaseRepositoryInterface
         return $this->model->with($relations);
     }
 
-    public function paginate()
+    public function create(array $data)
     {
-        return $this->model->paginate();
+        return $this->model->create($data);
+    }
+
+    public function select(string | array $columns): Builder
+    {
+        return $this->model->query()->select($columns);
+    }
+
+    public function paginate(int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->model->paginate($perPage);
     }
 
     public function find(int | string $id)
@@ -43,44 +55,67 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function findWithRelation(int | string $id, string | array $relations): Builder
     {
-        return $this->model->query()->findOrFail($id)->with($relations);
+        return $this->model->with($relations)->where($this->model->getKeyName(), $id);
     }
 
-    public function create(array $data)
+    public function update(int | string $id, array $data): bool
     {
-        return $this->model->create($data);
+        return $this->find($id)->update($data);
     }
 
-    public function update(int | string $id, array $data)
+    public function delete(int | string $id): bool
     {
-        $record = $this->find($id);
-        $record->update($data);
-
-        return $record;
+        return $this->find($id)->delete();
     }
 
-    public function delete(int | string $id)
+    public function restore(int | string $id): bool
     {
-        $record = $this->find($id);
-
-        return $record->delete();
+        return $this->model->onlyTrashed()->findOrFail($id)->restore();
     }
 
-    public function restore(int | string $id)
+    public function forceDelete(int | string $id): bool
     {
-        $item = $this->model->onlyTrashed()->findOrFail($id);
-        $item->restore();
-
-        return $item;
+        return $this->model->withTrashed()->findOrFail($id)->forceDelete();
     }
 
-    public function forceDelete(int | string $id)
+    public function findBy(string $column, mixed $value): ?Model
     {
-        return $this->model->withTrashed()->find($id)->forceDelete();
+        return $this->model->where($column, $value)->first();
     }
 
-    public function addQuery(): Builder
+    /**
+     * Find a model by multiple criteria.
+     */
+    public function findOneBy(array $criteria): ?Model
     {
-        return $this->model->query();
+        $query = $this->model->query();
+
+        foreach ($criteria as $column => $value) {
+            $query->where($column, $value);
+        }
+
+        return $query->first();
+    }
+
+    /**
+     * Count models matching the given criteria.
+     */
+    public function count(array $criteria = []): int
+    {
+        $query = $this->model->query();
+
+        foreach ($criteria as $column => $value) {
+            $query->where($column, $value);
+        }
+
+        return $query->count();
+    }
+
+    /**
+     * Check if any models exist matching the given criteria.
+     */
+    public function exists(array $criteria): bool
+    {
+        return $this->count($criteria) > 0;
     }
 }

@@ -32,6 +32,7 @@ class TypeController extends Controller
     public function show(int | string $id): JsonResponse
     {
         $data = $this->typeRepo->find($id);
+
         if (! $data) {
             return $this->respondError('Type not found', 404);
         }

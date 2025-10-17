@@ -122,15 +122,14 @@ final class AuthController extends Controller
         return $this->{$method}($result['message'], $result['status']);
     }
 
-    public function resetPassword(ResetPasswordRequest $request, int | string $id)
+    public function resetPassword(ResetPasswordRequest $request, int | string $token)
     {
         $validated = $request->validated();
 
         try {
             $result = $this->userRepo->resetPassword(
-                jwtGuard()->user(),
+                $validated['email'],
                 $validated['password'],
-                $validated['old_password'],
                 $validated['token']
             );
         } catch (Exception $e) {

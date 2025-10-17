@@ -7,8 +7,6 @@ use Modules\Core\Models\User;
 
 interface UserRepositoryInterface extends BaseRepositoryInterface
 {
-    public function findByEmail(string $email);
-
     public function login(array $data);
 
     public function register(array $data);
@@ -17,5 +15,5 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
 
     public function forgotPassword(array $credentials);
 
-    public function resetPassword(User $user, string $password, string $oldPassword, string $token);
+    public function resetPassword(string $email, string $password, string $token);
 }

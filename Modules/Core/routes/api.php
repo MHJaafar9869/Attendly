@@ -17,7 +17,7 @@ Route::prefix('v1')->group(function () {
         Route::post('refresh', 'refresh')->middleware('auth-user');
         Route::post('logout', 'logout')->middleware('auth-user');
         Route::post('forgot-password', 'forgotPassword');
-        Route::post('reset-password', 'resetPassword')->middleware('auth-user');
+        Route::post('reset-password/{token}', 'resetPassword')->middleware('guest')->name('password.reset');
         Route::get('me', 'me')->middleware('auth-user');
     });
 });
