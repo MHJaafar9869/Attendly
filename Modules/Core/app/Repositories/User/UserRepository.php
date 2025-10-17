@@ -4,6 +4,7 @@ namespace Modules\Core\Repositories\User;
 
 use App\Repositories\BaseRepository\BaseRepository;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -30,7 +31,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         $user = $this->findBy('email', $data['email']);
         $remember = $data['remember'] ?? false;
 
-        if (! $user) {
+        if (! $user instanceof Model) {
             return $this->arrayResponseError('User not found', 404);
         }
 
@@ -74,7 +75,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
             $token = jwtGuard()->login($user);
 
-            DB::afterCommit(fn() => $user->notify(new SendOtp($otp)));
+            DB::afterCommit(fn () => $user->notify(new SendOtp($otp)));
 
             return $this->arrayResponseSuccess(message: 'otp sent successfully', data: [
                 'user' => $user->load(['roles.permissions', 'status']),
@@ -114,7 +115,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             $user->status_id = StatusIDEnum::USER_ACTIVE;
             $user->save();
 
-            DB::afterCommit(fn() => $user->notify(new EmailVerified));
+            DB::afterCommit(fn () => $user->notify(new EmailVerified));
 
             if ($remember) {
                 $ttl = 60 * 24 * 30;
@@ -129,7 +130,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     {
         $user = $this->findBy('email', $credentials['email']);
 
-        if (! $user) {
+        if (! $user instanceof Model) {
             return $this->arrayResponseError("User with email: {$credentials['email']}, not found");
         }
 

@@ -1,9 +1,9 @@
 {
-	"name": "Feature",
-	"alias": "feature",
-	"description": "",
-	"keywords": [],
-	"priority": 0,
-	"providers": ["Modules\\Feature\\Providers\\FeatureServiceProvider"],
-	"files": []
+    "name": "Feature",
+    "alias": "feature",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": ["Modules\\Feature\\Providers\\FeatureServiceProvider"],
+    "files": []
 }

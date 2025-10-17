@@ -1,9 +1,9 @@
 {
-	"name": "Domain",
-	"alias": "domain",
-	"description": "",
-	"keywords": [],
-	"priority": 0,
-	"providers": ["Modules\\Domain\\Providers\\DomainServiceProvider"],
-	"files": []
+    "name": "Domain",
+    "alias": "domain",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": ["Modules\\Domain\\Providers\\DomainServiceProvider"],
+    "files": []
 }

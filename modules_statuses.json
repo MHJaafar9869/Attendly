@@ -1,6 +1,6 @@
 {
-	"Core": true,
-	"Domain": true,
-	"Feature": true,
-	"UI": true
+    "Core": true,
+    "Domain": true,
+    "Feature": true,
+    "UI": true
 }
