@@ -18,3 +18,10 @@ if (! function_exists('jwtGuard')) {
         return $guard;
     }
 }
+
+if (! function_exists('generateOtp')) {
+    function generateOtp(): string
+    {
+        return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    }
+}

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class BaseRepository implements BaseRepositoryInterface
+readonly class BaseRepository implements BaseRepositoryInterface
 {
     protected Model $model;
 
@@ -58,9 +58,12 @@ class BaseRepository implements BaseRepositoryInterface
         return $this->model->with($relations)->where($this->model->getKeyName(), $id);
     }
 
-    public function update(int | string $id, array $data): bool
+    public function update(int | string $id, array $data)
     {
-        return $this->find($id)->update($data);
+        $model = $this->find($id);
+        $model->update($data);
+
+        return $model;
     }
 
     public function delete(int | string $id): bool
@@ -88,7 +91,7 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function findOneBy(array $criteria): ?Model
     {
-        $query = $this->model->query();
+        $query = $this->addQuery();
 
         foreach ($criteria as $column => $value) {
             $query->where($column, $value);

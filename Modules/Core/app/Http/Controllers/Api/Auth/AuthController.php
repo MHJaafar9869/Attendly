@@ -13,14 +13,12 @@ use Modules\Core\Http\Requests\Auth\LoginRequest;
 use Modules\Core\Http\Requests\Auth\RegisterRequest;
 use Modules\Core\Http\Requests\Auth\ResetPasswordRequest;
 use Modules\Core\Repositories\User\UserRepositoryInterface;
-use Modules\Core\Traits\OTP;
 use Modules\Core\Traits\ResponseJson;
 use Modules\Core\Transformers\User\UserResource;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 final class AuthController extends Controller
 {
-    use OTP;
     use ResponseJson;
 
     /**
@@ -52,7 +50,9 @@ final class AuthController extends Controller
         try {
             $response = $this->userRepo->{$method}($data);
         } catch (Exception $e) {
-            return $this->respondError($errMessage);
+            return app()->environment('local')
+                ? $this->respondError("{$errMessage} due: " . $e->getMessage())
+                : $this->respondError($errMessage);
         }
 
         if ($response['success'] === false) {
@@ -93,7 +93,9 @@ final class AuthController extends Controller
 
             return $this->respondSuccess('Successfully logged out');
         } catch (JWTException $e) {
-            return $this->respondError('Failed to logout, please try again.', 500);
+            return app()->environment('local')
+                ? $this->respondError('Failed due: ' . $e->getMessage(), 500)
+                : $this->respondError('Failed to logout, please try again.', 500);
         }
     }
 

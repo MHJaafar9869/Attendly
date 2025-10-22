@@ -13,15 +13,14 @@ use Modules\Core\Enums\Status\StatusIDEnum;
 use Modules\Core\Models\User;
 use Modules\Core\Notifications\EmailVerified;
 use Modules\Core\Notifications\SendOtp;
-use Modules\Core\Traits\OTP;
+use Modules\Core\Repositories\Role\RoleRepositoryInterface;
 use Modules\Core\Traits\ResponseArray;
 
-class UserRepository extends BaseRepository implements UserRepositoryInterface
+final readonly class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
-    use OTP;
     use ResponseArray;
 
-    public function __construct(User $model)
+    public function __construct(User $model, protected RoleRepositoryInterface $roleRepo)
     {
         parent::__construct($model);
     }
@@ -68,14 +67,17 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             $data['slug_name'] = Str::slug($data['first_name'] . ' ' . $data['last_name']) . '-' . uniqid();
             $user = $this->create($data);
 
-            $otp = $this->generateOtp();
+            $otp = generateOtp();
             $user->otp = $otp;
             $user->otp_expires_at = now()->addMinutes(10);
             $user->save();
 
+            $role = $this->roleRepo->findBy('name', $data['role'] ?? 'user')->first();
+            $user->roles()->attach($role->id);
+
             $token = jwtGuard()->login($user);
 
-            DB::afterCommit(fn () => $user->notify(new SendOtp($otp)));
+            DB::afterCommit(fn() => $user->notify(new SendOtp($otp)));
 
             return $this->arrayResponseSuccess(message: 'otp sent successfully', data: [
                 'user' => $user->load(['roles.permissions', 'status']),
@@ -115,7 +117,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             $user->status_id = StatusIDEnum::USER_ACTIVE;
             $user->save();
 
-            DB::afterCommit(fn () => $user->notify(new EmailVerified));
+            DB::afterCommit(fn() => $user->notify(new EmailVerified));
 
             if ($remember) {
                 $ttl = 60 * 24 * 30;

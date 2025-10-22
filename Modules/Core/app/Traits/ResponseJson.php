@@ -17,7 +17,7 @@ trait ResponseJson
     protected function respond(
         bool $success,
         ?string $message = null,
-        ?array $data = null,
+        mixed $data = [],
         int $status = 200,
         array $extra = [],
         bool $paginate = false,

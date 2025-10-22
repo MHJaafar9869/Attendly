@@ -20,17 +20,9 @@ return new class extends Migration
             $table->string('slug_name')->nullable()->unique();
 
             $table->string('email')->unique();
-            $table->string('phone')->nullable()->unique();
             $table->string('password');
 
-            $table->text('address')->nullable();
-            $table->string('city')->nullable();
-            $table->string('country')->nullable();
-
-            $table->string('national_id', 20)->unique();
-
             $table->foreignIdFor(Status::class)->nullable()->constrained()->nullOnDelete();
-            $table->text('device')->nullable();
 
             $table->unsignedBigInteger('token_version')->default(1);
             $table->string('otp', 6)->nullable();
@@ -49,7 +41,6 @@ return new class extends Migration
             $table->index('slug_name');
             $table->index('last_visited_at');
             $table->index('deleted_at');
-            $table->unique(['first_name', 'last_name']);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

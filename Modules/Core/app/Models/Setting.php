@@ -2,10 +2,10 @@
 
 namespace Modules\Core\Models;
 
-use App\Traits\HasUserStamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Core\Traits\HasUserStamps;
 
 // use Modules\Core\Database\Factories\SettingFactory;
 
@@ -23,9 +23,6 @@ class Setting extends Model
         'value',
         'type',
         'description',
-        'created_by',
-        'updated_by',
-        'deleted_by',
     ];
 
     // protected static function newFactory(): SettingFactory
