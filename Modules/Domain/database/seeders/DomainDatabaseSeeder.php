@@ -3,6 +3,8 @@
 namespace Modules\Domain\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Domain\database\seeders\Governorate\GovernorateSeeder;
+use Modules\Domain\database\seeders\Student\StudentSeeder;
 
 class DomainDatabaseSeeder extends Seeder
 {
@@ -11,6 +13,9 @@ class DomainDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
+        $this->call([
+            GovernorateSeeder::class,
+            StudentSeeder::class,
+        ]);
     }
 }

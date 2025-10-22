@@ -13,15 +13,14 @@ use Modules\Core\Enums\Status\StatusIDEnum;
 use Modules\Core\Models\User;
 use Modules\Core\Notifications\EmailVerified;
 use Modules\Core\Notifications\SendOtp;
-use Modules\Core\Traits\OTP;
+use Modules\Core\Repositories\Role\RoleRepositoryInterface;
 use Modules\Core\Traits\ResponseArray;
 
-class UserRepository extends BaseRepository implements UserRepositoryInterface
+final readonly class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
-    use OTP;
     use ResponseArray;
 
-    public function __construct(User $model)
+    public function __construct(User $model, protected RoleRepositoryInterface $roleRepo)
     {
         parent::__construct($model);
     }
@@ -68,10 +67,13 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             $data['slug_name'] = Str::slug($data['first_name'] . ' ' . $data['last_name']) . '-' . uniqid();
             $user = $this->create($data);
 
-            $otp = $this->generateOtp();
+            $otp = generateOtp();
             $user->otp = $otp;
             $user->otp_expires_at = now()->addMinutes(10);
             $user->save();
+
+            $role = $this->roleRepo->findBy('name', $data['role'] ?? 'user')->first();
+            $user->roles()->attach($role->id);
 
             $token = jwtGuard()->login($user);
 

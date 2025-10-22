@@ -27,13 +27,25 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
      * The attributes that are mass assignable.
      */
     protected $fillable = [
-        'first_name', 'last_name', 'slug_name',
-        'email', 'phone', 'password',
-        'address', 'city', 'country',
-        'status_id', 'device', 'last_visited_at',
+        'first_name',
+        'last_name',
+        'slug_name',
+        'email',
+        'phone',
+        'password',
+        'address',
+        'city',
+        'country',
+        'status_id',
+        'device',
+        'last_visited_at',
         'email_verified_at',
+        'national_id',
     ];
 
+    /**
+     * The attributes that are hidden from resources.
+     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -43,7 +55,7 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
         'two_factor_recovery_codes',
     ];
 
-    protected $with = ['roles'];
+    protected $with = ['roles:id,name'];
 
     protected function casts(): array
     {
@@ -52,7 +64,11 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
             'email_verified_at' => 'datetime',
             'last_visited_at' => 'datetime',
             'password' => 'hashed',
+            'national_id' => 'hashed',
             'two_factor_recovery_codes' => 'array',
+            'address' => 'encrypted',
+            'city' => 'encrypted',
+            'country' => 'encrypted',
         ];
     }
 
@@ -60,6 +76,16 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
     // {
     //     // return UserFactory::new();
     // }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tracking
+    |--------------------------------------------------------------------------
+    */
+    public function trackables(): array
+    {
+        return [];
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -106,7 +132,7 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
 
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'user_roles');
+        return $this->belongsToMany(Role::class, 'user_roles')->withTimestamps();
     }
 
     public function status()
@@ -114,9 +140,9 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
         return $this->belongsTo(Status::class);
     }
 
-    public function userActions()
+    public function logs()
     {
-        return $this->belongsToMany(Action::class, 'user_actions');
+        return $this->morphMany(ActivityLog::class, 'loggable', 'loggable_type', 'loggable_id');
     }
 
     public function images()

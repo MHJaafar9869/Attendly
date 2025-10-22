@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Domain\Repositories\PaymentGateway\PaymentGatewayRepositoryInterface;
+use Modules\Domain\Repositories\Student\StudentRepository;
+use Modules\Domain\Repositories\Student\StudentRepositoryInterface;
 use Modules\Domain\Services\PaymentGatewayService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
@@ -46,6 +48,7 @@ class DomainServiceProvider extends ServiceProvider
 
             return $app->make(PaymentGatewayService::class)->resolve($gateway);
         });
+        $this->app->bind(StudentRepositoryInterface::class, StudentRepository::class);
     }
 
     /**

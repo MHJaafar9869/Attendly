@@ -5,20 +5,20 @@ namespace Modules\Core\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-// use Modules\Core\Database\Factories\ActionFactory;
+// use Modules\Core\Database\Factories\ActivityLogFactory;
 
-class Action extends Model
+class ActivityLog extends Model
 {
     use HasFactory;
 
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = ['name', 'meta'];
+    protected $fillable = ['user_id', 'action_type_id', 'ip_address', 'user_agent', 'meta'];
 
-    // protected static function newFactory(): ActionFactory
+    // protected static function newFactory(): ActivityLogFactory
     // {
-    //     // return ActionFactory::new();
+    //     // return ActivityLogFactory::new();
     // }
 
     /*
@@ -28,8 +28,13 @@ class Action extends Model
     |
     */
 
+    public function loggable()
+    {
+        return $this->morphTo();
+    }
+
     public function users()
     {
-        return $this->belongsToMany(User::class, 'user_actions');
+        return $this->belongsTo(User::class, 'user_actions');
     }
 }

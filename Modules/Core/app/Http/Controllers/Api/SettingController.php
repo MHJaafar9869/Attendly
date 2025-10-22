@@ -59,4 +59,18 @@ class SettingController extends Controller
 
         return $this->respondSuccess('Setting deleted successfully');
     }
+
+    public function restore(int | string $id): JsonResponse
+    {
+        return $this->settingRepo->restore($id)
+            ? $this->respondSuccess('Setting restored successfully')
+            : $this->respondSuccess('Failed to restore setting');
+    }
+
+    public function forceDelete(int | string $id): JsonResponse
+    {
+        return $this->settingRepo->forceDelete($id)
+            ? $this->respondSuccess('Setting force deleted successfully')
+            : $this->respondSuccess('Failed to force delete setting');
+    }
 }

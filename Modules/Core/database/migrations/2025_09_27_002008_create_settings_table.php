@@ -19,8 +19,8 @@ return new class extends Migration
             $table->text('description')->nullable();
 
             $table->ulid('created_by');
-            $table->ulid('updated_by');
-            $table->ulid('deleted_by');
+            $table->ulid('updated_by')->nullable();
+            $table->ulid('deleted_by')->nullable();
 
             $table->foreign('created_by')->references('id')->on('users')->cascadeOnDelete();
             $table->foreign('updated_by')->references('id')->on('users')->cascadeOnDelete();
