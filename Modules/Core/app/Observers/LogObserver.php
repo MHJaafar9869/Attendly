@@ -5,12 +5,16 @@ namespace Modules\Core\Observers;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Request;
 use Modules\Core\Jobs\RecordActivityLog;
+use Throwable;
 
 class LogObserver
 {
     protected static array $stack = [];
+
     protected static int $threshold = 10;
+
     protected static int $timeoutSeconds = 180;
+
     protected static ?Carbon $timelimit = null;
 
     public function creating($model): void
@@ -64,7 +68,7 @@ class LogObserver
 
         self::$stack[] = $data;
 
-        if (self::$timelimit === null) {
+        if (! self::$timelimit instanceof Carbon) {
             self::$timelimit = now()->addSeconds(self::$timeoutSeconds);
         }
 
@@ -77,10 +81,10 @@ class LogObserver
 
     public function __destruct()
     {
-        if (! empty(self::$stack)) {
+        if (self::$stack !== []) {
             try {
                 RecordActivityLog::dispatch(self::$stack)->onQueue('activity_logs');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 logger()->error('Failed to flush activity log stack', ['error' => $e->getMessage()]);
             } finally {
                 self::$stack = [];

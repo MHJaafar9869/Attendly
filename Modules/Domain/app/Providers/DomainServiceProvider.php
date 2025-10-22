@@ -2,13 +2,12 @@
 
 namespace Modules\Domain\Providers;
 
-use Modules\Domain\Repositories\Student\StudentRepositoryInterface;
-use Modules\Domain\Repositories\Student\StudentRepository;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Domain\Repositories\PaymentGateway\PaymentGatewayRepositoryInterface;
+use Modules\Domain\Repositories\Student\StudentRepository;
+use Modules\Domain\Repositories\Student\StudentRepositoryInterface;
 use Modules\Domain\Services\PaymentGatewayService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
@@ -43,7 +42,7 @@ class DomainServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
-        $this->app->singleton(StripeClient::class, fn($app) => new StripeClient(config('services.gateways.stripe.secret')));
+        $this->app->singleton(StripeClient::class, fn ($app) => new StripeClient(config('services.gateways.stripe.secret')));
         $this->app->bind(function ($app): PaymentGatewayRepositoryInterface {
             $gateway = $app->make(Request::class)->input('gateway', config('services.gateways.default', 'stripe'));
 

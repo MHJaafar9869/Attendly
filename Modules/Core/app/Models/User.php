@@ -40,7 +40,7 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
         'device',
         'last_visited_at',
         'email_verified_at',
-        'national_id'
+        'national_id',
     ];
 
     /**
@@ -54,7 +54,6 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
         'two_factor_secret',
         'two_factor_recovery_codes',
     ];
-
 
     protected $with = ['roles:id,name'];
 
@@ -159,19 +158,19 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
 
     public function hasRole(string $role): bool
     {
-        return $this->roles->pluck('name')->map(fn($r) => strtolower($r))->contains(strtolower($role));
+        return $this->roles->pluck('name')->map(fn ($r) => strtolower($r))->contains(strtolower($role));
     }
 
     public function hasAnyRole(array $roles): bool
     {
         $lowerRoles = array_map('strtolower', $roles);
 
-        return $this->roles->pluck('name')->map(fn($r) => strtolower($r))->intersect($lowerRoles)->isNotEmpty();
+        return $this->roles->pluck('name')->map(fn ($r) => strtolower($r))->intersect($lowerRoles)->isNotEmpty();
     }
 
     public function hasPermission(string $permission): bool
     {
-        $rolePermissions = $this->roles->flatMap->permissions->pluck('name')->map(fn($p) => strtolower($p));
+        $rolePermissions = $this->roles->flatMap->permissions->pluck('name')->map(fn ($p) => strtolower($p));
 
         return $rolePermissions->contains(strtolower($permission));
     }
@@ -200,7 +199,7 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
             $codes[] = Str::random(10);
         }
 
-        $hashed = collect($codes)->map(fn($code) => Hash::make($code))->toArray();
+        $hashed = collect($codes)->map(fn ($code) => Hash::make($code))->toArray();
 
         return [
             'plain' => $codes,

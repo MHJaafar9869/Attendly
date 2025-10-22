@@ -77,7 +77,7 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
 
             $token = jwtGuard()->login($user);
 
-            DB::afterCommit(fn() => $user->notify(new SendOtp($otp)));
+            DB::afterCommit(fn () => $user->notify(new SendOtp($otp)));
 
             return $this->arrayResponseSuccess(message: 'otp sent successfully', data: [
                 'user' => $user->load(['roles.permissions', 'status']),
@@ -117,7 +117,7 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
             $user->status_id = StatusIDEnum::USER_ACTIVE;
             $user->save();
 
-            DB::afterCommit(fn() => $user->notify(new EmailVerified));
+            DB::afterCommit(fn () => $user->notify(new EmailVerified));
 
             if ($remember) {
                 $ttl = 60 * 24 * 30;

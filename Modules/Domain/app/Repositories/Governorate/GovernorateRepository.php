@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Domain\Repositories\Governorate;
 
-use Modules\Domain\Repositories\Governorate\GovernorateRepositoryInterface;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Domain\Models\Governorate;
 
