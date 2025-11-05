@@ -37,13 +37,13 @@ class AuditObserver
 
     private function check($model, string $column): bool
     {
-        if (!jwtGuard()->check()) {
+        if (! jwtGuard()->check()) {
             return false;
         }
 
         $table = $model->getTable();
 
-        if (!isset($this->tableColumns[$table])) {
+        if (! isset($this->tableColumns[$table])) {
             $this->tableColumns[$table] = $model->getConnection()
                 ->getSchemaBuilder()
                 ->getColumnListing($table);

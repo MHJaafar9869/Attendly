@@ -2,6 +2,7 @@
 
 namespace Modules\Core\database\seeders\User;
 
+use Exception;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         DB::beginTransaction();
+
         try {
             // === Admin user (Filament login) ===
             $user = User::firstOrCreate(
@@ -39,19 +41,19 @@ class UserSeeder extends Seeder
                     'first_name' => 'Lina',
                     'last_name' => 'Adel',
                     'slug_name' => 'lina-adel-' . uniqid(),
-                    'email' => 'user1@example.com'
+                    'email' => 'user1@example.com',
                 ],
                 [
                     'first_name' => 'Karim',
                     'last_name' => 'Maged',
                     'slug_name' => 'karim-maged-' . uniqid(),
-                    'email' => 'user2@example.com'
+                    'email' => 'user2@example.com',
                 ],
                 [
                     'first_name' => 'Nour',
                     'last_name' => 'Hassan',
                     'slug_name' => 'nour-hassan-' . uniqid(),
-                    'email' => 'user3@example.com'
+                    'email' => 'user3@example.com',
                 ],
             ];
 
@@ -68,7 +70,7 @@ class UserSeeder extends Seeder
                 );
             }
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
         }
     }
