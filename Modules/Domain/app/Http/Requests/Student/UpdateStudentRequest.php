@@ -2,9 +2,9 @@
 
 namespace Modules\Domain\Http\Requests\Student;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
 class UpdateStudentRequest extends FormRequest
 {
@@ -23,7 +23,7 @@ class UpdateStudentRequest extends FormRequest
     {
         return [
             'user_id' => ['sometimes', 'required', 'string', 'max:255', 'exists:users,id'],
-            'student_code' => ['sometimes', 'required', 'string', 'max:255', 'unique:students,student_code,'.$this->route('student').',id'],
+            'student_code' => ['sometimes', 'required', 'string', 'max:255', 'unique:students,student_code,' . $this->route('student') . ',id'],
             'hashed_national_id' => ['sometimes', 'required', 'string', 'max:255'],
             'gender' => ['sometimes', 'required', 'string'],
             'academic_level_id' => ['nullable', 'sometimes', 'integer', 'exists:academic_levels,id'],
@@ -43,7 +43,7 @@ class UpdateStudentRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation errors',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

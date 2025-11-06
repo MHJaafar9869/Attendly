@@ -56,7 +56,7 @@ trait ResponseJson
      * Format paginated data with meta and links
      */
     private function formatPaginatedData(
-        LengthAwarePaginator|AbstractPaginator|ResourceCollection $paginator
+        LengthAwarePaginator | AbstractPaginator | ResourceCollection $paginator
     ): array {
         if ($paginator instanceof ResourceCollection) {
             $paginator = $paginator->resource;
@@ -109,7 +109,7 @@ trait ResponseJson
      * Paginated response
      */
     protected function respondWithPagination(
-        LengthAwarePaginator|AbstractPaginator|ResourceCollection $data,
+        LengthAwarePaginator | AbstractPaginator | ResourceCollection $data,
         string $message = 'Data retrieved successfully',
         int $status = 200,
         array $extra = []

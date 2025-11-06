@@ -17,7 +17,7 @@ class CoreDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(Type\TypeSeeder::class);
+        $this->call(TypeSeeder::class);
         $this->call([
             // StripePaymentSeeder::class,
             // PayPalPaymentSeeder::class,

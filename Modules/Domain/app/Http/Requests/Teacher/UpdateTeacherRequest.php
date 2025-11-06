@@ -2,9 +2,9 @@
 
 namespace Modules\Domain\Http\Requests\Teacher;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
 class UpdateTeacherRequest extends FormRequest
 {
@@ -23,7 +23,7 @@ class UpdateTeacherRequest extends FormRequest
     {
         return [
             'user_id' => ['sometimes', 'required', 'string', 'max:255', 'exists:users,id'],
-            'teacher_code' => ['sometimes', 'required', 'string', 'max:255', 'unique:teachers,teacher_code,'.$this->route('teacher').',id'],
+            'teacher_code' => ['sometimes', 'required', 'string', 'max:255', 'unique:teachers,teacher_code,' . $this->route('teacher') . ',id'],
             'teacher_type_id' => ['sometimes', 'required', 'integer'],
             'status_id' => ['sometimes', 'required', 'integer', 'exists:statuses,id'],
             'approved_by' => ['nullable', 'sometimes', 'string', 'max:255'],
@@ -38,7 +38,7 @@ class UpdateTeacherRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation errors',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

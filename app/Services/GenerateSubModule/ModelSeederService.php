@@ -80,7 +80,7 @@ class ModelSeederService
 
         // Detect primary key or unique indexes
         $primaryKeys = self::getPrimaryKeys($table);
-        $upsertTarget = ! empty($primaryKeys) ? $primaryKeys : ['id'];
+        $upsertTarget = $primaryKeys === [] ? ['id'] : $primaryKeys;
 
         // Updatable columns: all except PKs, created_at
         $updatableColumns = array_values(array_diff($columns, array_merge($upsertTarget, ['created_at'])));
@@ -147,8 +147,8 @@ class {$model}Seeder extends Seeder
 
         DB::table('{$table}')->upsert(
             \$records,
-            ".self::exportArray($upsertTarget).',
-            '.self::exportArray($updatableColumns).'
+            " . self::exportArray($upsertTarget) . ',
+            ' . self::exportArray($updatableColumns) . '
         );
     }
 }
@@ -201,28 +201,28 @@ class {$model}Seeder extends Seeder
             $lines = array_map(
                 fn ($item) => is_array($item)
                     ? self::exportArray($item, $indentLevel + 1, false)
-                    : str_repeat('    ', $indentLevel + 1).var_export($item, true).',',
+                    : str_repeat('    ', $indentLevel + 1) . var_export($item, true) . ',',
                 $array
             );
 
             $body = implode("\n", $lines);
 
-            return "[\n{$body}\n{$indent}]".($isRoot ? '' : ',');
+            return "[\n{$body}\n{$indent}]" . ($isRoot ? '' : ',');
         }
 
         // Associative array
         $lines = [];
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $lines[] = "{$innerIndent}'{$key}' => ".self::exportArray($value, $indentLevel + 1, false);
+                $lines[] = "{$innerIndent}'{$key}' => " . self::exportArray($value, $indentLevel + 1, false);
             } else {
-                $lines[] = "{$innerIndent}'{$key}' => ".var_export($value, true).',';
+                $lines[] = "{$innerIndent}'{$key}' => " . var_export($value, true) . ',';
             }
         }
 
         $body = implode("\n", $lines);
 
-        return "[\n{$body}\n{$indent}]".($isRoot ? '' : ',');
+        return "[\n{$body}\n{$indent}]" . ($isRoot ? '' : ',');
     }
 
     /**

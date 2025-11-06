@@ -22,7 +22,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->string('teacher_code')->unique();
-            
+
             $table->foreignIdFor(Type::class, 'teacher_type_id')
                 ->nullable()
                 ->constrained('types')

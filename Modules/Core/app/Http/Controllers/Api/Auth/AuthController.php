@@ -119,7 +119,7 @@ final class AuthController extends Controller
             return $this->respondSuccess('Successfully logged out');
         } catch (JWTException $e) {
             return app()->environment('local')
-                ? $this->respondError('Failed due: '.$e->getMessage(), 500)
+                ? $this->respondError('Failed due: ' . $e->getMessage(), 500)
                 : $this->respondError('Failed to logout, please try again later.', 500);
         }
     }
@@ -179,7 +179,7 @@ final class AuthController extends Controller
             );
         } catch (Exception $e) {
             return app()->environment('local')
-               ? $this->respondError('Failed due: '.$e->getMessage(), 500)
+               ? $this->respondError('Failed due: ' . $e->getMessage(), 500)
                : $this->respondError('Failed to upload profile image, please try again later.', 500);
         }
 

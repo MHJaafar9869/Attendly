@@ -88,7 +88,7 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
             }
             $data['status_id'] = $statusId;
             $data['email'] = sanitize($data['email'], false);
-            $data['slug_name'] = Str::slug("{$data['first_name']}-{$data['last_name']}-".Str::random(8));
+            $data['slug_name'] = Str::slug("{$data['first_name']}-{$data['last_name']}-" . Str::random(8));
             $otp = generateOtp();
             $data['otp'] = $otp;
             $data['otp_expires_at'] = now()->addMinutes((int) config('security.otp.otp_ttl_minutes'));
@@ -118,7 +118,7 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
         });
     }
 
-    public function verifyOtp(string|int $userId, string $otp, ?bool $remember = false): RepositoryResponseDto
+    public function verifyOtp(string | int $userId, string $otp, ?bool $remember = false): RepositoryResponseDto
     {
         return DB::transaction(function () use ($userId, $otp, $remember): RepositoryResponseDto {
             /** @var User $user */
@@ -302,7 +302,7 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
             $image = $user->images()->save(Image::fromDTO($data));
 
             $message = $type
-                ? normalize('_', ' ', $data->type).' uploaded successfully'
+                ? normalize('_', ' ', $data->type) . ' uploaded successfully'
                 : 'Profile picture uploaded successfully';
 
             return RepositoryResponseDto::success(

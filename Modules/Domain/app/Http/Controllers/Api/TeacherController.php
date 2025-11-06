@@ -29,7 +29,7 @@ class TeacherController extends Controller
         return $this->respondWithData(TeacherResource::collection($data), 'Teacher list retrieved successfully');
     }
 
-    public function show(int|string $id): JsonResponse
+    public function show(int | string $id): JsonResponse
     {
         $data = $this->teacherRepo->find($id);
         if (! $data) {
@@ -46,14 +46,14 @@ class TeacherController extends Controller
         return $this->respondWithData(TeacherResource::make($data), 'Teacher created successfully', 201);
     }
 
-    public function update(UpdateTeacherRequest $request, int|string $id): JsonResponse
+    public function update(UpdateTeacherRequest $request, int | string $id): JsonResponse
     {
         $data = $this->teacherRepo->update($id, $request->validated());
 
         return $this->respondWithData(TeacherResource::make($data), 'Teacher updated successfully');
     }
 
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(int | string $id): JsonResponse
     {
         $this->teacherRepo->delete($id);
 

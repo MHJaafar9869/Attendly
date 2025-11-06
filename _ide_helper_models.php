@@ -82,6 +82,36 @@ namespace Modules\Core\Models{
 namespace Modules\Core\Models{
 /**
  * @property int $id
+ * @property string $user_id
+ * @property int $type_id
+ * @property string $value
+ * @property int $order
+ * @property bool $is_active
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
+ * @property-read \Modules\Core\Models\Type $type
+ * @property-read \Modules\Core\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact byUser(int $userId)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereIsActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereValue($value)
+ */
+	class Contact extends \Eloquent {}
+}
+
+namespace Modules\Core\Models{
+/**
+ * @property int $id
  * @property string $favoriteable_id
  * @property string $favoriteable_type
  * @property string $collection
@@ -297,7 +327,7 @@ namespace Modules\Core\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Domain\Models\Contact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Core\Models\Contact> $contacts
  * @property-read int|null $contacts_count
  * @property-read mixed $fullname
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Core\Models\Image> $images
@@ -309,6 +339,7 @@ namespace Modules\Core\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Core\Models\Role> $roles
  * @property-read int|null $roles_count
  * @property-read \Modules\Core\Models\Status|null $status
+ * @property-read mixed $status_name
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Domain\Models\Student> $students
  * @property-read int|null $students_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Domain\Models\Teacher> $teachers
@@ -446,34 +477,6 @@ namespace Modules\Domain\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Classroom whereUpdatedBy($value)
  */
 	class Classroom extends \Eloquent {}
-}
-
-namespace Modules\Domain\Models{
-/**
- * @property int $id
- * @property string $user_id
- * @property int $type_id
- * @property string $value
- * @property int $order
- * @property bool $is_active
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Modules\Core\Models\Type $type
- * @property-read \Modules\Core\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact byUser(int $userId)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereIsActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact whereValue($value)
- */
-	class Contact extends \Eloquent {}
 }
 
 namespace Modules\Domain\Models{
