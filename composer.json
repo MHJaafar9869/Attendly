@@ -12,6 +12,7 @@
         "php": "^8.4",
         "filament/filament": "^4.0",
         "laravel/framework": "^12.0",
+        "laravel/octane": "^2.13",
         "laravel/tinker": "^2.10.1",
         "nwidart/laravel-modules": "^12.0",
         "simplesoftwareio/simple-qrcode": "^4.2",
@@ -20,12 +21,12 @@
         "tymon/jwt-auth": "^2.2"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.6",
         "driftingly/rector-laravel": "^2.0",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.7",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
-        "laravel/sail": "^1.41",
         "laravel/telescope": "^5.14",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
@@ -40,7 +41,10 @@
             "Modules\\": "Modules/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "Modules/Core/app/Helpers/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -50,7 +54,10 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan ide-helper:generate",
+            "@php artisan ide-helper:models -n",
+            "@php artisan ide-helper:meta"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
@@ -69,7 +76,7 @@
         ],
         "rector": "vendor/bin/rector process --no-ansi",
         "pint": "vendor/bin/pint --config pint-strict-imports.json --no-ansi",
-        "phpstan": "vendor/bin/phpstan analyse --no-ansi",
+        "phpstan": "vendor/bin/phpstan analyse --no-ansi --memory-limit=2G",
         "lint": [
             "@rector",
             "@pint"

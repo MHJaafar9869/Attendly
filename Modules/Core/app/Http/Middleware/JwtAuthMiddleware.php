@@ -23,18 +23,17 @@ class JwtAuthMiddleware
     {
         try {
             $payload = jwtGuard()->getPayload();
-            $user = jwtGuard()->user();
 
-            if (! jwtGuard()->authenticate()) {
+            if (! $user = jwtGuard()->user()) {
                 return $this->respondError('Unauthenticated', 401);
             }
 
             if (! $user->email_verified_at) {
-                return $this->respondError(`Email is not verified. Please verify you'r email first`);
+                return $this->respondError('Email is not verified. Please verify your email first');
             }
 
             if ($payload->get('token_version') !== $user->token_version) {
-                return $this->respondError('Token expired due to role/permission change', 401);
+                return $this->respondError('Token invalidated. Please reauthenticate', 401);
             }
 
             jwtGuard()->setUser($user);

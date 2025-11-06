@@ -2,9 +2,9 @@
 
 namespace Modules\Domain\Http\Requests\Student;
 
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 
 class StoreStudentRequest extends FormRequest
 {
@@ -26,10 +26,9 @@ class StoreStudentRequest extends FormRequest
             'student_code' => ['required', 'string', 'max:255', 'unique:students,student_code'],
             'hashed_national_id' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'string'],
-            'academic_year' => ['required', 'string', 'max:255'],
-            'section' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:255', 'unique:students,phone'],
-            'secondary_phone' => ['nullable', 'string', 'max:255', 'unique:students,secondary_phone'],
+            'academic_level_id' => ['nullable', 'integer', 'exists:academic_levels,id'],
+            'warning_count' => ['required', 'integer'],
+            'is_banned' => ['required', 'boolean'],
             'address' => ['nullable', 'string'],
             'city' => ['nullable', 'string', 'max:255'],
             'governorate_id' => ['nullable', 'integer', 'exists:governorates,id'],
@@ -44,7 +43,7 @@ class StoreStudentRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation errors',
-            'errors' => $validator->errors(),
+            'errors' => $validator->errors()
         ], 422));
     }
 }

@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Domain\Models\AcademicLevel;
 use Modules\Domain\Models\Governorate;
 
 return new class extends Migration
@@ -20,15 +21,14 @@ return new class extends Migration
             $table->string('student_code')->unique();
             $table->string('hashed_national_id')->unique();
             $table->enum('gender', ['male', 'female']);
-            $table->string('academic_year');
-            $table->string('section');
+            $table->foreignIdFor(AcademicLevel::class)->nullable()->constrained()->nullOnDelete();
 
-            $table->string('phone')->nullable()->unique();
-            $table->string('secondary_phone')->nullable()->unique();
+            $table->unsignedInteger('warning_count')->default(0);
+            $table->boolean('is_banned')->default(false);
 
             $table->text('address')->nullable();
             $table->string('city')->nullable();
-            $table->foreignIdFor(Governorate::class)->nullable()->constrained();
+            $table->foreignIdFor(Governorate::class)->nullable()->constrained()->nullOnDelete();
 
             $table->timestamps();
             $table->softDeletes();

@@ -3,30 +3,30 @@
 namespace Modules\Core\database\seeders\Role;
 
 use Illuminate\Database\Seeder;
-use Modules\Core\Models\Role;
+use Illuminate\Support\Facades\DB;
 
 class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        Role::firstOrCreate([
-            'name' => 'super_admin',
-        ]);
+        $now = now();
 
-        Role::firstOrCreate([
-            'name' => 'admin',
-        ]);
+        $roles = [
+            ['name' => 'super_admin'],
+            ['name' => 'admin'],
+            ['name' => 'accountant'],
+            ['name' => 'teacher'],
+            ['name' => 'supervisor'],
+            ['name' => 'student'],
+        ];
 
-        Role::firstOrCreate([
-            'name' => 'moderator',
-        ]);
+        data_set($roles, '*.created_at', $now);
+        data_set($roles, '*.updated_at', $now);
 
-        Role::firstOrCreate([
-            'name' => 'user',
-        ]);
-
-        Role::firstOrCreate([
-            'name' => 'guest',
-        ]);
+        DB::table('roles')->upsert(
+            $roles,
+            ['name'],
+            ['name', 'updated_at']
+        );
     }
 }

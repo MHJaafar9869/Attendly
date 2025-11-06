@@ -11,23 +11,23 @@ class LogObserver
 {
     protected static array $stack = [];
 
-    protected static int $threshold = 10;
-
-    protected static int $timeoutSeconds = 180;
-
     protected static ?Carbon $timelimit = null;
 
-    public function creating($model): void
+    protected int $threshold = 25;
+
+    protected int $timeoutSeconds = 180;
+
+    public function created($model): void
     {
         $this->record('created', $model);
     }
 
-    public function updating($model): void
+    public function updated($model): void
     {
         $this->record('updated', $model);
     }
 
-    public function deleting($model): void
+    public function deleted($model): void
     {
         $this->record('deleted', $model);
     }
@@ -42,37 +42,58 @@ class LogObserver
 
         $trackables = method_exists($model, 'trackables') ? $model->trackables() : [];
 
+        $dirty = collect();
+
         if ($action === 'updated') {
-            $dirty = collect($model->getDirty())->only($trackables)->toArray();
-            if (empty($dirty)) {
+            $original = collect($model->getOriginal());
+            $current = collect($model->getAttributes());
+
+            if ($trackables === ['all']) {
+                $original->except(['created_at', 'updated_at', 'deleted_at']);
+                $current->except(['created_at', 'updated_at', 'deleted_at']);
+            } elseif ($trackables !== []) {
+                $original->only($trackables);
+                $current->only($trackables);
+            } else {
                 return;
             }
-        } else {
-            $dirty = [];
+
+            $dirty = $current->diffAssoc($original);
+
+            if ($dirty->isEmpty()) {
+                return;
+            }
         }
 
         $data = [
             'user_id' => $actor?->id ?? null,
             'action_type' => $action,
             'loggable_type' => get_class($model),
-            'loggable_id' => $model->id ?? null,
+            'loggable_id' => $model?->id ?? null,
             'ip_address' => Request::ip(),
             'user_agent' => Request::userAgent(),
             'meta' => [
-                'roles' => $actor->getRoles() ?? ['system'],
-                'changes' => $dirty,
+                'roles' => $actor?->getRoles() ?? ['system'],
+                'action' => $action,
             ],
-            'created_at' => now()->toDateTimeString(),
-            'updated_at' => now()->toDateTimeString(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
+
+        if ($action === 'updated') {
+            $data['meta']['changes'] = $dirty->toArray();
+        }
 
         self::$stack[] = $data;
 
         if (! self::$timelimit instanceof Carbon) {
-            self::$timelimit = now()->addSeconds(self::$timeoutSeconds);
+            self::$timelimit = now()->addSeconds($this->timeoutSeconds);
         }
 
-        if (count(self::$stack) >= self::$threshold || now()->gte(self::$timelimit)) {
+        $flushByThreshold = count(self::$stack) >= $this->threshold;
+        $flushByTimelimit = now()->gte(self::$timelimit);
+
+        if ($flushByThreshold || $flushByTimelimit) {
             RecordActivityLog::dispatch(self::$stack)->onQueue('activity_logs');
             self::$stack = [];
             self::$timelimit = null;

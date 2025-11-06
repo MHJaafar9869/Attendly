@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Repositories\BaseRepository;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use BackedEnum;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -21,7 +22,7 @@ interface BaseRepositoryInterface
 
     public function addQuery(): Builder;
 
-    public function find(int | string $id);
+    public function find(int | string | BackedEnum $id);
 
     public function findWithRelation(int | string $id, string | array $relations): Builder;
 
@@ -35,7 +36,7 @@ interface BaseRepositoryInterface
 
     public function forceDelete(int | string $id): bool;
 
-    public function findBy(string $column, mixed $value): ?Model;
+    public function findBy(string $column, mixed $value, bool $sanitize = false): ?Model;
 
     public function findOneBy(array $criteria): ?Model;
 

@@ -28,7 +28,6 @@ class RegisterRequest extends FormRequest
             'last_name' => 'required|string',
             'email' => 'required|email|unique:users,email',
             'phone' => 'sometimes|nullable|unique:users,phone|regex:/^\+?[0-9]{7,15}$/',
-            'national_id' => 'required|integer|unique:users,national_id',
             'password' => [
                 'required',
                 'confirmed',
@@ -36,6 +35,11 @@ class RegisterRequest extends FormRequest
                 new StrongPassword(name: $this->input('first_name') . ' ' . $this->input('last_name')),
             ],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge(['role' => 6]);
     }
 
     public function failedValidation(Validator $validator)

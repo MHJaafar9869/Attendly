@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Modules\Core\Models\Status;
+use Modules\Core\Models\Type;
 
 return new class extends Migration
 {
@@ -15,15 +16,27 @@ return new class extends Migration
         Schema::create('teachers', function (Blueprint $table) {
             $table->ulid('id')->primary();
 
-            $table->foreignUlid('user_id')->unique()->constrained()->cascadeOnDelete();
+            $table->foreignUlid('user_id')
+                ->unique()
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->string('teacher_code')->unique();
-            $table->string('subject_specilization')->index();
-            $table->foreignId('teacher_type_id')->references('id')->on('types');
+            
+            $table->foreignIdFor(Type::class, 'teacher_type_id')
+                ->nullable()
+                ->constrained('types')
+                ->nullOnDelete();
 
-            $table->foreignIdFor(Status::class)->constrained();
+            $table->foreignIdFor(Status::class)
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
 
-            $table->foreignUlid('approved_by')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignUlid('approved_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
 
             $table->timestamps();
             $table->softDeletes();

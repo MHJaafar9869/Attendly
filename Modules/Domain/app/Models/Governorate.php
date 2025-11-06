@@ -14,7 +14,10 @@ class Governorate extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = ['name', 'iso_code'];
+    protected $fillable = [
+        'name',
+        'iso_code',
+    ];
 
     // protected static function newFactory(): GovernorateFactory
     // {

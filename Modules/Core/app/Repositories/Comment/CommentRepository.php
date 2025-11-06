@@ -5,7 +5,7 @@ namespace Modules\Core\Repositories\Comment;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Core\Models\Comment;
 
-class CommentRepository extends BaseRepository implements CommentRepositoryInterface
+final readonly class CommentRepository extends BaseRepository implements CommentRepositoryInterface
 {
     public function __construct(Comment $model)
     {

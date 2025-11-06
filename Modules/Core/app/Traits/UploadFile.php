@@ -11,7 +11,7 @@ trait UploadFile
 {
     public function uploadFile(UploadedFile $file, string $folder = 'uploads', string $disk = 'public'): string
     {
-        $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
+        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
         $path = Storage::disk($disk)->putFileAs($folder, $file, $filename);
 
         return $path;
@@ -30,5 +30,10 @@ trait UploadFile
         $storage = Storage::disk($disk);
 
         return $storage->url($path);
+    }
+
+    public function getMime(UploadedFile $file): string
+    {
+        return $file->getMimeType();
     }
 }

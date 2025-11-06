@@ -29,7 +29,7 @@ class RecordActivityLog implements ShouldQueue
     {
         DB::transaction(function () {
             if (isset($this->data[0]) && is_array($this->data[0])) {
-                ActivityLog::insertOrIgnore($this->data);
+                ActivityLog::insert($this->data);
             } else {
                 ActivityLog::create($this->data);
             }

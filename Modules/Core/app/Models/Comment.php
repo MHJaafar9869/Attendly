@@ -2,11 +2,14 @@
 
 namespace Modules\Core\Models;
 
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Core\Observers\LogObserver;
 
 // use Modules\Core\Database\Factories\CommentFactory;
 
+#[ObservedBy(LogObserver::class)]
 class Comment extends Model
 {
     use HasFactory;
@@ -31,6 +34,16 @@ class Comment extends Model
     // {
     //     // return CommentFactory::new();
     // }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logs
+    |--------------------------------------------------------------------------
+    */
+    protected function trackables(): array
+    {
+        return [];
+    }
 
     /*
     |--------------------------------------------------------------------------

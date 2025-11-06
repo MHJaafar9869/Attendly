@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
                 [
                     'first_name' => 'Mostafa',
                     'last_name' => 'Jaafar',
-                    'slug_name' => 'mostafa-jaafar-' . uniqid(),
+                    'slug_name' => 'mostafa-jaafar-' . Str::random(8),
                     'status_id' => 2,
                     'password' => Hash::make('password123'),
                     'email_verified_at' => now(),
@@ -32,27 +32,27 @@ class UserSeeder extends Seeder
                 ]
             );
 
-            $role = Role::first();
-            $user->roles()->attach($role->id);
+            $roleId = Role::where('name', 'super_admin')->pluck('id');
+            $user->roles()->attach($roleId);
 
             // === Additional users for testing ===
             $users = [
                 [
                     'first_name' => 'Lina',
                     'last_name' => 'Adel',
-                    'slug_name' => 'lina-adel-' . uniqid(),
+                    'slug_name' => 'lina-adel-' . Str::random(8),
                     'email' => 'user1@example.com',
                 ],
                 [
                     'first_name' => 'Karim',
                     'last_name' => 'Maged',
-                    'slug_name' => 'karim-maged-' . uniqid(),
+                    'slug_name' => 'karim-maged-' . Str::random(8),
                     'email' => 'user2@example.com',
                 ],
                 [
                     'first_name' => 'Nour',
                     'last_name' => 'Hassan',
-                    'slug_name' => 'nour-hassan-' . uniqid(),
+                    'slug_name' => 'nour-hassan-' . Str::random(8),
                     'email' => 'user3@example.com',
                 ],
             ];

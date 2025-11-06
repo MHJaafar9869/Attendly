@@ -14,11 +14,11 @@ return new class extends Migration
     {
         Schema::create('user_roles', function (Blueprint $table) {
             $table->id();
-            $table->ulid('user_id');
+            $table->foreignUlid('user_id')->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Role::class)->constrained()->cascadeOnDelete();
+            $table->foreignUlid('assigned_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unique(['role_id', 'user_id']);
         });
     }

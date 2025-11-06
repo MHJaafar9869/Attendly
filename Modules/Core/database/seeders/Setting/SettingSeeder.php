@@ -3,46 +3,25 @@
 namespace Modules\Core\database\seeders\Setting;
 
 use Illuminate\Database\Seeder;
-use Modules\Core\Models\Setting;
+use Illuminate\Support\Facades\DB;
 
 class SettingSeeder extends Seeder
 {
     public function run(): void
     {
-        Setting::firstOrCreate([
-            'key' => 'Sample key 1',
-            'value' => 'Sample value 1',
-            'type' => 'Sample type 1',
-            'meta' => json_encode(['sample' => 'Sample meta 1']),
-        ]);
+        $now = now();
 
-        Setting::firstOrCreate([
-            'key' => 'Sample key 2',
-            'value' => 'Sample value 2',
-            'type' => 'Sample type 2',
-            'meta' => json_encode(['sample' => 'Sample meta 2']),
-        ]);
+        $settings = [
+            // ...
+        ];
 
-        Setting::firstOrCreate([
-            'key' => 'Sample key 3',
-            'value' => 'Sample value 3',
-            'type' => 'Sample type 3',
-            'meta' => json_encode(['sample' => 'Sample meta 3']),
-        ]);
+        data_set($settings, '*.created_at', $now);
+        data_set($settings, '*.updated_at', $now);
 
-        Setting::firstOrCreate([
-            'key' => 'Sample key 4',
-            'value' => 'Sample value 4',
-            'type' => 'Sample type 4',
-            'meta' => json_encode(['sample' => 'Sample meta 4']),
-        ]);
-
-        Setting::firstOrCreate([
-            'key' => 'Sample key 5',
-            'value' => 'Sample value 5',
-            'type' => 'Sample type 5',
-            'meta' => json_encode(['sample' => 'Sample meta 5']),
-        ]);
-
+        DB::table('settings')->upsert(
+            $settings,
+            ['key'],
+            ['key', 'value', 'type', 'description', 'updated_at']
+        );
     }
 }

@@ -7,7 +7,7 @@ namespace Modules\Domain\Repositories\PaymentGateway;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Domain\Models\PayPalPayment;
 
-class PayPalRepository extends BaseRepository implements PaymentGatewayRepositoryInterface
+final readonly class PayPalRepository extends BaseRepository implements PaymentGatewayRepositoryInterface
 {
     public function __construct(
         protected PayPalPayment $payPal

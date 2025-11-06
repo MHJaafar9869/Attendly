@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('image_mime', 100);
             $table->string('image_alt')->nullable();
 
+            $table->string('type');
+
             $table->boolean('is_flagged')->default(false);
             $table->ulid('flagged_by')->nullable();
             $table->timestamp('flagged_at')->nullable();

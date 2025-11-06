@@ -5,7 +5,7 @@ namespace Modules\Core\Repositories\Image;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Core\Models\Image;
 
-class ImageRepository extends BaseRepository implements ImageRepositoryInterface
+final readonly class ImageRepository extends BaseRepository implements ImageRepositoryInterface
 {
     public function __construct(Image $model)
     {

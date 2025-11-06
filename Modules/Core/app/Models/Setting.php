@@ -2,17 +2,19 @@
 
 namespace Modules\Core\Models;
 
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Modules\Core\Traits\HasUserStamps;
+use Modules\Core\Observers\AuditObserver;
+use Modules\Core\Observers\LogObserver;
 
 // use Modules\Core\Database\Factories\SettingFactory;
 
+#[ObservedBy([LogObserver::class, AuditObserver::class])]
 class Setting extends Model
 {
     use HasFactory;
-    use HasUserStamps;
     use SoftDeletes;
 
     /**
@@ -29,6 +31,16 @@ class Setting extends Model
     // {
     //     // return SettingFactory::new();
     // }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tracking
+    |--------------------------------------------------------------------------
+    */
+    protected function trackables(): array
+    {
+        return ['all'];
+    }
 
     /*
     |--------------------------------------------------------------------------

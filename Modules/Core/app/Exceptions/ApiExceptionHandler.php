@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Core\Exceptions;
 
-use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -15,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Throwable;
 
-class ApiExceptionHandler extends Exception
+final readonly class ApiExceptionHandler
 {
     use ResponseJson;
 
@@ -42,7 +41,7 @@ class ApiExceptionHandler extends Exception
         }
 
         if (app()->environment('local')) {
-            return $this->respondError('Failed with error: ' . $th->getMessage(), $th->getCode());
+            return $this->respondError('Failed with error: ' . $th->getMessage(), 500);
         }
 
         return $this->respondError('Error Occurred, Please try again', 500);

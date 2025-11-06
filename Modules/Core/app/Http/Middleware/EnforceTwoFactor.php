@@ -17,8 +17,17 @@ class EnforceTwoFactor
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->user()?->two_factor_secret && ! session('2fa_passed')) {
-            return $this->respondError('Please confirm two factor authentication', 401);
+        $user = $request->user();
+        $payload = jwtGuard()->payload();
+
+        if (! $user->two_factor_secret) {
+            return $next($request);
+        }
+
+        $amr = $payload->get('amr') ?? [];
+
+        if (! in_array('mfa', $amr)) {
+            return $this->respondError('Two-factor authentication required', 403);
         }
 
         return $next($request);

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Modules\Core\Services;
 
 use InvalidArgumentException;
-use Modules\Core\Repositories\PaymentGateway\PaymentGatewayRepositoryInterface;
-use Modules\Core\Repositories\PaymentGateway\PayPalRepository;
-use Modules\Core\Repositories\PaymentGateway\StripeRepository;
+use Modules\Domain\Repositories\PaymentGateway\PaymentGatewayRepositoryInterface;
+use Modules\Domain\Repositories\PaymentGateway\PayPalRepository;
+use Modules\Domain\Repositories\PaymentGateway\StripeRepository;
 
 class PaymentGatewayService
 {

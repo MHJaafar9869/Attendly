@@ -34,10 +34,14 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (Throwable $th, Request $request) {
-            // Handle most of api route exceptions
+            // Handle common api route exceptions
             if ($request->is('api/*')) {
                 return (new ApiExceptionHandler)
                     ->handleApiException($th);
             }
         });
+        // Render JSON at Client.
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request) => ($request->is('api/*') || $request->ajax()) ? true : false
+        );
     })->create();

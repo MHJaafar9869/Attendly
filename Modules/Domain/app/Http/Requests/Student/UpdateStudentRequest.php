@@ -2,9 +2,9 @@
 
 namespace Modules\Domain\Http\Requests\Student;
 
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 
 class UpdateStudentRequest extends FormRequest
 {
@@ -23,13 +23,12 @@ class UpdateStudentRequest extends FormRequest
     {
         return [
             'user_id' => ['sometimes', 'required', 'string', 'max:255', 'exists:users,id'],
-            'student_code' => ['sometimes', 'required', 'string', 'max:255', 'unique:students,student_code,' . $this->route('student') . ',id'],
+            'student_code' => ['sometimes', 'required', 'string', 'max:255', 'unique:students,student_code,'.$this->route('student').',id'],
             'hashed_national_id' => ['sometimes', 'required', 'string', 'max:255'],
             'gender' => ['sometimes', 'required', 'string'],
-            'academic_year' => ['sometimes', 'required', 'string', 'max:255'],
-            'section' => ['sometimes', 'required', 'string', 'max:255'],
-            'phone' => ['nullable', 'sometimes', 'string', 'max:255', 'unique:students,phone,' . $this->route('student') . ',id'],
-            'secondary_phone' => ['nullable', 'sometimes', 'string', 'max:255', 'unique:students,secondary_phone,' . $this->route('student') . ',id'],
+            'academic_level_id' => ['nullable', 'sometimes', 'integer', 'exists:academic_levels,id'],
+            'warning_count' => ['sometimes', 'required', 'integer'],
+            'is_banned' => ['sometimes', 'required', 'boolean'],
             'address' => ['nullable', 'sometimes', 'string'],
             'city' => ['nullable', 'sometimes', 'string', 'max:255'],
             'governorate_id' => ['nullable', 'sometimes', 'integer', 'exists:governorates,id'],
@@ -44,7 +43,7 @@ class UpdateStudentRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Validation errors',
-            'errors' => $validator->errors(),
+            'errors' => $validator->errors()
         ], 422));
     }
 }

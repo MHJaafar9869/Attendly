@@ -5,7 +5,7 @@ namespace Modules\Core\Repositories\Permission;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Core\Models\Permission;
 
-class PermissionRepository extends BaseRepository implements PermissionRepositoryInterface
+final readonly class PermissionRepository extends BaseRepository implements PermissionRepositoryInterface
 {
     public function __construct(Permission $model)
     {

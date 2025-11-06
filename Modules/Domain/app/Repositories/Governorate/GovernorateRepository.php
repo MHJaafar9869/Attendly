@@ -7,7 +7,7 @@ namespace Modules\Domain\Repositories\Governorate;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Domain\Models\Governorate;
 
-class GovernorateRepository extends BaseRepository implements GovernorateRepositoryInterface
+final readonly class GovernorateRepository extends BaseRepository implements GovernorateRepositoryInterface
 {
     public function __construct(Governorate $model)
     {

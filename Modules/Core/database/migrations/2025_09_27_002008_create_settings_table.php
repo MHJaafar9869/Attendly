@@ -18,16 +18,14 @@ return new class extends Migration
             $table->string('type')->default('string');
             $table->text('description')->nullable();
 
-            $table->ulid('created_by');
-            $table->ulid('updated_by')->nullable();
-            $table->ulid('deleted_by')->nullable();
-
-            $table->foreign('created_by')->references('id')->on('users')->cascadeOnDelete();
-            $table->foreign('updated_by')->references('id')->on('users')->cascadeOnDelete();
-            $table->foreign('deleted_by')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreignUlid('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUlid('updated_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUlid('deleted_by')->nullable()->constrained('users')->nullOnDelete();
 
             $table->timestamps();
             $table->softDeletes();
+            $table->index('created_at');
+            $table->index('deleted_at');
         });
     }
 

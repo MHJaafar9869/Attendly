@@ -2,11 +2,14 @@
 
 namespace Modules\Core\Models;
 
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Core\Observers\LogObserver;
 
 // use Modules\Core\Database\Factories\FavoriteFactory;
 
+#[ObservedBy(LogObserver::class)]
 class Favorite extends Model
 {
     use HasFactory;
@@ -20,6 +23,16 @@ class Favorite extends Model
     // {
     //     // return FavoriteFactory::new();
     // }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logs
+    |--------------------------------------------------------------------------
+    */
+    protected function trackables(): array
+    {
+        return [];
+    }
 
     /*
     |--------------------------------------------------------------------------

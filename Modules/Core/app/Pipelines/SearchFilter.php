@@ -22,10 +22,7 @@ class SearchFilter
             $columns = (array) $this->columns;
 
             $query->where(function ($q) use ($columns) {
-                foreach ($columns as $idx => $column) {
-                    $method = $idx === 0 ? 'whereLike' : 'orWhereLike';
-                    $q->{$method}($column, "%{$this->value}%");
-                }
+                $q->whereAny($columns, 'LIKE', "%{$this->value}%");
             });
         }
 

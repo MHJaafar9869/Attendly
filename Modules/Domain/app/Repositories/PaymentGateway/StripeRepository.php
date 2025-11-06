@@ -13,7 +13,7 @@ use Stripe\PaymentIntent;
 use Stripe\Refund;
 use Stripe\StripeClient;
 
-class StripeRepository extends BaseRepository implements PaymentGatewayRepositoryInterface
+final readonly class StripeRepository extends BaseRepository implements PaymentGatewayRepositoryInterface
 {
     public function __construct(
         protected StripePayment $payment,

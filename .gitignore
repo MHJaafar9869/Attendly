@@ -41,3 +41,7 @@ Thumbs.db
 Homestead.json
 Homestead.yaml
 /skeleton-todo-list.md
+
+**/caddy
+frankenphp
+frankenphp-worker.php

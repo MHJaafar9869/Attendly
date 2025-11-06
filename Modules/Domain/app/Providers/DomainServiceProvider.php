@@ -2,6 +2,9 @@
 
 namespace Modules\Domain\Providers;
 
+use Modules\Domain\Repositories\Teacher\TeacherRepositoryInterface;
+use Modules\Domain\Repositories\Teacher\TeacherRepository;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -38,16 +41,16 @@ class DomainServiceProvider extends ServiceProvider
     /**
      * Register the service provider.
      */
-    public function register(): void
-    {
-        $this->app->register(EventServiceProvider::class);
+    public function register(): void {
+$this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
         $this->app->singleton(StripeClient::class, fn ($app) => new StripeClient(config('services.gateways.stripe.secret')));
         $this->app->bind(function ($app): PaymentGatewayRepositoryInterface {
             $gateway = $app->make(Request::class)->input('gateway', config('services.gateways.default', 'stripe'));
 
             return $app->make(PaymentGatewayService::class)->resolve($gateway);
-        });
+        $this->app->bind(TeacherRepositoryInterface::class, TeacherRepository::class);
+});
         $this->app->bind(StudentRepositoryInterface::class, StudentRepository::class);
     }
 

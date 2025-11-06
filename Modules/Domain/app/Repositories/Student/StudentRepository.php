@@ -7,7 +7,7 @@ namespace Modules\Domain\Repositories\Student;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Domain\Models\Student;
 
-class StudentRepository extends BaseRepository implements StudentRepositoryInterface
+final readonly class StudentRepository extends BaseRepository implements StudentRepositoryInterface
 {
     public function __construct(Student $model)
     {

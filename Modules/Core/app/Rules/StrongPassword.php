@@ -34,7 +34,7 @@ class StrongPassword implements ValidationRule
                     $substring = substr($part, $i, $this->minLengthMatch);
 
                     if (stripos($value, $substring) !== false) {
-                        $fail('The password must not contain parts of your name.');
+                        $fail('The password must not contain sequence letters of your first/last name.');
 
                         return;
                     }

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Repositories\BaseRepository;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use BackedEnum;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -48,9 +49,11 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $this->model->paginate($perPage);
     }
 
-    public function find(int | string $id)
+    public function find(int | string | BackedEnum $id): ?Model
     {
-        return $this->model->findOrFail($id);
+        return $id instanceof BackedEnum
+            ? $this->model->find($id->value)
+            : $this->model->find($id);
     }
 
     public function findWithRelation(int | string $id, string | array $relations): Builder
@@ -81,8 +84,10 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $this->model->withTrashed()->findOrFail($id)->forceDelete();
     }
 
-    public function findBy(string $column, mixed $value): ?Model
+    public function findBy(string $column, mixed $value, bool $sanitize = false): ?Model
     {
+        $value = $sanitize ? sanitize($value, false) : $value;
+
         return $this->model->where($column, $value)->first();
     }
 

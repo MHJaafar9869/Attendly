@@ -8,7 +8,7 @@ class AuditObserver
 
     public function creating($model)
     {
-        if ($this->check($model, 'created_by') && empty($model->created_by)) {
+        if ($this->check($model, 'created_by') && $model->created_by === null) {
             $model->created_by = jwtGuard()->id();
         }
     }
@@ -22,7 +22,7 @@ class AuditObserver
 
     public function deleting($model)
     {
-        if ($this->check($model, 'deleted_by') && empty($model->deleted_by)) {
+        if ($this->check($model, 'deleted_by') && $model->deleted_by === null) {
             $model->deleted_by = jwtGuard()->id();
             $model->saveQuietly();
         }

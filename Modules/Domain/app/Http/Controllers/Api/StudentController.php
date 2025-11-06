@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Modules\Domain\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Traits\ResponseJson;
 use Illuminate\Http\JsonResponse;
+use Modules\Core\Traits\ResponseJson;
 use Modules\Domain\Http\Requests\Student\StoreStudentRequest;
 use Modules\Domain\Http\Requests\Student\UpdateStudentRequest;
 use Modules\Domain\Repositories\Student\StudentRepositoryInterface;

@@ -2,10 +2,11 @@
 
 namespace Modules\Core\Traits;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Pagination\AbstractPaginator;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Modules\Core\DTO\RepositoryResponseDto;
 use Modules\Core\Models\User;
 use Modules\Core\Transformers\User\UserResource;
 
@@ -17,37 +18,20 @@ trait ResponseJson
     protected function respond(
         bool $success,
         ?string $message = null,
-        mixed $data = [],
+        mixed $data = null,
         int $status = 200,
         array $extra = [],
         bool $paginate = false,
     ): JsonResponse {
         $response = [
             'success' => $success,
+            'status_code' => $status,
             'message' => $message,
         ];
 
         if ($data !== null) {
-            if ($paginate && ($data instanceof AbstractPaginator || $data instanceof ResourceCollection)) {
-                /** @var LengthAwarePaginator $paginator */
-                $paginator = $data;
-                $response[] = [
-                    'data' => $paginator->items(),
-                    'meta' => [
-                        'current_page' => $paginator->currentPage(),
-                        'per_page' => $paginator->perPage(),
-                        'from' => $paginator->firstItem(),
-                        'to' => $paginator->lastItem(),
-                        'total' => $paginator->total(),
-                        'last_page' => $paginator->lastPage(),
-                    ],
-                    'links' => [
-                        'first' => $paginator->url(1),
-                        'last' => $paginator->url($paginator->lastPage()),
-                        'prev' => $paginator->previousPageUrl(),
-                        'next' => $paginator->nextPageUrl(),
-                    ],
-                ];
+            if ($paginate && $this->isPaginatable($data)) {
+                $response = array_merge($response, $this->formatPaginatedData($data));
             } else {
                 $response['data'] = $data;
             }
@@ -56,6 +40,45 @@ trait ResponseJson
         $response = array_merge($response, $extra);
 
         return response()->json($response, $status);
+    }
+
+    /**
+     * Check if data can be paginated
+     */
+    private function isPaginatable(mixed $data): bool
+    {
+        return $data instanceof LengthAwarePaginator
+            || $data instanceof AbstractPaginator
+            || $data instanceof ResourceCollection;
+    }
+
+    /**
+     * Format paginated data with meta and links
+     */
+    private function formatPaginatedData(
+        LengthAwarePaginator|AbstractPaginator|ResourceCollection $paginator
+    ): array {
+        if ($paginator instanceof ResourceCollection) {
+            $paginator = $paginator->resource;
+        }
+
+        return [
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'per_page' => $paginator->perPage(),
+                'from' => $paginator->firstItem(),
+                'to' => $paginator->lastItem(),
+                'total' => $paginator->total(),
+                'last_page' => $paginator->lastPage(),
+            ],
+            'links' => [
+                'first' => $paginator->url(1),
+                'last' => $paginator->url($paginator->lastPage()),
+                'prev' => $paginator->previousPageUrl(),
+                'next' => $paginator->nextPageUrl(),
+            ],
+        ];
     }
 
     /**
@@ -83,11 +106,22 @@ trait ResponseJson
     }
 
     /**
-     * Success with paginated data.
+     * Paginated response
      */
-    protected function respondWithPaginatedData(mixed $data, string $message = 'Data retrieved successfully', int $status = 200, bool $paginate = true): JsonResponse
-    {
-        return $this->respond(true, $message, $data, $status, paginate: $paginate);
+    protected function respondWithPagination(
+        LengthAwarePaginator|AbstractPaginator|ResourceCollection $data,
+        string $message = 'Data retrieved successfully',
+        int $status = 200,
+        array $extra = []
+    ): JsonResponse {
+        return $this->respond(
+            success: true,
+            message: $message,
+            data: $data,
+            status: $status,
+            extra: $extra,
+            paginate: true
+        );
     }
 
     /**
@@ -118,5 +152,21 @@ trait ResponseJson
         ];
 
         return $this->respond(true, $message, $data);
+    }
+
+    /**
+     * Respond with DTO success - returns full structure
+     */
+    protected function respondDtoSuccess(RepositoryResponseDto $responseDto): JsonResponse
+    {
+        return response()->json($responseDto->toArray(), $responseDto->statusCode);
+    }
+
+    /**
+     * Respond with DTO error - returns full structure
+     */
+    protected function respondDtoError(RepositoryResponseDto $responseDto): JsonResponse
+    {
+        return response()->json($responseDto->toArray(), $responseDto->statusCode);
     }
 }

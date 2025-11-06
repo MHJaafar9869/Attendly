@@ -2,8 +2,10 @@
 
 namespace Modules\Core\Providers;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\Core\Console\ClearLogs;
 use Modules\Core\Repositories\Permission\PermissionRepository;
 use Modules\Core\Repositories\Permission\PermissionRepositoryInterface;
 use Modules\Core\Repositories\Role\RoleRepository;
@@ -62,7 +64,9 @@ class CoreServiceProvider extends ServiceProvider
      */
     protected function registerCommands(): void
     {
-        // $this->commands([]);
+        $this->commands([
+            ClearLogs::class,
+        ]);
     }
 
     /**
@@ -70,10 +74,10 @@ class CoreServiceProvider extends ServiceProvider
      */
     protected function registerCommandSchedules(): void
     {
-        // $this->app->booted(function () {
-        //     $schedule = $this->app->make(Schedule::class);
-        //     $schedule->command('inspire')->hourly();
-        // });
+        $this->app->booted(function () {
+            $schedule = $this->app->make(Schedule::class);
+            $schedule->command('logs:clear')->daily();
+        });
     }
 
     /**

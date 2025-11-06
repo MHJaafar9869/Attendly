@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Traits;
 
 trait ResponseArray
@@ -8,7 +10,8 @@ trait ResponseArray
         bool $success,
         ?string $message = null,
         ?int $status = 200,
-        ?array $data = null
+        ?array $data = null,
+        ?bool $isToken = null
     ): array {
         $response = [
             'success' => $success,
@@ -18,6 +21,10 @@ trait ResponseArray
 
         if ($data !== []) {
             $response['data'] = $data;
+        }
+
+        if ($isToken === true) {
+            $response['is_token'] = true;
         }
 
         return $response;
@@ -38,5 +45,14 @@ trait ResponseArray
         bool $success = false
     ) {
         return $this->respond($success, $message, $status);
+    }
+
+    protected function arrayResponseWithToken(
+        string $message = 'Request has been successful',
+        int $status = 200,
+        bool $success = true,
+        ?array $data = null,
+    ) {
+        return $this->respond($success, $message, $status, $data, true);
     }
 }

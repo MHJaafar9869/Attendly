@@ -16,6 +16,8 @@ class Permission extends Model
      */
     protected $fillable = ['name'];
 
+    protected $hidden = ['pivot'];
+
     // protected static function newFactory(): PermissionFactory
     // {
     //     // return PermissionFactory::new();

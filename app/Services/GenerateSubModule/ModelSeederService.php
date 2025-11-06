@@ -76,12 +76,20 @@ class ModelSeederService
      */
     private static function generateStub(string $module, string $model, array $columns, string $table): string
     {
-        $rows = '';
+        $namespace = "Modules\\{$module}\\database\\seeders\\{$model}";
 
-        // Generate 5 rows of sample data
+        // Detect primary key or unique indexes
+        $primaryKeys = self::getPrimaryKeys($table);
+        $upsertTarget = ! empty($primaryKeys) ? $primaryKeys : ['id'];
+
+        // Updatable columns: all except PKs, created_at
+        $updatableColumns = array_values(array_diff($columns, array_merge($upsertTarget, ['created_at'])));
+
+        $rows = [];
+
+        // Generate 5 fake records
         for ($i = 1; $i <= 5; $i++) {
-            $dataString = '';
-
+            $row = [];
             foreach ($columns as $col) {
                 if (in_array($col, ['id', 'created_at', 'updated_at'])) {
                     continue;
@@ -89,62 +97,132 @@ class ModelSeederService
 
                 $columnType = self::getColumnType($table, $col);
 
-                // Generate values based on column type and name
+                // Generate data based on type and column name
                 if ($columnType === 'json') {
-                    $value = "json_encode(['sample' => 'Sample {$col} {$i}'])";
+                    $row[$col] = "json_encode(['sample' => 'Sample {$col} {$i}'])";
                 } elseif (str_ends_with($col, '_id')) {
-                    $relatedTable = Str::snake(Str::plural(Str::replaceLast('_id', '', $col)));
-                    if (Schema::hasTable($relatedTable)) {
-                        $ids = DB::table($relatedTable)->pluck('id')->toArray();
-                        $value = count($ids) ? $ids[array_rand($ids)] : $i;
-                    } else {
-                        $value = $i;
-                    }
-                } elseif ($col === 'name') {
-                    $value = "Sample {$col} {$i}";
+                    $related = Str::snake(Str::plural(Str::replaceLast('_id', '', $col)));
+                    $row[$col] = Schema::hasTable($related)
+                        ? (DB::table($related)->inRandomOrder()->value('id') ?? $i)
+                        : $i;
                 } elseif (str_contains($col, 'email')) {
-                    $value = "user{$i}@example.com";
+                    $row[$col] = "user{$i}@example.com";
+                } elseif (str_contains($col, 'password')) {
+                    $row[$col] = "bcrypt('password123')";
                 } elseif (str_contains($col, 'mobile')) {
-                    $value = "01010000{$i}";
-                } elseif ($col === 'username') {
-                    $value = "user{$i}";
-                } elseif ($col === 'full_name') {
-                    $value = "Sample Name {$i}";
-                } elseif ($col === 'password') {
-                    $value = "bcrypt('password123')";
-                } elseif ($col === 'gender') {
-                    $value = $i % 2 === 0 ? 'Male' : 'Female';
+                    $row[$col] = "01010000{$i}";
+                } elseif (in_array($col, ['name', 'title'])) {
+                    $row[$col] = "Sample {$col} {$i}";
+                } elseif ($columnType === 'boolean') {
+                    $row[$col] = $i % 2 === 0 ? 'true' : 'false';
                 } else {
-                    $value = "Sample {$col} {$i}";
-                }
-
-                // Raw PHP for JSON/password, string for others
-                if ($columnType === 'json' || $col === 'password') {
-                    $dataString .= "                '{$col}' => {$value},\n";
-                } else {
-                    $dataString .= "                '{$col}' => '{$value}',\n";
+                    $row[$col] = "Sample {$col} {$i}";
                 }
             }
 
-            $rows .= "        {$model}::firstOrCreate([\n{$dataString}        ]);\n\n";
+            $rows[] = $row;
         }
 
-        $namespace = "Modules\\{$module}\\database\\seeders\\{$model}";
+        // Convert rows to printable PHP array
+        $arrayCode = self::exportArray($rows);
 
+        // Format the PHP seeder file
         return "<?php
 
 namespace {$namespace};
 
 use Illuminate\\Database\\Seeder;
-use Modules\\{$module}\\Models\\{$model};
+use Illuminate\\Support\\Facades\\DB;
 
 class {$model}Seeder extends Seeder
 {
     public function run(): void
     {
-{$rows}    }
+        \$now = now();
+
+        \$records = {$arrayCode};
+
+        data_set(\$records, '*.created_at', \$now);
+        data_set(\$records, '*.updated_at', \$now);
+
+        DB::table('{$table}')->upsert(
+            \$records,
+            ".self::exportArray($upsertTarget).',
+            '.self::exportArray($updatableColumns).'
+        );
+    }
 }
-";
+';
+    }
+
+    /**
+     * Detect likely upsert keys.
+     *
+     * - Prefer real primary keys from the schema.
+     * - If no primary keys, look for unique indexes (like `name`, `slug`, `email`, etc.).
+     * - Fallback to ['id'].
+     */
+    private static function getPrimaryKeys(string $table): array
+    {
+        $connection = DB::connection();
+        $driver = $connection->getDriverName();
+
+        if ($driver === 'mysql') {
+            // Try to get primary keys first
+            $primary = $connection->select("SHOW KEYS FROM {$table} WHERE Key_name = 'PRIMARY'");
+            if (! empty($primary)) {
+                return array_column($primary, 'Column_name');
+            }
+
+            // Try unique indexes (fallback)
+            $unique = $connection->select("SHOW KEYS FROM {$table} WHERE Non_unique = 0");
+            if (! empty($unique)) {
+                // Return the first unique index’s columns
+                $firstIndexName = $unique[0]->Key_name;
+
+                return array_column(array_filter($unique, fn ($u) => $u->Key_name === $firstIndexName), 'Column_name');
+            }
+        }
+
+        // Default fallback
+        return ['id'];
+    }
+
+    /**
+     * Export PHP arrays with clean formatting (no numeric keys).
+     */
+    private static function exportArray(array $array, int $indentLevel = 2, bool $isRoot = true): string
+    {
+        $indent = str_repeat('    ', $indentLevel);
+        $innerIndent = str_repeat('    ', $indentLevel + 1);
+
+        // List array (numeric keys)
+        if (array_is_list($array)) {
+            $lines = array_map(
+                fn ($item) => is_array($item)
+                    ? self::exportArray($item, $indentLevel + 1, false)
+                    : str_repeat('    ', $indentLevel + 1).var_export($item, true).',',
+                $array
+            );
+
+            $body = implode("\n", $lines);
+
+            return "[\n{$body}\n{$indent}]".($isRoot ? '' : ',');
+        }
+
+        // Associative array
+        $lines = [];
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $lines[] = "{$innerIndent}'{$key}' => ".self::exportArray($value, $indentLevel + 1, false);
+            } else {
+                $lines[] = "{$innerIndent}'{$key}' => ".var_export($value, true).',';
+            }
+        }
+
+        $body = implode("\n", $lines);
+
+        return "[\n{$body}\n{$indent}]".($isRoot ? '' : ',');
     }
 
     /**

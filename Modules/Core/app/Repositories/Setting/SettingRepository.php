@@ -5,7 +5,7 @@ namespace Modules\Core\Repositories\Setting;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\Core\Models\Setting;
 
-class SettingRepository extends BaseRepository implements SettingRepositoryInterface
+final readonly class SettingRepository extends BaseRepository implements SettingRepositoryInterface
 {
     public function __construct(Setting $model)
     {
