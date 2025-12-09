@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Modules\Core\Http\Controllers\Api\Auth;
 
+use App\DTO\Auth\UserImageDto;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
+use Modules\Core\DTO\Auth\LoginUserDto;
+use Modules\Core\DTO\Auth\RegisterUserDto;
+use Modules\Core\DTO\Auth\ResetPasswordDto;
 use Modules\Core\Http\Requests\Auth\ForgotPasswordRequest;
 use Modules\Core\Http\Requests\Auth\LoginRequest;
 use Modules\Core\Http\Requests\Auth\RegisterRequest;
@@ -18,7 +23,6 @@ use Modules\Core\Repositories\User\UserRepositoryInterface;
 use Modules\Core\Services\UserServices\AuthService;
 use Modules\Core\Traits\ResponseJson;
 use Modules\Core\Transformers\User\UserResource;
-use Tymon\JWTAuth\Exceptions\JWTException;
 
 final class AuthController extends Controller
 {
@@ -37,154 +41,121 @@ final class AuthController extends Controller
     }
 
     /**
-     * Get a JWT via given credentials.
+     * Handle login request to the application.
+     * POST /api/v1/auth/login { email, password }
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        try {
-            $dto = $this->userRepo->login($request->validated());
+        $dto = LoginUserDto::fromRequest($request->validated());
 
-            return $dto->isSuccess()
-                ? $this->respondDtoSuccess($dto)
-                : $this->respondDtoError($dto);
+        $response = $this->authService->login($dto);
 
-        } catch (Exception $e) {
-            return $this->respondError('Login failed. Please try again later.', 500);
-        }
+        return $this->respondDto($response);
     }
 
+    /**
+     * Handle register request to the application.
+     * POST /api/v1/auth/register { first_name, last_name, email, password }
+     */
     public function register(RegisterRequest $request): JsonResponse
     {
-        try {
-            $dto = $this->userRepo->register($request->validated());
+        $dto = RegisterUserDto::fromRequest($request->validated());
 
-            return $dto->isSuccess()
-                ? $this->respondDtoSuccess($dto)
-                : $this->respondDtoError($dto);
+        $response = $this->authService->register($dto);
 
-        } catch (Exception $e) {
-            return $this->respondError('Registration failed. Please try again later.', 500);
-        }
+        return $this->respondDto($response);
     }
 
-    public function verifyOtp(VerifyOtpRequest $request): JsonResponse
+    /**
+     * Handle OTP verification request to the application.
+     * POST /api/v1/auth/{slug}/verfiy-otp { otp }
+     */
+    public function verifyOtp(string $userSlug, VerifyOtpRequest $request): JsonResponse
     {
-        try {
-            $user = jwtGuard()->user();
+        $response = $this->authService->verifyOtp($userSlug, $request->validated('otp'));
 
-            if (! $user) {
-                return $this->respondUnauthorized();
-            }
-
-            $dto = $this->userRepo->verifyOtp(
-                userId: $user->id,
-                otp: $request->input('otp'),
-                remember: $request->boolean('remember', false)
-            );
-
-            return $dto->isSuccess()
-                ? $this->respondDtoSuccess($dto)
-                : $this->respondDtoError($dto);
-
-        } catch (Exception $e) {
-            return $this->respondError('OTP verification failed. Please try again later.', 500);
-        }
+        return $this->respondDto($response);
     }
 
     /**
      * Get the authenticated User.
+     * GET /api/v1/auth/me
      */
     public function me(): JsonResponse
     {
-        $user = jwtGuard()->user()->load([
-            'images:id,imageable_id,imageable_type,image_path,image_url,type',
-            'roles:id,name',
-            'roles.permissions:id,name',
-        ]);
-
-        return $this->respondWithData(
-            UserResource::make($user),
-            sprintf('User %s data retrieved successfully', ucfirst($user->first_name))
+        $user = Cache::flexible(
+            key: 'users:'.sanctumUser()->id,
+            ttl: [30, 60],
+            callback: fn () => sanctumUser()->load(
+                [
+                    'images:id,image_path,image_url,type',
+                    'roles:id,name',
+                    'roles.permissions:id,name',
+                ]
+            )
         );
+
+        $message = \sprintf('User %s data retrieved', $user->first_name);
+
+        return $this->respondWithData(UserResource::make($user), $message);
     }
 
     /**
      * Log the user out (Invalidate the token).
+     * POST /api/v1/auth/logout
      */
     public function logout(): JsonResponse
     {
         try {
-            jwtGuard()->logout();
-
-            return $this->respondSuccess('Successfully logged out');
-        } catch (JWTException $e) {
+            /** @var User $user */
+            $user = sanctumUser();
+            $user->update(['is_logged_in' => false]);
+            $user?->currentAccessToken()->delete();
+        } catch (Exception $e) {
             return app()->environment('local')
-                ? $this->respondError('Failed due: ' . $e->getMessage(), 500)
+                ? $this->respondError('Failed due: '.$e->getMessage(), 500)
                 : $this->respondError('Failed to logout, please try again later.', 500);
         }
+
+        return $this->respondSuccess('Successfully logged out');
     }
 
     /**
-     * Refresh a token.
+     * Handle forgot password request to the application.
+     * POST /api/v1/auth/forgot-password { email }
      */
-    public function refresh(): JsonResponse
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
-        try {
-            $newToken = jwtGuard()->refresh();
+        $email = $request->validated();
 
-            return $this->respondWithToken($newToken);
-        } catch (JWTException $e) {
-            return $this->respondError('Could not refresh token', 500);
-        }
+        $dto = $this->authService->forgotPassword($email);
+
+        return $this->respondDto($dto);
     }
 
-    public function forgotPassword(ForgotPasswordRequest $request)
+    /**
+     * Handle reset password request to the application.
+     * POST /api/v1/auth/reset-password { email, password, token }
+     */
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-        $dto = $this->userRepo->forgotPassword($validated);
+        $dto = ResetPasswordDto::fromRequest($request->validated());
 
-        return $dto->isSuccess()
-            ? $this->respondDtoSuccess($dto)
-            : $this->respondDtoError($dto);
+        $dto = $this->authService->resetPassword($dto);
+
+        return $this->respondDto($dto);
     }
 
-    public function resetPassword(ResetPasswordRequest $request)
+    /**
+     * Handle user image upload request to the application.
+     * POST /api/v1/auth/{user:slug}/upload-image { image, type }
+     */
+    public function storeUserImage(StoreProfilePictureRequest $request, string $userId): JsonResponse
     {
-        $validated = $request->validated();
+        $imageDto = UserImageDto::fromRequest($request->validated(), $userId);
 
-        try {
-            $dto = $this->userRepo->resetPassword(
-                $validated['email'],
-                $validated['password'],
-                $validated['token']
-            );
-        } catch (Exception $e) {
-            return $this->respondError("Failed to reset password, with error(s): {$e->getMessage()}");
-        }
+        $response = $this->authService->uploadUserImage($imageDto);
 
-        return $dto->isSuccess()
-            ? $this->respondDtoSuccess($dto)
-            : $this->respondDtoError($dto);
-    }
-
-    public function storeProfileImage(StoreProfilePictureRequest $request, User $user): JsonResponse
-    {
-        try {
-            $request->validated();
-            $dto = $this->authService->uploadUserImage(
-                $request->file('image'),
-                $user->id,
-                $user->slug_name,
-                $request->string('type')->lower()->toString()
-            );
-        } catch (Exception $e) {
-            return app()->environment('local')
-               ? $this->respondError('Failed due: ' . $e->getMessage(), 500)
-               : $this->respondError('Failed to upload profile image, please try again later.', 500);
-        }
-
-        return $dto->isSuccess()
-            ? $this->respondDtoSuccess($dto)
-            : $this->respondDtoError($dto);
+        return $this->respondDto($response);
     }
 }

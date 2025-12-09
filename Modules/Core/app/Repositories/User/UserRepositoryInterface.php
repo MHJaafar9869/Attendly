@@ -3,21 +3,18 @@
 namespace Modules\Core\Repositories\User;
 
 use App\Repositories\BaseRepository\BaseRepositoryInterface;
-use Modules\Core\DTO\RepositoryResponseDto;
-use Modules\Core\DTO\User\ImageUploadData;
+use Modules\Core\DTO\Auth\RegisterUserDto;
+use Modules\Core\DTO\ImageDto\ImageUploadData;
+use Modules\Core\DTO\ResponseDto\RepositoryResponseDto;
 use Modules\Core\Models\User;
 
 interface UserRepositoryInterface extends BaseRepositoryInterface
 {
-    public function login(array $data): RepositoryResponseDto;
+    public function login(User $user): RepositoryResponseDto;
 
-    public function register(array $data): RepositoryResponseDto;
+    public function register(RegisterUserDto $dto): RepositoryResponseDto;
 
-    public function verifyOtp(string | int $userId, string $otp, ?bool $remember = false): RepositoryResponseDto;
-
-    public function forgotPassword(array $credentials): RepositoryResponseDto;
-
-    public function resetPassword(string $email, string $password, string $token): RepositoryResponseDto;
+    public function verifyOtp(User $user, string $statusId): RepositoryResponseDto;
 
     public function enable2FA(User $user): RepositoryResponseDto;
 
@@ -27,5 +24,5 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
 
     public function confirm2FA(User $user, int $code): RepositoryResponseDto;
 
-    public function uploadProfilePicture(ImageUploadData $data): RepositoryResponseDto;
+    public function uploadUserImage(ImageUploadData $data): RepositoryResponseDto;
 }

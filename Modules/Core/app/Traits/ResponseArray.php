@@ -35,7 +35,7 @@ trait ResponseArray
         int $status = 200,
         bool $success = true,
         ?array $data = null
-    ) {
+    ): array {
         return $this->respond($success, $message, $status, $data);
     }
 
@@ -43,7 +43,7 @@ trait ResponseArray
         string $message = 'Request Failed',
         int $status = 400,
         bool $success = false
-    ) {
+    ): array {
         return $this->respond($success, $message, $status);
     }
 
@@ -52,7 +52,7 @@ trait ResponseArray
         int $status = 200,
         bool $success = true,
         ?array $data = null,
-    ) {
+    ): array {
         return $this->respond($success, $message, $status, $data, true);
     }
 }

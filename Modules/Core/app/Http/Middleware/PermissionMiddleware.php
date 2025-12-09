@@ -20,13 +20,11 @@ class PermissionMiddleware
      */
     public function handle(Request $request, Closure $next, string $permission): Response
     {
-        $payload = jwtGuard()->getPayload();
-        $userPermissions = $payload->get('permissions') ?? [];
-
-        if (! in_array($permission, $userPermissions, true)) {
-            return $this->respondError('Permission Denied', 403);
+        $user = sanctumUser();
+        if ($user && $user->hasPermission($permission)) {
+            return $next($request);
         }
 
-        return $next($request);
+        return $this->respondError('Permission Denied', 403);
     }
 }

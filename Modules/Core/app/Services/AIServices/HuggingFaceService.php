@@ -16,7 +16,7 @@ class HuggingFaceService
         $this->baseUrl = config('services.huggingface.url');
     }
 
-    public function query(string $model, array $payload = [])
+    public function query(string $model, array $payload = []): array
     {
         $response = Http::withToken($this->token)
             ->timeout(30)

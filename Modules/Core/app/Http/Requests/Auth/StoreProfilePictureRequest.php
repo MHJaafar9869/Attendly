@@ -42,7 +42,7 @@ class StoreProfilePictureRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $user = jwtGuard()->user();
+        $user = sanctumUser();
         $routeUser = $this->route('user');
 
         return $user && $routeUser && ((string) $user->id === (string) $routeUser->id || $user->hasRole('super_admin'));

@@ -3,17 +3,10 @@
 namespace Modules\Core\Repositories\User;
 
 use App\Repositories\BaseRepository\BaseRepository;
-use Exception;
-use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
-use Modules\Core\DTO\RepositoryResponseDto;
-use Modules\Core\DTO\User\ImageUploadData;
-use Modules\Core\Enums\Status\StatusIDEnum;
-use Modules\Core\Models\Image;
+use Modules\Core\DTO\Auth\RegisterUserDto;
+use Modules\Core\DTO\ImageDto\ImageUploadData;
+use Modules\Core\DTO\ResponseDto\RepositoryResponseDto;
 use Modules\Core\Models\User;
 use Modules\Core\Notifications\EmailVerified;
 use Modules\Core\Notifications\SendOtp;
@@ -36,166 +29,71 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
         parent::__construct($model);
     }
 
-    public function login(array $data): RepositoryResponseDto
+    public function login(User $user): RepositoryResponseDto
     {
-        /** @var User $user */
-        $user = $this->findBy('email', $data['email'], true);
-        $remember = $data['remember'] ?? false;
+        $token = $user->createToken(
+            'auth_token',
+            expiresAt: now()->addDays((int) config('security.sanctum.token_expiry_days', 30))
+        )->plainTextToken;
 
-        if (! $user instanceof Model) {
-            return RepositoryResponseDto::error('User not found', 404);
-        }
-
-        if (! $user->email_verified_at) {
-            return RepositoryResponseDto::error('Email is not verified');
-        }
-
-        if ($remember) {
-            $ttl = 60 * 24 * (int) config('security.jwt.jwt_remember_ttl_days');
-            jwtGuard()->factory()->setTTL($ttl);
-        }
-
-        $credentials = [
-            'email' => $data['email'],
-            'password' => $data['password'],
-        ];
-
-        if (! $token = jwtGuard()->attempt($credentials)) {
-            return RepositoryResponseDto::error('Invalid credentials', 401);
-        }
-
-        $user = jwtGuard()->user()->load(['roles.permissions', 'status']);
+        $user->is_logged_in = true;
         $user->touch('last_visited_at');
         $user->save();
 
         return RepositoryResponseDto::success()
-            ->withMessage('Login successful')
-            ->withData([
+            ->setMessage('Login successful')
+            ->setToken($token)
+            ->setData([
                 'authorization' => [
                     'type' => 'bearer',
-                    'expires_in_sec' => jwtGuard()->factory()->getTTL() * 60,
                     'token' => $token,
                 ],
-                'user' => $user,
+                'user' => $user->load(['roles:id,name', 'roles.permissions:id,name', 'status']),
             ]);
     }
 
-    public function register(array $data): RepositoryResponseDto
+    public function register(RegisterUserDto $dto): RepositoryResponseDto
     {
-        return DB::transaction(function () use ($data): RepositoryResponseDto {
-            if (! $statusId = $this->statusRepo->find(StatusIDEnum::USER_PENDING)->value('id')) {
-                throw new Exception('Status not found');
-            }
-            $data['status_id'] = $statusId;
-            $data['email'] = sanitize($data['email'], false);
-            $data['slug_name'] = Str::slug("{$data['first_name']}-{$data['last_name']}-" . Str::random(8));
-            $otp = generateOtp();
-            $data['otp'] = $otp;
-            $data['otp_expires_at'] = now()->addMinutes((int) config('security.otp.otp_ttl_minutes'));
-            $user = $this->create($data);
-            $role = $data['role'] ?? 'student';
+        return DB::transaction(function () use ($dto): RepositoryResponseDto {
+            /** @var User $user */
+            $user = $this->create($dto->toArray());
 
-            if (! $roleId = $this->roleRepo->findBy('name', $role)->value('id')) {
-                throw new Exception('Role not found');
-            }
-            $user->roles()->syncWithoutDetaching([$roleId]);
+            $user->roles()->syncWithoutDetaching([$dto->roleId]);
 
-            $token = jwtGuard()->login($user);
+            DB::afterCommit(function () use ($user, $dto) {
+                $user->notify(new SendOtp($dto->otp));
+            });
 
-            DB::afterCommit(fn () => $user->notify(new SendOtp($otp)));
+            $token = $user->createToken(
+                'auth_token',
+                expiresAt: now()->addDays((int) config('security.sanctum.token_expiry_days', 30))
+            )->plainTextToken;
 
             return RepositoryResponseDto::success()
-                ->withStatus(201)
-                ->withMessage('OTP sent successfully')
-                ->withData([
+                ->setStatus(201)
+                ->setMessage('OTP sent successfully')
+                ->setData([
                     'authorization' => [
                         'type' => 'bearer',
-                        'expires_in_sec' => jwtGuard()->factory()->getTTL() * 60,
                         'token' => $token,
                     ],
-                    'user' => $user->load(['roles', 'status']),
+                    'user' => $user->load(['roles:id,name', 'roles.permissions:id,name', 'status'] ?? null),
                 ]);
         });
     }
 
-    public function verifyOtp(string | int $userId, string $otp, ?bool $remember = false): RepositoryResponseDto
+    public function verifyOtp(User $user, string $statusId): RepositoryResponseDto
     {
-        return DB::transaction(function () use ($userId, $otp, $remember): RepositoryResponseDto {
-            /** @var User $user */
-            $user = $this->find($userId);
+        $user->update([
+            'otp' => null,
+            'otp_expires_at' => null,
+            'email_verified_at' => now(),
+            'status_id' => $statusId,
+        ]);
 
-            if (! $user) {
-                return RepositoryResponseDto::error("User with id: {$userId} not found");
-            }
+        $user->notify(new EmailVerified);
 
-            if ($user->email_verified_at !== null) {
-                return RepositoryResponseDto::success('User already verified');
-            }
-
-            if (! $user->otp || ! $user->otp_expires_at || $user->otp_expires_at->lt(now())) {
-                return RepositoryResponseDto::error('OTP expired or invalid');
-            }
-
-            if (! Hash::check($otp, $user->otp)) {
-                return RepositoryResponseDto::error('Invalid otp please try again');
-            }
-
-            $user->otp_expires_at = null;
-            $user->otp = null;
-            $user->touch('email_verified_at');
-            if (! $statusId = $this->statusRepo->find(StatusIDEnum::USER_ACTIVE)->value('id')) {
-                throw new Exception('error updating status');
-            }
-            $user->status_id = $statusId;
-            $user->save();
-
-            DB::afterCommit(fn () => $user->notify(new EmailVerified));
-
-            if ($remember) {
-                $ttl = 60 * 24 * (int) config('security.jwt.jwt_remember_ttl_days');
-                jwtGuard()->factory()->setTTL($ttl);
-            }
-
-            return RepositoryResponseDto::success('Otp verified successfully');
-        });
-    }
-
-    public function forgotPassword(array $credentials): RepositoryResponseDto
-    {
-        $user = $this->findBy('email', $credentials['email'], true);
-
-        if (! $user instanceof Model) {
-            return RepositoryResponseDto::error("User with email: {$credentials['email']}, not found");
-        }
-
-        $status = Password::sendResetLink($credentials);
-
-        $method = $status === Password::ResetLinkSent
-            ? 'success'
-            : 'error';
-
-        return RepositoryResponseDto::{$method}(__($status));
-    }
-
-    public function resetPassword(string $email, string $password, string $token): RepositoryResponseDto // FIXME
-    {
-        $status = Password::reset(
-            ['email' => $email, 'password' => $password, 'password_confirmation' => $password, 'token' => $token],
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password),
-                ])->setRememberToken(Str::random(60));
-                $user->save();
-
-                event(new PasswordReset($user));
-            }
-        );
-
-        if ($status === Password::INVALID_TOKEN) {
-            return RepositoryResponseDto::error('Invalid or expired reset token.', 422);
-        }
-
-        return RepositoryResponseDto::success('Password updated successfully.');
+        return RepositoryResponseDto::success('Otp verified successfully');
     }
 
     public function enable2FA(User $user): RepositoryResponseDto
@@ -213,8 +111,8 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
         ])->save();
 
         return RepositoryResponseDto::success()
-            ->withMessage('2FA has been enabled successfully')
-            ->withData(['recovery_codes' => $recoveryCodes['plain']]);
+            ->setMessage('2FA has been enabled successfully')
+            ->setData(['recovery_codes' => $recoveryCodes['plain']]);
     }
 
     public function disable2FA(User $user): void
@@ -237,8 +135,8 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
         $uri = $otp->getProvisioningUri();
 
         return RepositoryResponseDto::success()
-            ->withMessage('2FA has been created successfully')
-            ->withData([
+            ->setMessage('2FA has been created successfully')
+            ->setData([
                 'recovery_codes' => $codes['plain'],
                 'secret' => $secret,
                 'uri' => $uri,
@@ -256,60 +154,72 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
         $otp = TOTP::createFromSecret($secret);
         $code = trim($code);
 
+        // ---- Standard 6-digit TOTP ----
         if (ctype_digit($code) && strlen($code) === 6) {
             if (! $otp->verify($code)) {
                 return RepositoryResponseDto::error('Invalid code');
             }
 
-            $token = jwtGuard()->claims(['amr' => ['mfa']])->fromUser($user);
+            // Sanctum token after successful 2FA
+            $token = $user->createToken('2fa-auth')->plainTextToken;
 
             return RepositoryResponseDto::success()
-                ->withMessage('Logged in using 2FA')
-                ->withData($token);
+                ->setMessage('Logged in using 2FA')
+                ->setData([
+                    'authorization' => [
+                        'type' => 'bearer',
+                        'token' => $token,
+                    ],
+                    'user' => $user,
+                ]);
         }
 
+        // ---- Recovery Code ----
         if ($user->verifyRecoveryCode($code)) {
-            $token = jwtGuard()->claims(['amr' => ['mfa']])->fromUser($user);
+
+            // Sanctum token after recovery code
+            $token = $user->createToken('2fa-auth')->plainTextToken;
 
             return RepositoryResponseDto::success()
-                ->withMessage('Logged in using recovery codes')
-                ->withData($token);
+                ->setMessage('Logged in using recovery codes')
+                ->setData([
+                    'authorization' => [
+                        'type' => 'bearer',
+                        'token' => $token,
+                    ],
+                    'user' => $user,
+                ]);
         }
 
         return RepositoryResponseDto::error('Invalid 2FA code');
     }
 
-    public function uploadProfilePicture(ImageUploadData $data): RepositoryResponseDto
+    public function uploadUserImage(ImageUploadData $dto): RepositoryResponseDto
     {
-        /** @var User $user */
-        $user = $this->find($data->userId);
+        return DB::transaction(function () use ($dto) {
+            $user = sanctumUser();
+            $type = $dto->type;
+            $profileImage = $user->images()->where('type', $type)->first();
 
-        if (! $user) {
-            return RepositoryResponseDto::error('User not found', 404);
-        }
+            if ($profileImage) {
+                $existingPath = $profileImage->image_path;
+                $profileImage->delete();
 
-        return DB::transaction(function () use ($user, $data) {
-            $type = $data->type !== '' && $data->type !== '0';
-            if ($type) {
-                $profileImage = $user->images()->where('type', $data->type)->first();
-
-                if ($profileImage) {
-                    $this->deleteFile($profileImage->image_path, $data->disk);
-                    $profileImage->delete();
-                }
+                DB::afterCommit(function () use ($existingPath, $dto) {
+                    $this->deleteFile($existingPath, $dto->disk);
+                });
             }
 
-            $image = $user->images()->save(Image::fromDTO($data));
+            $image = $user->images()->create($dto->toArray());
 
             $message = $type
-                ? normalize('_', ' ', $data->type) . ' uploaded successfully'
+                ? normalize('_', ' ', $type).' uploaded successfully'
                 : 'Profile picture uploaded successfully';
 
-            return RepositoryResponseDto::success(
-                message: $message,
-                data: ['image' => $image],
-                statusCode: 201
-            );
+            return RepositoryResponseDto::success()
+                ->setMessage($message)
+                ->setData(['image' => $image])
+                ->setStatus(201);
         });
     }
 }

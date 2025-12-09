@@ -19,7 +19,7 @@ class ControllerGeneratorService
     {
         // Build the directory and file path for the controller
         $controllerDir = module_path($module, 'app/Http/Controllers/Api');
-        $controllerPath = $controllerDir . "/{$model}Controller.php";
+        $controllerPath = $controllerDir."/{$model}Controller.php";
 
         // Lowercase version of the model (used in variable names)
         $modelSmallCase = strtolower($model);
@@ -66,7 +66,7 @@ declare(strict_types=1);
 namespace Modules\\{$module}\\Http\\Controllers\\Api;
 
 use {$namespaceRepo};
-use App\Traits\ResponseJson;
+use Modules\Core\Traits\ResponseJson;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -94,6 +94,7 @@ class {$model}Controller extends Controller
     public function show(int|string \$id): JsonResponse
     {
         \$data = \$this->{$modelSmallCase}Repo->find(\$id);
+
         if (!\$data) {
             return \$this->respondError('{$model} not found', 404);
         }

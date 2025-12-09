@@ -4,37 +4,41 @@ declare(strict_types=1);
 
 namespace App\Repositories\BaseRepository;
 
-use BackedEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Modules\Core\DTO\Elequent\PaginateDto;
 
 interface BaseRepositoryInterface
 {
-    public function select(string | array $columns): Builder;
+    public function select(string|array $columns): Builder;
 
     public function all(): Collection;
 
-    public function allWithRelations(string | array $relations): Builder;
+    public function allWithRelations(string|array $relations, array $filters = []): Builder;
 
-    public function paginate(): LengthAwarePaginator;
+    public function paginateWithRelations(int $perPage, string $pageName, string|array|null $relations = null, array $filters = []): LengthAwarePaginator;
+
+    public function paginate(PaginateDto $dto): LengthAwarePaginator;
 
     public function addQuery(): Builder;
 
-    public function find(int | string | BackedEnum $id);
+    public function find(int|string $id);
 
-    public function findWithRelation(int | string $id, string | array $relations): Builder;
+    public function findAndSelect(int|string $id, string|array $columns): Model;
+
+    public function findWithRelations(int|string $id, string|array $relations): Builder;
 
     public function create(array $data);
 
-    public function update(int | string $id, array $data);
+    public function update(int|string $id, array $data);
 
-    public function delete(int | string $id): bool;
+    public function delete(int|string $id): bool;
 
-    public function restore(int | string $id): bool;
+    public function restore(int|string $id): bool;
 
-    public function forceDelete(int | string $id): bool;
+    public function forceDelete(int|string $id): bool;
 
     public function findBy(string $column, mixed $value, bool $sanitize = false): ?Model;
 

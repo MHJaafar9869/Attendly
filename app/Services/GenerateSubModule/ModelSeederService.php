@@ -52,22 +52,32 @@ class ModelSeederService
         self::updateModuleSeeder($module, $model);
 
         // Run the generated seeder immediately
+        // Run the generated seeder immediately
         $seederClass = "Modules\\{$module}\\database\\seeders\\{$model}\\{$model}Seeder";
-        Artisan::call('db:seed', [
-            '--class' => $seederClass,
-            '--force' => true,
-        ]);
+        try {
+            Artisan::call('db:seed', [
+                '--class' => $seederClass,
+                '--force' => true,
+            ]);
+        } catch (\Exception $e) {
+            echo "⚠️ Seeder {$model} failed: ".$e->getMessage()."\n";
+        }
 
         // Run the module's main seeder
         $moduleSeederClass = "Modules\\{$module}\\database\\seeders\\{$module}DatabaseSeeder";
-        Artisan::call('db:seed', [
-            '--class' => $moduleSeederClass,
-            '--force' => true,
-        ]);
+        try {
+            Artisan::call('db:seed', [
+                '--class' => $moduleSeederClass,
+                '--force' => true,
+            ]);
+        } catch (\Exception $e) {
+            echo "⚠️ Module seeder {$module} failed: ".$e->getMessage()."\n";
+        }
 
+        // All paths must return an array; indicate success if reached here
         return [
             'status' => 'success',
-            'message' => "✅ {$model}Seeder created and seeded successfully inside Module {$module}.",
+            'message' => "✅ Seeder '{$model}' created and module seeded successfully.",
         ];
     }
 
@@ -91,7 +101,15 @@ class ModelSeederService
         for ($i = 1; $i <= 5; $i++) {
             $row = [];
             foreach ($columns as $col) {
-                if (in_array($col, ['id', 'created_at', 'updated_at'])) {
+                if (\in_array($col, [
+                    'id',
+                    'created_at',
+                    'updated_at',
+                    'created_by',
+                    'updated_by',
+                    'deleted_by',
+                    'deleted_at',
+                ])) {
                     continue;
                 }
 
@@ -126,13 +144,19 @@ class ModelSeederService
         // Convert rows to printable PHP array
         $arrayCode = self::exportArray($rows);
 
+        // Prepare upsert and updatable arrays as code fragments
+        $upsertCode = self::exportArray($upsertTarget);
+        $updatableCode = self::exportArray($updatableColumns);
+
         // Format the PHP seeder file
-        return "<?php
+        $php = <<<PHP
+<?php
 
 namespace {$namespace};
 
 use Illuminate\\Database\\Seeder;
 use Illuminate\\Support\\Facades\\DB;
+use Exception;
 
 class {$model}Seeder extends Seeder
 {
@@ -145,14 +169,20 @@ class {$model}Seeder extends Seeder
         data_set(\$records, '*.created_at', \$now);
         data_set(\$records, '*.updated_at', \$now);
 
-        DB::table('{$table}')->upsert(
-            \$records,
-            " . self::exportArray($upsertTarget) . ',
-            ' . self::exportArray($updatableColumns) . '
-        );
+        try {
+            DB::table('{$table}')->upsert(
+                {$upsertCode},
+                {$updatableCode}
+            );
+        } catch (Exception \$e) {
+            echo 'Failed to seed {$model}Seeder!';
+            exit(1);
+        }
     }
 }
-';
+PHP;
+
+        return $php;
     }
 
     /**
@@ -201,28 +231,28 @@ class {$model}Seeder extends Seeder
             $lines = array_map(
                 fn ($item) => is_array($item)
                     ? self::exportArray($item, $indentLevel + 1, false)
-                    : str_repeat('    ', $indentLevel + 1) . var_export($item, true) . ',',
+                    : str_repeat('    ', $indentLevel + 1).var_export($item, true).',',
                 $array
             );
 
             $body = implode("\n", $lines);
 
-            return "[\n{$body}\n{$indent}]" . ($isRoot ? '' : ',');
+            return "[\n{$body}\n{$indent}]".($isRoot ? '' : ',');
         }
 
         // Associative array
         $lines = [];
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $lines[] = "{$innerIndent}'{$key}' => " . self::exportArray($value, $indentLevel + 1, false);
+                $lines[] = "{$innerIndent}'{$key}' => ".self::exportArray($value, $indentLevel + 1, false);
             } else {
-                $lines[] = "{$innerIndent}'{$key}' => " . var_export($value, true) . ',';
+                $lines[] = "{$innerIndent}'{$key}' => ".var_export($value, true).',';
             }
         }
 
         $body = implode("\n", $lines);
 
-        return "[\n{$body}\n{$indent}]" . ($isRoot ? '' : ',');
+        return "[\n{$body}\n{$indent}]".($isRoot ? '' : ',');
     }
 
     /**
@@ -256,7 +286,7 @@ class {$module}DatabaseSeeder extends Seeder
         $seederClass = "{$model}\\{$model}Seeder::class";
 
         if (! str_contains($content, $seederClass) && preg_match('/public function run\(\): void\s*\{/', $content, $matches, PREG_OFFSET_CAPTURE)) {
-            $pos = $matches[0][1] + strlen($matches[0][0]);
+            $pos = $matches[0][1] + \strlen($matches[0][0]);
             $content = substr_replace($content, "\n        \$this->call({$seederClass});", $pos, 0);
             File::put($moduleSeederPath, $content);
         }

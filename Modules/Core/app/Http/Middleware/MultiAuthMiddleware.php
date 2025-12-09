@@ -19,7 +19,7 @@ class MultiAuthMiddleware
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next, array ...$guards): Response
+    public function handle(Request $request, Closure $next, string ...$guards): Response
     {
         if ($guards === []) {
             $guards = ['api'];

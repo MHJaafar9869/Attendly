@@ -9,21 +9,21 @@ class AuditObserver
     public function creating($model)
     {
         if ($this->check($model, 'created_by') && $model->created_by === null) {
-            $model->created_by = jwtGuard()->id();
+            $model->created_by = sanctumUser()?->id();
         }
     }
 
     public function updating($model)
     {
         if ($this->check($model, 'updated_by')) {
-            $model->updated_by = jwtGuard()->id();
+            $model->updated_by = sanctumUser()?->id();
         }
     }
 
     public function deleting($model)
     {
         if ($this->check($model, 'deleted_by') && $model->deleted_by === null) {
-            $model->deleted_by = jwtGuard()->id();
+            $model->deleted_by = sanctumUser()?->id();
             $model->saveQuietly();
         }
     }
@@ -37,7 +37,7 @@ class AuditObserver
 
     private function check($model, string $column): bool
     {
-        if (! jwtGuard()->check()) {
+        if (! sanctumUser()->check()) {
             return false;
         }
 
@@ -49,6 +49,6 @@ class AuditObserver
                 ->getColumnListing($table);
         }
 
-        return in_array($column, $this->tableColumns[$table]);
+        return \in_array($column, $this->tableColumns[$table]);
     }
 }

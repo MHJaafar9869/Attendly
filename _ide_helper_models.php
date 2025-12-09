@@ -321,6 +321,7 @@ namespace Modules\Core\Models{
  * @property \Illuminate\Support\Carbon|null $otp_expires_at
  * @property string|null $two_factor_secret
  * @property array<array-key, mixed>|null $two_factor_recovery_codes
+ * @property bool $is_logged_in
  * @property \Illuminate\Support\Carbon|null $last_visited_at
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string|null $remember_token
@@ -330,6 +331,7 @@ namespace Modules\Core\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Core\Models\Contact> $contacts
  * @property-read int|null $contacts_count
  * @property-read mixed $fullname
+ * @property-read string|null $status_name
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Core\Models\Image> $images
  * @property-read int|null $images_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Core\Models\ActivityLog> $logs
@@ -339,11 +341,12 @@ namespace Modules\Core\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Core\Models\Role> $roles
  * @property-read int|null $roles_count
  * @property-read \Modules\Core\Models\Status|null $status
- * @property-read mixed $status_name
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Domain\Models\Student> $students
  * @property-read int|null $students_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Domain\Models\Teacher> $teachers
  * @property-read int|null $teachers_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read int|null $tokens_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User byRole(array|string $roles)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User byStatus(array|string $status)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User has2FA()
@@ -357,6 +360,7 @@ namespace Modules\Core\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereFirstName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereIsLoggedIn($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLastName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLastVisitedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereOtp($value)
@@ -374,7 +378,7 @@ namespace Modules\Core\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
  */
-	class User extends \Eloquent implements \Filament\Models\Contracts\FilamentUser, \Filament\Models\Contracts\HasName, \Tymon\JWTAuth\Contracts\JWTSubject {}
+	class User extends \Eloquent implements \Filament\Models\Contracts\FilamentUser, \Filament\Models\Contracts\HasName {}
 }
 
 namespace Modules\Core\Models{
@@ -680,8 +684,8 @@ namespace Modules\Domain\Models{
  * @property int $id
  * @property string $user_id
  * @property string $teacher_code
- * @property int $teacher_type_id
- * @property int $status_id
+ * @property int|null $teacher_type_id
+ * @property int|null $status_id
  * @property string|null $approved_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -689,8 +693,8 @@ namespace Modules\Domain\Models{
  * @property-read \Modules\Core\Models\User|null $approver
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Domain\Models\Department> $departments
  * @property-read int|null $departments_count
- * @property-read \Modules\Core\Models\Status $status
- * @property-read \Modules\Core\Models\Type $type
+ * @property-read \Modules\Core\Models\Status|null $status
+ * @property-read \Modules\Core\Models\Type|null $type
  * @property-read \Modules\Core\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Teacher newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Teacher newQuery()

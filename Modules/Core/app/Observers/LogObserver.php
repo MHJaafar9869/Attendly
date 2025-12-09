@@ -3,6 +3,7 @@
 namespace Modules\Core\Observers;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Modules\Core\Jobs\RecordActivityLog;
 use Throwable;
@@ -34,8 +35,6 @@ class LogObserver
 
     private function record(string $action, $model): void
     {
-        $actor = jwtGuard()->user() ?? null;
-
         if ($model instanceof ActivityLog) {
             return;
         }
@@ -65,19 +64,32 @@ class LogObserver
             }
         }
 
+        $actorId = sanctumUser()?->id;
+        $now = now();
+        $roles = ['system'];
+        if ($actorId) {
+            $roles = DB::table('user_roles')
+                ->join('roles', 'user_roles.role_id', '=', 'roles.id')
+                ->where('user_roles.user_id', $actorId)
+                ->pluck('roles.name')
+                ->toArray();
+
+            $roles = ! empty($roles) ? $roles : ['user'];
+        }
+
         $data = [
-            'user_id' => $actor?->id ?? null,
+            'user_id' => $actorId ?? null,
             'action_type' => $action,
-            'loggable_type' => get_class($model),
+            'loggable_type' => \get_class($model),
             'loggable_id' => $model?->id ?? null,
             'ip_address' => Request::ip(),
             'user_agent' => Request::userAgent(),
             'meta' => [
-                'roles' => $actor?->getRoles() ?? ['system'],
+                'roles' => $roles,
                 'action' => $action,
             ],
-            'created_at' => now(),
-            'updated_at' => now(),
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
 
         if ($action === 'updated') {
@@ -87,11 +99,11 @@ class LogObserver
         self::$stack[] = $data;
 
         if (! self::$timelimit instanceof Carbon) {
-            self::$timelimit = now()->addSeconds($this->timeoutSeconds);
+            self::$timelimit = $now->addSeconds($this->timeoutSeconds);
         }
 
-        $flushByThreshold = count(self::$stack) >= $this->threshold;
-        $flushByTimelimit = now()->gte(self::$timelimit);
+        $flushByThreshold = \count(self::$stack) >= $this->threshold;
+        $flushByTimelimit = $now->gte(self::$timelimit);
 
         if ($flushByThreshold || $flushByTimelimit) {
             RecordActivityLog::dispatch(self::$stack)->onQueue('activity_logs');

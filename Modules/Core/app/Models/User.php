@@ -11,20 +11,25 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
 use Modules\Core\Observers\LogObserver;
 use Modules\Domain\Models\Student;
 use Modules\Domain\Models\Teacher;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 
 // use Modules\Core\Database\Factories\UserFactory;
 #[ObservedBy(LogObserver::class)]
-class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
+class User extends Authenticatable implements FilamentUser, HasName
 {
+    use HasApiTokens;
     use HasFactory;
     use HasUlids;
     use Notifiable;
@@ -43,6 +48,7 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
         'device',
         'last_visited_at',
         'email_verified_at',
+        'is_logged_in',
     ];
 
     /**
@@ -56,11 +62,10 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
         'otp_expires_at',
         'two_factor_secret',
         'two_factor_recovery_codes',
+
     ];
 
     protected $with = ['roles:id,name'];
-
-    protected $appends = ['fullname', 'status_name'];
 
     protected function casts(): array
     {
@@ -71,6 +76,7 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
             'two_factor_secret' => 'encrypted',
             'two_factor_recovery_codes' => 'encrypted:array',
 
+            'is_logged_in' => 'boolean',
             'otp_expires_at' => 'datetime',
             'email_verified_at' => 'datetime',
             'last_visited_at' => 'datetime',
@@ -79,44 +85,15 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
 
     // protected static function newFactory(): UserFactory
     // {
-    //     // return UserFactory::new();
+    // return UserFactory::new();
     // }
 
     /*
     |--------------------------------------------------------------------------
-    | Tracking
-    |--------------------------------------------------------------------------
-    */
-    public function trackables(): array
-    {
-        return ['all'];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    |  JWT & Filament
+    |  Filament
     |--------------------------------------------------------------------------
     |
     */
-
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    public function getJWTCustomClaims()
-    {
-        $roles = $this->getRoles();
-        $permissions = $this->getPermissions();
-
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'roles' => $roles,
-            'permissions' => $permissions,
-            'token_version' => $this->token_version,
-        ];
-    }
 
     public function canAccessPanel(Panel $panel): bool
     {
@@ -135,39 +112,39 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
     |
     */
 
-    public function roles()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'user_roles')
             ->withPivot('assigned_by')
             ->withTimestamps();
     }
 
-    public function status()
+    public function status(): BelongsTo
     {
         return $this->belongsTo(Status::class);
     }
 
-    public function teachers()
+    public function teachers(): HasMany
     {
         return $this->hasMany(Teacher::class);
     }
 
-    public function students()
+    public function students(): HasMany
     {
         return $this->hasMany(Student::class);
     }
 
-    public function contacts()
+    public function contacts(): HasMany
     {
         return $this->hasMany(Contact::class);
     }
 
-    public function logs()
+    public function logs(): MorphMany
     {
         return $this->morphMany(ActivityLog::class, 'loggable', 'loggable_type', 'loggable_id');
     }
 
-    public function images()
+    public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable', 'imageable_type', 'imageable_id');
     }
@@ -180,11 +157,19 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
 
     public function hasRole(string $role): bool
     {
+        if (! $this->relationLoaded('roles')) {
+            $this->load('roles:id,name');
+        }
+
         return $this->roles->pluck('name')->map(fn ($r) => strtolower($r))->contains(strtolower($role));
     }
 
     public function hasAnyRole(array $roles): bool
     {
+        if (! $this->relationLoaded('roles')) {
+            $this->load('roles:id,name');
+        }
+
         $lowerRoles = array_map('strtolower', $roles);
 
         return $this->roles->pluck('name')->map(fn ($r) => strtolower($r))->intersect($lowerRoles)->isNotEmpty();
@@ -192,6 +177,10 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
 
     public function hasPermission(string $permission): bool
     {
+        if (! $this->relationLoaded('roles')) {
+            $this->load('roles.permissions:id,name');
+        }
+
         $rolePermissions = $this->roles->flatMap->permissions->pluck('name')->map(fn ($p) => strtolower($p));
 
         return $rolePermissions->contains(strtolower($permission));
@@ -199,11 +188,19 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
 
     public function getRoles(): array
     {
+        if (! $this->relationLoaded('roles')) {
+            $this->load('roles:id,name');
+        }
+
         return $this->roles->pluck('name')->toArray();
     }
 
     public function getPermissions(): array
     {
+        if (! $this->relationLoaded('permissions')) {
+            $this->load('roles.permissions:id,name');
+        }
+
         return $this->roles->flatMap->permissions->pluck('name')->toArray();
     }
 
@@ -214,7 +211,7 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
     */
 
     #[Scope]
-    public function byRole(Builder $query, array | string $roles): Builder
+    public function byRole(Builder $query, array|string $roles): Builder
     {
         return $query->whereHas(
             'roles',
@@ -223,7 +220,7 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
     }
 
     #[Scope]
-    public function byStatus(Builder $query, array | string $status): Builder
+    public function byStatus(Builder $query, array|string $status): Builder
     {
         return $query->whereHas(
             'status',
@@ -307,6 +304,10 @@ class User extends Authenticatable implements FilamentUser, HasName, JWTSubject
 
     public function statusName(): Attribute
     {
-        return Attribute::make(get: fn () => $this->status->name);
+        return Attribute::make(
+            get: fn () => $this->relationLoaded('status') && $this->status
+                ? $this->status->name
+                : null
+        );
     }
 }

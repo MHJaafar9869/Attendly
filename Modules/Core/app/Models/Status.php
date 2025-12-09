@@ -27,7 +27,7 @@ class Status extends Model
 
     // protected static function newFactory(): StatusFactory
     // {
-    //     // return StatusFactory::new();
+    // return StatusFactory::new();
     // }
 
     /*

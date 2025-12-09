@@ -11,11 +11,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Modules\Core\Observers\AuditObserver;
 use Modules\Core\Observers\LogObserver;
 
 // use Modules\Domain\Database\Factories\ClassroomFactory;
 
-#[ObservedBy(LogObserver::class)]
+#[ObservedBy([LogObserver::class, AuditObserver::class])]
 class Classroom extends Model
 {
     use HasFactory;
@@ -47,7 +48,7 @@ class Classroom extends Model
 
     // protected static function newFactory(): SessionFactory
     // {
-    //     // return SessionFactory::new();
+    // return SessionFactory::new();
     // }
 
     /*

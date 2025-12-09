@@ -6,9 +6,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Pagination\AbstractPaginator;
-use Modules\Core\DTO\RepositoryResponseDto;
-use Modules\Core\Models\User;
-use Modules\Core\Transformers\User\UserResource;
+use Modules\Core\DTO\ResponseDto\RepositoryResponseDto;
+use Modules\Core\DTO\ResponseDto\ServiceResponseDto;
 
 trait ResponseJson
 {
@@ -56,7 +55,7 @@ trait ResponseJson
      * Format paginated data with meta and links
      */
     private function formatPaginatedData(
-        LengthAwarePaginator | AbstractPaginator | ResourceCollection $paginator
+        LengthAwarePaginator|AbstractPaginator|ResourceCollection $paginator
     ): array {
         if ($paginator instanceof ResourceCollection) {
             $paginator = $paginator->resource;
@@ -109,7 +108,7 @@ trait ResponseJson
      * Paginated response
      */
     protected function respondWithPagination(
-        LengthAwarePaginator | AbstractPaginator | ResourceCollection $data,
+        LengthAwarePaginator|AbstractPaginator|ResourceCollection $data,
         string $message = 'Data retrieved successfully',
         int $status = 200,
         array $extra = []
@@ -140,33 +139,29 @@ trait ResponseJson
         return $this->respond(false, $message, null, $status);
     }
 
-    protected function respondWithToken(string $token, ?User $user = null, string $message = 'Token retrieved successfully'): JsonResponse
-    {
-        $data = [
-            'authorization' => [
-                'token_type' => 'bearer',
-                'expires_in_sec' => jwtGuard()->factory()->getTTL() * 60,
-                'token' => $token,
-            ],
-            'user' => new UserResource($user ?? jwtGuard()->user()),
-        ];
-
-        return $this->respond(true, $message, $data);
-    }
-
     /**
      * Respond with DTO success - returns full structure
      */
-    protected function respondDtoSuccess(RepositoryResponseDto $responseDto): JsonResponse
+    protected function respondDto(ServiceResponseDto|RepositoryResponseDto $response): JsonResponse
     {
-        return response()->json($responseDto->toArray(), $responseDto->statusCode);
-    }
-
-    /**
-     * Respond with DTO error - returns full structure
-     */
-    protected function respondDtoError(RepositoryResponseDto $responseDto): JsonResponse
-    {
-        return response()->json($responseDto->toArray(), $responseDto->statusCode);
+        if ($response->isSuccess()) {
+            if ($response->data) {
+                return $this->respondWithData(
+                    $response->data,
+                    $response->message,
+                    $response->statusCode
+                );
+            } else {
+                return $this->respondSuccess(
+                    $response->message,
+                    $response->statusCode
+                );
+            }
+        } else {
+            return $this->respondError(
+                $response->message,
+                $response->statusCode
+            );
+        }
     }
 }

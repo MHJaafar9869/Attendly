@@ -56,7 +56,7 @@ final class Student extends Model
 
     // protected static function newFactory(): StudentFactory
     // {
-    //     // return StudentFactory::new();
+    // return StudentFactory::new();
     // }
 
     /*
@@ -102,7 +102,7 @@ final class Student extends Model
     #[Scope]
     public function byGender(Builder $query, string $gender): Builder
     {
-        return in_array($gender, ['male', 'female'])
+        return \in_array($gender, ['male', 'female'])
             ? $query->where('gender', $gender)
             : $query;
     }
@@ -118,7 +118,7 @@ final class Student extends Model
     }
 
     #[Scope]
-    public function byGovernorate(Builder $query, int | string $governorateId): Builder
+    public function byGovernorate(Builder $query, int|string $governorateId): Builder
     {
         if (! $governorateId) {
             return $query;

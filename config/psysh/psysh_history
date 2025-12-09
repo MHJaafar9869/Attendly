@@ -1,1 +1,12 @@
 exit
+clear
+clear()
+clear();
+help
+clear
+clear
+exit
+clear
+config('security.sanctum.token_expiry_days');
+
+exit

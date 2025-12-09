@@ -24,7 +24,20 @@ class LoginRequest extends FormRequest
         return [
             'email' => 'required|exists:users,email',
             'password' => 'required|string|min:6',
-            'remember' => 'sometimes|boolean',
+        ];
+    }
+
+    /**
+     * Get the validation messages that apply to the request.
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Email is required',
+            'email.exists' => 'Invalid email or password',
+            'password.required' => 'Password is required',
+            'password.string' => 'Password must be a string',
+            'password.min' => 'Password must be at least 6 characters long',
         ];
     }
 
@@ -34,6 +47,6 @@ class LoginRequest extends FormRequest
             'success' => false,
             'message' => 'Validation errors',
             'errors' => $validator->errors(),
-        ]));
+        ], 422));
     }
 }

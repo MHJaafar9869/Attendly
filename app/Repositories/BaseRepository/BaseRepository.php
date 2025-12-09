@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Repositories\BaseRepository;
 
-use BackedEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Modules\Core\DTO\Elequent\PaginateDto;
 
 readonly class BaseRepository implements BaseRepositoryInterface
 {
@@ -26,42 +26,72 @@ readonly class BaseRepository implements BaseRepositoryInterface
 
     public function all(): Collection
     {
-        return $this->model->all();
+        return $this->addQuery()->all();
     }
 
-    public function allWithRelations(string | array $relations): Builder
+    public function allWithRelations(string|array $relations, array $filters = []): Builder
     {
-        return $this->model->with($relations);
+        $query = $this->addQuery()->with($relations);
+
+        if (\count($filters) > 0) {
+            foreach ($filters as $column => $value) {
+                $query->where($column, $value);
+            }
+        }
+
+        return $query;
+    }
+
+    public function paginateWithRelations(int $perPage, string $pageName, string|array|null $relations = null, array $filters = []): LengthAwarePaginator
+    {
+        $query = $this->addQuery()->with($relations);
+
+        if (\count($filters) > 0) {
+            foreach ($filters as $column => $value) {
+                $query->where($column, $value);
+            }
+        }
+
+        if ($filters['columns']) {
+            return $query->paginate($perPage, $filters['columns'], $pageName);
+        }
+
+        return $query->paginate(perPage: $perPage, pageName: $pageName);
     }
 
     public function create(array $data)
     {
-        return $this->model->create($data);
+        return $this->addQuery()->create($data);
     }
 
-    public function select(string | array $columns): Builder
+    public function select(string|array $columns): Builder
     {
-        return $this->model->query()->select($columns);
+        return $this->addQuery()->select($columns);
     }
 
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(PaginateDto $dto): LengthAwarePaginator
     {
-        return $this->model->paginate($perPage);
+        return $this->addQuery()->paginate($dto->perPage, $dto->columns, $dto->pageName);
     }
 
-    public function find(int | string | BackedEnum $id): ?Model
+    public function find(int|string $id): ?Model
     {
-        return $id instanceof BackedEnum
-            ? $this->model->find($id->value)
-            : $this->model->find($id);
+        return $this->addQuery()->find($id);
     }
 
-    public function findWithRelation(int | string $id, string | array $relations): Builder
+    public function findAndSelect(int|string $id, string|array $columns): Model
     {
-        return $this->model->with($relations)->where($this->model->getKeyName(), $id);
+        return $this->addQuery()
+            ->select((array) $columns)
+            ->find($id);
     }
 
-    public function update(int | string $id, array $data)
+    public function findWithRelations(int|string $id, string|array $relations): Builder
+    {
+        return $this->addQuery()->with($relations)->where($this->model->getKeyName(), $id);
+    }
+
+    public function update(int|string $id, array $data)
     {
         $model = $this->find($id);
         $model->update($data);
@@ -69,24 +99,24 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $model;
     }
 
-    public function delete(int | string $id): bool
+    public function delete(int|string $id): bool
     {
         return $this->find($id)->delete();
     }
 
-    public function restore(int | string $id): bool
+    public function restore(int|string $id): bool
     {
-        return $this->model->onlyTrashed()->findOrFail($id)->restore();
+        return $this->addQuery()->onlyTrashed()->findOrFail($id)->restore();
     }
 
-    public function forceDelete(int | string $id): bool
+    public function forceDelete(int|string $id): bool
     {
-        return $this->model->withTrashed()->findOrFail($id)->forceDelete();
+        return $this->addQuery()->withTrashed()->findOrFail($id)->forceDelete();
     }
 
     public function findBy(string $column, mixed $value, bool $sanitize = false): ?Model
     {
-        $value = $sanitize ? sanitize($value, false) : $value;
+        $value = $sanitize ? sanitize($value, true) : $value;
 
         return $this->model->where($column, $value)->first();
     }

@@ -24,7 +24,7 @@ class ClearLogs extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $logs = storage_path('logs/*.log');
         $files = glob($logs);
@@ -39,9 +39,9 @@ class ClearLogs extends Command
             File::put($file, '');
         }
 
-        $emails = User::query()->byRole('super_admin')->pluck('email');
-
-        Mail::to($emails)->queue(new LogClearedEmail);
+        // if ($emails = User::query()?->with('roles')?->byRole('super_admin')?->pluck('email')) {
+        //     Mail::to($emails)->queue(new LogClearedEmail);
+        // }
 
         $this->info('Application logs cleared');
 

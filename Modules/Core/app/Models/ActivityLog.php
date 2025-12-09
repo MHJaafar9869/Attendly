@@ -18,7 +18,7 @@ class ActivityLog extends Model
 
     // protected static function newFactory(): ActivityLogFactory
     // {
-    //     // return ActivityLogFactory::new();
+    // return ActivityLogFactory::new();
     // }
 
     /*

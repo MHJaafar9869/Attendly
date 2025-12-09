@@ -13,6 +13,7 @@ class DomainDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(Classroom\ClassroomSeeder::class);
         $this->call(Teacher\TeacherSeeder::class);
         $this->call([
             GovernorateSeeder::class,

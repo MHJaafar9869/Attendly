@@ -18,6 +18,11 @@ class RegisterRequest extends FormRequest
         return true;
     }
 
+    public function prepareForValidation(): void
+    {
+        $this->merge(['role_id' => 6]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      */
@@ -27,19 +32,14 @@ class RegisterRequest extends FormRequest
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'email' => 'required|email|unique:users,email',
-            'phone' => 'sometimes|nullable|unique:users,phone|regex:/^\+?[0-9]{7,15}$/',
             'password' => [
                 'required',
                 'confirmed',
                 Password::defaults(),
-                new StrongPassword(name: $this->input('first_name') . ' ' . $this->input('last_name')),
+                new StrongPassword(name: $this->input('first_name').' '.$this->input('last_name')),
             ],
+            'role_id' => 'required|integer',
         ];
-    }
-
-    protected function prepareForValidation(): void
-    {
-        $this->merge(['role' => 6]);
     }
 
     public function failedValidation(Validator $validator)

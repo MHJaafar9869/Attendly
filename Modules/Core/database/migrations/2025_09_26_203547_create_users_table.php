@@ -24,17 +24,18 @@ return new class extends Migration
 
             $table->foreignIdFor(Status::class)->nullable()->constrained()->nullOnDelete();
 
-            $table->unsignedBigInteger('token_version')->default(1);
-            $table->string('otp', 6)->nullable();
-            $table->timestamp('otp_expires_at')->nullable();
+            $table->unsignedBigInteger('token_version')->default(1)->invisible();
+            $table->string('otp', 6)->nullable()->invisible();
+            $table->timestamp('otp_expires_at')->nullable()->invisible();
 
-            $table->string('two_factor_secret')->nullable();
-            $table->json('two_factor_recovery_codes')->nullable();
+            $table->string('two_factor_secret')->nullable()->invisible();
+            $table->json('two_factor_recovery_codes')->nullable()->invisible();
 
+            $table->boolean('is_logged_in')->default(false);
             $table->timestamp('last_visited_at')->nullable();
             $table->timestamp('email_verified_at')->nullable();
 
-            $table->rememberToken();
+            $table->rememberToken()->invisible();
             $table->timestamps();
             $table->softDeletes();
 

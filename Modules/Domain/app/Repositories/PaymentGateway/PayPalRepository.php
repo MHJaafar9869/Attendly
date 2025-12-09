@@ -15,22 +15,22 @@ final readonly class PayPalRepository extends BaseRepository implements PaymentG
         parent::__construct($payPal);
     }
 
-    public function charge(string $customerId, string $ownerId, int $amount, array $productData)
+    public function charge(string $customerId, string $ownerId, int $amount, array $productData): mixed
     {
         // ...
     }
 
-    public function refund(string $transactionId, int $amount)
+    public function refund(string $transactionId, int $amount): mixed
     {
         // ...
     }
 
-    public function balance(string $ownerId)
+    public function balance(string $ownerId): mixed
     {
         // ...
     }
 
-    public function createAccount(array $options = [])
+    public function createAccount(array $options = []): mixed
     {
         // ...
     }

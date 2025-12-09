@@ -20,7 +20,6 @@ class VerifyOtpRequest extends FormRequest
                 'digits:6',
                 'regex:/^[0-9]{6}$/',
             ],
-            'remember' => 'sometimes|boolean',
         ];
     }
 
@@ -40,7 +39,7 @@ class VerifyOtpRequest extends FormRequest
     {
         if ($this->has('otp')) {
             $this->merge([
-                'otp' => preg_replace('/\D/', '', $this->input('otp')),
+                'otp' => preg_replace('/\D/', '', $this->input('otp')), // Remove non-numeric characters
             ]);
         }
     }
@@ -50,7 +49,9 @@ class VerifyOtpRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return jwtGuard()->user()?->email_verified_at !== null;
+        $userSlug = $this->route('user');
+
+        return (bool) sanctumUser()?->slug_name === $userSlug;
     }
 
     public function failedValidation(Validator $validator)

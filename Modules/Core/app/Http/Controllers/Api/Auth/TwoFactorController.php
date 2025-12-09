@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Core\Http\Requests\Auth\ConfirmTwoFactorCodeRequest;
+use Modules\Core\Models\User;
 use Modules\Core\Repositories\User\UserRepositoryInterface;
 use Modules\Core\Traits\ResponseJson;
 
@@ -20,7 +21,7 @@ class TwoFactorController extends Controller
         protected UserRepositoryInterface $userRepo,
     ) {}
 
-    private function handle(string $repoMethod, $user, ...$args): JsonResponse
+    private function handle(string $repoMethod, User $user, mixed ...$args): JsonResponse
     {
         try {
             $response = $this->userRepo->{$repoMethod}($user, ...$args);

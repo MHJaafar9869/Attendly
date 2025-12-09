@@ -20,13 +20,10 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        $payload = jwtGuard()->getPayload();
-        $userRoles = $payload->get('roles') ?? [];
-
-        if (collect($userRoles)->intersect($roles)->isEmpty()) {
-            return $this->respondError('Permission Denied', 403);
+        if (sanctumUser()?->hasAnyRole($roles)) {
+            return $next($request);
         }
 
-        return $next($request);
+        return $this->respondError('Permission Denied', 403);
     }
 }

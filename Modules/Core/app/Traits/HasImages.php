@@ -2,6 +2,8 @@
 
 namespace Modules\Core\Traits;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Modules\Core\Models\Image;
 
 trait HasImages
@@ -11,7 +13,7 @@ trait HasImages
     /**
      * Get all images for the model.
      */
-    public function images()
+    public function images(): MorphMany
     {
         return $this->morphMany(Image::class, 'imageable');
     }
@@ -19,7 +21,7 @@ trait HasImages
     /**
      * Get the primary image (e.g., first one).
      */
-    public function primaryImage()
+    public function primaryImage(): MorphOne
     {
         return $this->morphOne(Image::class, 'imageable')->latestOfMany();
     }

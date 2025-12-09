@@ -23,7 +23,7 @@ class RequestGeneratorService
 
         // Base folder for Requests
         $baseFolder = module_path($module, 'app/Http/Requests');
-        $modelFolder = $baseFolder . "/{$model}";
+        $modelFolder = $baseFolder."/{$model}";
 
         // Ensure Requests directory exists
         if (! File::isDirectory($baseFolder)) {
@@ -78,7 +78,15 @@ class RequestGeneratorService
 
             foreach ($columns as $column) {
                 // Skip system columns
-                if (in_array($column, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
+                if (\in_array($column, [
+                    'id',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                    'created_by',
+                    'updated_by',
+                    'deleted_by',
+                ])) {
                     continue;
                 }
 

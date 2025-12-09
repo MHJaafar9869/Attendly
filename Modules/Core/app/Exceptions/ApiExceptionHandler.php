@@ -7,8 +7,10 @@ namespace Modules\Core\Exceptions;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 use Modules\Core\Traits\ResponseJson;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -18,7 +20,7 @@ final readonly class ApiExceptionHandler
 {
     use ResponseJson;
 
-    public function handleApiException(Throwable $th)
+    public function handleApiException(Throwable $th): JsonResponse
     {
         $exceptions = [
             AuthenticationException::class => ['Unauthenticated', 401],
@@ -28,12 +30,13 @@ final readonly class ApiExceptionHandler
             NotFoundHttpException::class => ['Not found', 404],
             MethodNotAllowedHttpException::class => ['Method not allowed', 405],
             ValidationException::class => ['Failed validation', 422],
+            AccessDeniedHttpException::class => ['This action is unauthorized', 403],
         ];
 
         foreach ($exceptions as $ex => [$message, $code]) {
             if ($th instanceof $ex) {
                 if (app()->environment('local')) {
-                    return $this->respondError('Error: ' . $th->getMessage(), $code);
+                    return $this->respondError('Error: '.$th->getMessage(), $code);
                 }
 
                 return $this->respondError($message, $code);
@@ -41,7 +44,7 @@ final readonly class ApiExceptionHandler
         }
 
         if (app()->environment('local')) {
-            return $this->respondError('Failed with error: ' . $th->getMessage(), 500);
+            return $this->respondError('Failed with ['.\get_class($th).']: '.$th->getMessage(), 500);
         }
 
         return $this->respondError('Error Occurred, Please try again', 500);

@@ -3,6 +3,8 @@
 namespace Modules\Domain\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Modules\Domain\Events\ClassroomCreated;
+use Modules\Domain\Listeners\SendClassroomEmailToStudents;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -11,7 +13,11 @@ class EventServiceProvider extends ServiceProvider
      *
      * @var array<string, array<int, string>>
      */
-    protected $listen = [];
+    protected $listen = [
+        ClassroomCreated::class => [
+            SendClassroomEmailToStudents::class,
+        ],
+    ];
 
     /**
      * Indicates if events should be discovered.

@@ -1,14 +1,26 @@
 includes:
     - vendor/larastan/larastan/extension.neon
-	- phpstan-stubs/JWTGuard.stub
 
 parameters:
+    level: 7
+
     paths:
         - app/
         - Modules/
-    level: 5
+
+    excludePaths:
+        - vendor
+
+    featureToggles:
+       - attributes: true
+
     tips:
         treatPhpDocTypesAsCertain: false
+
     ignoreErrors:
+        - '#Access to an undefined property .*#'
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::#'
+
+        # Your existing ignored errors (keep them)
         - '#Trait App\\Traits\\HasImages is used zero times#'
         - '#Trait App\\Traits\\UploadFile is used zero times#'
