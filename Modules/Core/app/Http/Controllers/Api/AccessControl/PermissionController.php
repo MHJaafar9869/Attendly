@@ -29,7 +29,7 @@ class PermissionController extends Controller
         return $this->respondWithData(PermissionResource::collection($data), 'Permission list retrieved successfully');
     }
 
-    public function show(int|string $id): JsonResponse
+    public function show(int | string $id): JsonResponse
     {
         $data = $this->permissionRepo->find($id);
 
@@ -47,14 +47,14 @@ class PermissionController extends Controller
         return $this->respondWithData(PermissionResource::make($data), 'Permission created successfully', 201);
     }
 
-    public function update(UpdatePermissionRequest $request, int|string $id): JsonResponse
+    public function update(UpdatePermissionRequest $request, int | string $id): JsonResponse
     {
         $data = $this->permissionRepo->update($id, $request->validated());
 
         return $this->respondWithData(PermissionResource::make($data), 'Permission updated successfully');
     }
 
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(int | string $id): JsonResponse
     {
         $this->permissionRepo->delete($id);
 

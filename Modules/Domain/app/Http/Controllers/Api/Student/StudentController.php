@@ -32,14 +32,15 @@ class StudentController extends Controller
     {
         return $this->respondWithData(
             data: StudentResource::collection($this->studentRepo->paginatedStudents()),
-            message: 'Student list retrieved successfully');
+            message: 'Student list retrieved successfully'
+        );
     }
 
     /**
      * Show a specific student.
      * GET /api/v1/students/{id}
      */
-    public function show(int|string $id): JsonResponse
+    public function show(int | string $id): JsonResponse
     {
         $data = $this->studentRepo->findWithRelations(
             id: $id,
@@ -72,7 +73,7 @@ class StudentController extends Controller
      * Update an existing student.
      * PUT /api/v1/students/{id}
      */
-    public function update(UpdateStudentRequest $request, int|string $id): JsonResponse
+    public function update(UpdateStudentRequest $request, int | string $id): JsonResponse
     {
         $data = $this->studentRepo->update($id, $request->validated());
 
@@ -83,7 +84,7 @@ class StudentController extends Controller
      * Delete a student.
      * DELETE /api/v1/students/{id}
      */
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(int | string $id): JsonResponse
     {
         $this->studentRepo->delete($id);
 
@@ -94,7 +95,7 @@ class StudentController extends Controller
      * Restore a deleted student.
      * PATCH /api/v1/students/{id}
      */
-    public function restore(int|string $id): JsonResponse
+    public function restore(int | string $id): JsonResponse
     {
         $this->studentRepo->restore($id);
 
@@ -105,7 +106,7 @@ class StudentController extends Controller
      * Delete a student permanently.
      * DELETE /api/v1/students/{id}/force
      */
-    public function forceDelete(int|string $id): JsonResponse
+    public function forceDelete(int | string $id): JsonResponse
     {
         $this->studentRepo->forceDelete($id);
 

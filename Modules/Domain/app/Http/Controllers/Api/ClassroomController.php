@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use Modules\Core\DTO\Elequent\PaginateDto;
 use Modules\Core\Traits\ResponseJson;
 use Modules\Domain\DTO\Student\CreateClassroomDto;
+use Modules\Domain\DTO\Student\UpdateClassroomDto;
 use Modules\Domain\Http\Requests\Classroom\StoreClassroomRequest;
 use Modules\Domain\Http\Requests\Classroom\UpdateClassroomRequest;
 use Modules\Domain\Repositories\Classroom\ClassroomRepositoryInterface;
@@ -48,16 +49,18 @@ class ClassroomController extends Controller
     {
         $dto = CreateClassroomDto::fromRequest($request->validated());
 
-        $data = $this->classroomService->create($dto);
+        $response = $this->classroomService->create($dto);
 
-        return $this->respondWithData(ClassroomResource::make($data), 'Classroom created successfully', 201);
+        return $this->respondDto($response);
     }
 
     public function update(UpdateClassroomRequest $request, int|string $id): JsonResponse
     {
-        $data = $this->classroomRepo->update($id, $request->validated());
+        $data = UpdateClassroomDto::fromRequest($request->validated(), $id);
 
-        return $this->respondWithData(ClassroomResource::make($data), 'Classroom updated successfully');
+        $response = $this->classroomService->update($data);
+
+        return $this->respondDto($response);
     }
 
     public function destroy(int|string $id): JsonResponse

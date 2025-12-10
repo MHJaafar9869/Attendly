@@ -50,7 +50,7 @@ class Role extends Model
     */
 
     #[Scope]
-    public function usersByRole(Builder $q, array|string $roles): Builder
+    public function usersByRole(Builder $q, array | string $roles): Builder
     {
         return $q->with('users')->whereIn('name', (array) $roles);
     }

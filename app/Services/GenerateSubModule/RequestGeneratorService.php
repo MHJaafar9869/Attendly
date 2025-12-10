@@ -23,7 +23,7 @@ class RequestGeneratorService
 
         // Base folder for Requests
         $baseFolder = module_path($module, 'app/Http/Requests');
-        $modelFolder = $baseFolder."/{$model}";
+        $modelFolder = $baseFolder . "/{$model}";
 
         // Ensure Requests directory exists
         if (! File::isDirectory($baseFolder)) {

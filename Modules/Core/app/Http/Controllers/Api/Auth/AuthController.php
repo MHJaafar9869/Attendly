@@ -84,7 +84,7 @@ final class AuthController extends Controller
     public function me(): JsonResponse
     {
         $user = Cache::flexible(
-            key: 'users:'.sanctumUser()->id,
+            key: 'users:' . sanctumUser()->id,
             ttl: [30, 60],
             callback: fn () => sanctumUser()->load(
                 [
@@ -113,7 +113,7 @@ final class AuthController extends Controller
             $user?->currentAccessToken()->delete();
         } catch (Exception $e) {
             return app()->environment('local')
-                ? $this->respondError('Failed due: '.$e->getMessage(), 500)
+                ? $this->respondError('Failed due: ' . $e->getMessage(), 500)
                 : $this->respondError('Failed to logout, please try again later.', 500);
         }
 

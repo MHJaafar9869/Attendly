@@ -36,7 +36,7 @@ final readonly class ApiExceptionHandler
         foreach ($exceptions as $ex => [$message, $code]) {
             if ($th instanceof $ex) {
                 if (app()->environment('local')) {
-                    return $this->respondError('Error: '.$th->getMessage(), $code);
+                    return $this->respondError('Error: ' . $th->getMessage(), $code);
                 }
 
                 return $this->respondError($message, $code);
@@ -44,7 +44,7 @@ final readonly class ApiExceptionHandler
         }
 
         if (app()->environment('local')) {
-            return $this->respondError('Failed with ['.\get_class($th).']: '.$th->getMessage(), 500);
+            return $this->respondError('Failed with [' . \get_class($th) . ']: ' . $th->getMessage(), 500);
         }
 
         return $this->respondError('Error Occurred, Please try again', 500);

@@ -36,7 +36,7 @@ class RegisterRequest extends FormRequest
                 'required',
                 'confirmed',
                 Password::defaults(),
-                new StrongPassword(name: $this->input('first_name').' '.$this->input('last_name')),
+                new StrongPassword(name: $this->input('first_name') . ' ' . $this->input('last_name')),
             ],
             'role_id' => 'required|integer',
         ];

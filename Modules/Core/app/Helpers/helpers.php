@@ -36,7 +36,7 @@ if (! function_exists('decryptIfNotNull')) {
             $decrypted = $value ? Crypt::decrypt($value) : null;
         } catch (DecryptException $e) {
             if (app()->environment('local')) {
-                logger()->warning("Failed to decrypt {$attr} in model ".get_class($model), [
+                logger()->warning("Failed to decrypt {$attr} in model " . get_class($model), [
                     'id' => $model->id ?? null,
                     'error' => $e->getMessage(),
                 ]);
@@ -98,7 +98,7 @@ if (! function_exists('normalize')) {
      * @param  string|array<int, string>  $search
      * @param  string|array<int, string>  $replace
      */
-    function normalize(array|string $search, array|string $replace, string $value): string
+    function normalize(array | string $search, array | string $replace, string $value): string
     {
         return ucwords(str_replace($search, $replace, $value));
     }

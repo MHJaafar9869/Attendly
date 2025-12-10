@@ -26,12 +26,12 @@ class RegisterUserDto
         return new self(
             firstName: $data['first_name'],
             lastName: $data['last_name'],
-            slugName: Str::slug("{$data['first_name']}-{$data['last_name']}-".Str::random(8)),
+            slugName: Str::slug("{$data['first_name']}-{$data['last_name']}-" . Str::random(8)),
             email: $data['email'],
             password: $data['password'],
-            roleId: $data['role_id'],
             otp: generateOtp(),
             otp_expires_at: now()->addMinutes((int) config('security.otp.otp_ttl_minutes')),
+            roleId: $data['role_id'],
         );
     }
 

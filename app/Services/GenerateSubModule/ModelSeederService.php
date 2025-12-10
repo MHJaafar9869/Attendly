@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\GenerateSubModule;
 
+use Exception;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -54,24 +55,26 @@ class ModelSeederService
         // Run the generated seeder immediately
         // Run the generated seeder immediately
         $seederClass = "Modules\\{$module}\\database\\seeders\\{$model}\\{$model}Seeder";
+
         try {
             Artisan::call('db:seed', [
                 '--class' => $seederClass,
                 '--force' => true,
             ]);
-        } catch (\Exception $e) {
-            echo "⚠️ Seeder {$model} failed: ".$e->getMessage()."\n";
+        } catch (Exception $e) {
+            echo "⚠️ Seeder {$model} failed: " . $e->getMessage() . "\n";
         }
 
         // Run the module's main seeder
         $moduleSeederClass = "Modules\\{$module}\\database\\seeders\\{$module}DatabaseSeeder";
+
         try {
             Artisan::call('db:seed', [
                 '--class' => $moduleSeederClass,
                 '--force' => true,
             ]);
-        } catch (\Exception $e) {
-            echo "⚠️ Module seeder {$module} failed: ".$e->getMessage()."\n";
+        } catch (Exception $e) {
+            echo "⚠️ Module seeder {$module} failed: " . $e->getMessage() . "\n";
         }
 
         // All paths must return an array; indicate success if reached here
@@ -231,28 +234,28 @@ PHP;
             $lines = array_map(
                 fn ($item) => is_array($item)
                     ? self::exportArray($item, $indentLevel + 1, false)
-                    : str_repeat('    ', $indentLevel + 1).var_export($item, true).',',
+                    : str_repeat('    ', $indentLevel + 1) . var_export($item, true) . ',',
                 $array
             );
 
             $body = implode("\n", $lines);
 
-            return "[\n{$body}\n{$indent}]".($isRoot ? '' : ',');
+            return "[\n{$body}\n{$indent}]" . ($isRoot ? '' : ',');
         }
 
         // Associative array
         $lines = [];
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $lines[] = "{$innerIndent}'{$key}' => ".self::exportArray($value, $indentLevel + 1, false);
+                $lines[] = "{$innerIndent}'{$key}' => " . self::exportArray($value, $indentLevel + 1, false);
             } else {
-                $lines[] = "{$innerIndent}'{$key}' => ".var_export($value, true).',';
+                $lines[] = "{$innerIndent}'{$key}' => " . var_export($value, true) . ',';
             }
         }
 
         $body = implode("\n", $lines);
 
-        return "[\n{$body}\n{$indent}]".($isRoot ? '' : ',');
+        return "[\n{$body}\n{$indent}]" . ($isRoot ? '' : ',');
     }
 
     /**

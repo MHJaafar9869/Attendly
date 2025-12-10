@@ -74,7 +74,7 @@ class LogObserver
                 ->pluck('roles.name')
                 ->toArray();
 
-            $roles = ! empty($roles) ? $roles : ['user'];
+            $roles = empty($roles) ? ['user'] : $roles;
         }
 
         $data = [

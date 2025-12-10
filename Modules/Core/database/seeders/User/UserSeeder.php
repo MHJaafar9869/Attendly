@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Log;
 use Modules\Core\Models\Role;
 use Modules\Core\Models\User;
 
@@ -21,7 +22,7 @@ class UserSeeder extends Seeder
                 [
                     'first_name' => 'Mostafa',
                     'last_name' => 'Jaafar',
-                    'slug_name' => 'mostafa-jaafar-'.strtolower(Str::random(8)),
+                    'slug_name' => 'mostafa-jaafar-' . strtolower(Str::random(8)),
                     'status_id' => 2,
                     'password' => Hash::make('password123'),
                     'email_verified_at' => now(),
@@ -30,7 +31,7 @@ class UserSeeder extends Seeder
                 ]
             );
 
-            \Log::info('SEEDER', [$user->id]);
+            Log::info('SEEDER', [$user->id]);
 
             $roleId = Role::where('name', 'super_admin')->pluck('id');
             $user->roles()->attach($roleId);
@@ -40,19 +41,19 @@ class UserSeeder extends Seeder
                 [
                     'first_name' => 'Lina',
                     'last_name' => 'Adel',
-                    'slug_name' => 'lina-adel-'.strtolower(Str::random(8)),
+                    'slug_name' => 'lina-adel-' . strtolower(Str::random(8)),
                     'email' => 'user1@example.com',
                 ],
                 [
                     'first_name' => 'Karim',
                     'last_name' => 'Maged',
-                    'slug_name' => 'karim-maged-'.strtolower(Str::random(8)),
+                    'slug_name' => 'karim-maged-' . strtolower(Str::random(8)),
                     'email' => 'user2@example.com',
                 ],
                 [
                     'first_name' => 'Nour',
                     'last_name' => 'Hassan',
-                    'slug_name' => 'nour-hassan-'.strtolower(Str::random(8)),
+                    'slug_name' => 'nour-hassan-' . strtolower(Str::random(8)),
                     'email' => 'user3@example.com',
                 ],
             ];

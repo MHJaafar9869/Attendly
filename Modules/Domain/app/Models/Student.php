@@ -118,7 +118,7 @@ final class Student extends Model
     }
 
     #[Scope]
-    public function byGovernorate(Builder $query, int|string $governorateId): Builder
+    public function byGovernorate(Builder $query, int | string $governorateId): Builder
     {
         if (! $governorateId) {
             return $query;

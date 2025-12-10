@@ -2477,7 +2477,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Get the currently authenticated user.
          *
-         * @return \Modules\Core\Models\User|null
+         * @return \App\Models\User|null
          * @static
          */
         public static function user()
@@ -2515,7 +2515,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Determine if the current user is authenticated. If not, throw an exception.
          *
-         * @return \Modules\Core\Models\User
+         * @return \App\Models\User
          * @throws \Illuminate\Auth\AuthenticationException
          * @static
          */
@@ -24598,23 +24598,6 @@ namespace Illuminate\Database\Eloquent\Relations {
             }
     }
 
-namespace Illuminate\Routing {
-    /**
-     */
-    class Route {
-        /**
-         * @see \Livewire\Features\SupportLazyLoading\SupportLazyLoading::registerRouteMacro()
-         * @param mixed $enabled
-         * @static
-         */
-        public static function lazy($enabled = true)
-        {
-            return \Illuminate\Routing\Route::lazy($enabled);
-        }
-
-            }
-    }
-
 namespace Livewire\Features\SupportTesting {
     /**
      * @mixin \Illuminate\Testing\TestResponse
@@ -27369,6 +27352,23 @@ namespace Illuminate\View {
         public static function response($callback)
         {
             return \Illuminate\View\View::response($callback);
+        }
+
+            }
+    }
+
+namespace Illuminate\Routing {
+    /**
+     */
+    class Route {
+        /**
+         * @see \Livewire\Features\SupportLazyLoading\SupportLazyLoading::registerRouteMacro()
+         * @param mixed $enabled
+         * @static
+         */
+        public static function lazy($enabled = true)
+        {
+            return \Illuminate\Routing\Route::lazy($enabled);
         }
 
             }

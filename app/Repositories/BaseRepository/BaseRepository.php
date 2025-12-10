@@ -24,12 +24,17 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $this->model->query();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Read Operations
+    |--------------------------------------------------------------------------
+    */
     public function all(): Collection
     {
-        return $this->addQuery()->all();
+        return $this->addQuery()->get();
     }
 
-    public function allWithRelations(string|array $relations, array $filters = []): Builder
+    public function allWithRelations(string|array $relations, array $filters = []): Collection
     {
         $query = $this->addQuery()->with($relations);
 
@@ -39,11 +44,25 @@ readonly class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        return $query;
+        return $query->get();
     }
 
-    public function paginateWithRelations(int $perPage, string $pageName, string|array|null $relations = null, array $filters = []): LengthAwarePaginator
+    public function paginate(PaginateDto $dto): LengthAwarePaginator
     {
+        return $this->addQuery()->paginate(
+            $dto->perPage,
+            $dto->columns,
+            $dto->pageName
+        );
+    }
+
+    public function paginateWithRelations(
+        int $perPage,
+        string $pageName,
+        array $columns = ['*'],
+        string|array|null $relations = null,
+        array $filters = []
+    ): LengthAwarePaginator {
         $query = $this->addQuery()->with($relations);
 
         if (\count($filters) > 0) {
@@ -52,16 +71,11 @@ readonly class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        if ($filters['columns']) {
-            return $query->paginate($perPage, $filters['columns'], $pageName);
-        }
-
-        return $query->paginate(perPage: $perPage, pageName: $pageName);
-    }
-
-    public function create(array $data)
-    {
-        return $this->addQuery()->create($data);
+        return $query->paginate(
+            perPage: $perPage,
+            columns: $columns,
+            pageName: $pageName
+        );
     }
 
     public function select(string|array $columns): Builder
@@ -69,62 +83,17 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $this->addQuery()->select($columns);
     }
 
-    public function paginate(PaginateDto $dto): LengthAwarePaginator
-    {
-        return $this->addQuery()->paginate($dto->perPage, $dto->columns, $dto->pageName);
-    }
-
     public function find(int|string $id): ?Model
     {
         return $this->addQuery()->find($id);
     }
 
-    public function findAndSelect(int|string $id, string|array $columns): Model
+    public function findOrFail(int|string $id): Model
     {
-        return $this->addQuery()
-            ->select((array) $columns)
-            ->find($id);
+        return $this->addQuery()->findOrFail($id);
     }
 
-    public function findWithRelations(int|string $id, string|array $relations): Builder
-    {
-        return $this->addQuery()->with($relations)->where($this->model->getKeyName(), $id);
-    }
-
-    public function update(int|string $id, array $data)
-    {
-        $model = $this->find($id);
-        $model->update($data);
-
-        return $model;
-    }
-
-    public function delete(int|string $id): bool
-    {
-        return $this->find($id)->delete();
-    }
-
-    public function restore(int|string $id): bool
-    {
-        return $this->addQuery()->onlyTrashed()->findOrFail($id)->restore();
-    }
-
-    public function forceDelete(int|string $id): bool
-    {
-        return $this->addQuery()->withTrashed()->findOrFail($id)->forceDelete();
-    }
-
-    public function findBy(string $column, mixed $value, bool $sanitize = false): ?Model
-    {
-        $value = $sanitize ? sanitize($value, true) : $value;
-
-        return $this->model->where($column, $value)->first();
-    }
-
-    /**
-     * Find a model by multiple criteria.
-     */
-    public function findOneBy(array $criteria): ?Model
+    public function findBy(array $criteria): Builder
     {
         $query = $this->addQuery();
 
@@ -132,12 +101,88 @@ readonly class BaseRepository implements BaseRepositoryInterface
             $query->where($column, $value);
         }
 
-        return $query->first();
+        return $query;
     }
 
-    /**
-     * Count models matching the given criteria.
-     */
+    public function findOneBy(array $criteria): ?Model
+    {
+        return $this->findBy($criteria)->first();
+    }
+
+    public function findAndSelect(int|string $id, string|array $columns): ?Model
+    {
+        return $this->addQuery()
+            ->withTrashed()
+            ->select((array) $columns)
+            ->find($id);
+    }
+
+    public function findWithRelations(int|string $id, string|array $relations): ?Model
+    {
+        return $this->addQuery()->withTrashed()->with($relations)->find($id);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Write Operations
+    |--------------------------------------------------------------------------
+    */
+
+    public function create(array $data): Model
+    {
+        return $this->addQuery()->create($data);
+    }
+
+    public function update(int|string $id, array $data): Model
+    {
+        $model = $this->findOrFail($id);
+        $model->update($data);
+
+        return $model;
+    }
+
+    public function restore(int|string $id): bool
+    {
+        return $this->addQuery()->onlyTrashed()->findOrFail($id)->restore();
+    }
+
+    public function restoreMultiple(array $ids): bool
+    {
+        return $this->addQuery()->onlyTrashed()->whereIn('id', $ids)->restore();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Operations
+    |--------------------------------------------------------------------------
+    */
+
+    public function delete(int|string $id): bool
+    {
+        return $this->findOrFail($id)->delete();
+    }
+
+    public function deleteMultiple(array $ids): bool
+    {
+        return $this->addQuery()->whereIn('id', $ids)->delete();
+    }
+
+    public function forceDelete(int|string $id): bool
+    {
+        return $this->addQuery()->withTrashed()->findOrFail($id)->forceDelete();
+    }
+
+    public function forceDeleteMultiple(array $ids): bool
+    {
+        return $this->addQuery()->withTrashed()->whereIn('id', $ids)->forceDelete();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Miscellaneous Operations
+    |--------------------------------------------------------------------------
+    */
+
     public function count(array $criteria = []): int
     {
         $query = $this->model->query();

@@ -9,7 +9,7 @@ run_as_owner() {
 # Wait for MySQL using netcat
 #
 echo "[entrypoint] Waiting for MySQL at ${DB_HOST:-mysql}:${DB_PORT:-3306}..."
-MAX_RETRIES=30
+MAX_RETRIES=10
 RETRY_COUNT=0
 
 until nc -z "${DB_HOST:-mysql}" "${DB_PORT:-3306}"; do
@@ -22,8 +22,6 @@ until nc -z "${DB_HOST:-mysql}" "${DB_PORT:-3306}"; do
     sleep 2
 done
 echo "[entrypoint] MySQL is ready!"
-
-sleep 3
 
 #
 # Optional DB migrations
@@ -41,8 +39,6 @@ fi
 #
 echo "[entrypoint] Clearing caches and logs"
 php artisan optimize:clear
-
-echo "[entrypoint] Clearing logs"
 php artisan logs:clear
 
 echo "[entrypoint] Caching application"
@@ -58,7 +54,7 @@ php artisan storage:link
 # Run frankenphp
 #
 echo "[entrypoint] Starting FrankenPHP" >&2
-frankenphp run --config /etc/caddy/Caddyfile
+exec frankenphp run --config /etc/caddy/Caddyfile
 
 export APP_URL="$(grep '^APP_URL=' .env | cut -d '=' -f2-)"
 

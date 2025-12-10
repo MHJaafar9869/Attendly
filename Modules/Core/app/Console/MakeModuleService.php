@@ -36,7 +36,7 @@ class MakeModuleService extends Command
 
         $subDir = trim(dirname($normalized), '.');
 
-        $relativeDir = "Modules/{$module}/Services".($subDir !== '.' ? "/{$subDir}" : '');
+        $relativeDir = "Modules/{$module}/Services" . ($subDir !== '.' ? "/{$subDir}" : '');
         $relativePath = "{$relativeDir}/{$className}.php";
         $fullPath = base_path($relativePath);
 

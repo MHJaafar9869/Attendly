@@ -8,7 +8,7 @@ class PaginateDto
 {
     public function __construct(
         public int $perPage,
-        public array|string|null $columns,
+        public array | string | null $columns,
         public string $pageName
     ) {}
 

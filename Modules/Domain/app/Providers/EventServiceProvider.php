@@ -4,7 +4,8 @@ namespace Modules\Domain\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Modules\Domain\Events\ClassroomCreated;
-use Modules\Domain\Listeners\SendClassroomEmailToStudents;
+use Modules\Domain\Events\ClassroomUpdated;
+use Modules\Domain\Listeners\ClassroomListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -15,7 +16,10 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         ClassroomCreated::class => [
-            SendClassroomEmailToStudents::class,
+            ClassroomListener::class,
+        ],
+        ClassroomUpdated::class => [
+            ClassroomListener::class,
         ],
     ];
 

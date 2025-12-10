@@ -212,8 +212,8 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
 
             $image = $user->images()->create($dto->toArray());
 
-            $message = $type
-                ? normalize('_', ' ', $type).' uploaded successfully'
+            $message = $type !== '' && $type !== '0'
+                ? normalize('_', ' ', $type) . ' uploaded successfully'
                 : 'Profile picture uploaded successfully';
 
             return RepositoryResponseDto::success()

@@ -29,7 +29,7 @@ class SettingController extends Controller
         return $this->respondWithData(SettingResource::collection($data), 'Setting list retrieved successfully');
     }
 
-    public function show(int|string $id): JsonResponse
+    public function show(int | string $id): JsonResponse
     {
         $data = $this->settingRepo->find($id);
         if (! $data) {
@@ -46,28 +46,28 @@ class SettingController extends Controller
         return $this->respondWithData(SettingResource::make($data), 'Setting created successfully', 201);
     }
 
-    public function update(UpdateSettingRequest $request, int|string $id): JsonResponse
+    public function update(UpdateSettingRequest $request, int | string $id): JsonResponse
     {
         $data = $this->settingRepo->update($id, $request->validated());
 
         return $this->respondWithData(SettingResource::make($data), 'Setting updated successfully');
     }
 
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(int | string $id): JsonResponse
     {
         $this->settingRepo->delete($id);
 
         return $this->respondSuccess('Setting deleted successfully');
     }
 
-    public function restore(int|string $id): JsonResponse
+    public function restore(int | string $id): JsonResponse
     {
         return $this->settingRepo->restore($id)
             ? $this->respondSuccess('Setting restored successfully')
             : $this->respondSuccess('Failed to restore setting');
     }
 
-    public function forceDelete(int|string $id): JsonResponse
+    public function forceDelete(int | string $id): JsonResponse
     {
         return $this->settingRepo->forceDelete($id)
             ? $this->respondSuccess('Setting force deleted successfully')

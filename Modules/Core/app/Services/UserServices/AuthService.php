@@ -2,7 +2,9 @@
 
 namespace Modules\Core\Services\UserServices;
 
+use Exception;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -18,6 +20,7 @@ use Modules\Core\Repositories\Role\RoleRepositoryInterface;
 use Modules\Core\Repositories\Status\StatusRepositoryInterface;
 use Modules\Core\Repositories\User\UserRepositoryInterface;
 use Modules\Core\Traits\UploadFile;
+use Throwable;
 
 class AuthService
 {
@@ -49,9 +52,9 @@ class AuthService
 
             $response = $this->userRepo->login($user);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return app()->environment('local')
-                ? ServiceResponseDto::error('Failed due: '.$e->getMessage(), 500)
+                ? ServiceResponseDto::error('Failed due: ' . $e->getMessage(), 500)
                 : ServiceResponseDto::error('Login failed. Please try again', 500);
         }
 
@@ -73,9 +76,9 @@ class AuthService
             $registerUserDto->setStatusId($statusId);
 
             $response = $this->userRepo->register($registerUserDto);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             return app()->environment('local')
-                ? ServiceResponseDto::error('Failed due: '.$th->getMessage(), 500)
+                ? ServiceResponseDto::error('Failed due: ' . $th->getMessage(), 500)
                 : ServiceResponseDto::error('Registration failed. Please try again later.', 500);
         }
 
@@ -86,7 +89,7 @@ class AuthService
     {
         try {
             /** @var User $user */
-            if (! $user = $this->userRepo->findBy('slug_name', $userSlug, true)) {
+            if (! ($user = $this->userRepo->findBy('slug_name', $userSlug, true)) instanceof Model) {
                 return ServiceResponseDto::error('Invalid Access, please login again', 401);
             }
 
@@ -107,9 +110,9 @@ class AuthService
             }
 
             $response = $this->userRepo->verifyOtp($user, $statusId);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             return app()->environment('local')
-                ? ServiceResponseDto::error('Failed due: '.$th->getMessage(), 500)
+                ? ServiceResponseDto::error('Failed due: ' . $th->getMessage(), 500)
                 : ServiceResponseDto::error('OTP verification failed. Please try again later.', 500);
         }
 
@@ -120,7 +123,7 @@ class AuthService
     {
         $user = $this->userRepo->findBy('email', $credentials['email'], true);
 
-        if (! $user) {
+        if (! $user instanceof Model) {
             return ServiceResponseDto::error('Invalid credentials', 401);
         }
 
@@ -151,7 +154,7 @@ class AuthService
             if ($status === Password::INVALID_TOKEN) {
                 return ServiceResponseDto::error('Invalid or expired reset token', 422);
             }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             return ServiceResponseDto::error('Error occurred. Please try again', 500);
         }
 
@@ -161,14 +164,14 @@ class AuthService
     public function uploadUserImage(UserImageDto $dto): ServiceResponseDto
     {
         try {
-            if (! $user = sanctumUser()) {
+            if (! ($user = sanctumUser()) instanceof User) {
                 return ServiceResponseDto::error('Invalid Access', 400);
             }
 
             $path = $this->uploadFile($dto->file, "users/{$user->slugName}/{$dto->type}");
 
             $trimSlugSuffix = preg_replace('/-[A-Za-z0-9]{8}$/', '', $user->slugName);
-            $alt = normalize('-', ' ', $trimSlugSuffix).' '.normalize('_', ' ', $dto->type);
+            $alt = normalize('-', ' ', $trimSlugSuffix) . ' ' . normalize('_', ' ', $dto->type);
 
             $imageDto = ImageUploadData::make(
                 path: $path,
@@ -180,9 +183,9 @@ class AuthService
             );
 
             $response = $this->userRepo->uploadUserImage($imageDto);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return app()->environment('local')
-                ? ServiceResponseDto::error('Failed due: '.$e->getMessage(), 500)
+                ? ServiceResponseDto::error('Failed due: ' . $e->getMessage(), 500)
                 : ServiceResponseDto::error('Error occurred. Please try again', 500);
         }
 

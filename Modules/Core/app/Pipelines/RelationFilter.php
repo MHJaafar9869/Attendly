@@ -12,7 +12,7 @@ class RelationFilter
     public function __construct(
         private ?string $value,
         private ?string $relation,
-        private array|string|null $columns = null,
+        private array | string | null $columns = null,
         private ?string $context = null,
     ) {
         //
