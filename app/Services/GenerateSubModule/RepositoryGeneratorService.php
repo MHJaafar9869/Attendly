@@ -45,7 +45,7 @@ use Modules\\{$module}\\Repositories\\{$model}\\{$model}RepositoryInterface;
 use App\Repositories\BaseRepository\BaseRepository;
 use Modules\\{$module}\\Models\\{$model};
 
-class {$model}Repository extends BaseRepository implements {$model}RepositoryInterface
+readonly class {$model}Repository extends BaseRepository implements {$model}RepositoryInterface
 {
     public function __construct({$model} \$model)
     {

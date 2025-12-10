@@ -36,7 +36,9 @@ class AuthService
     {
         try {
             /** @var User $user */
-            $user = $this->userRepo->findBy('email', $loginUserDto->email, true);
+            $user = $this->userRepo->findBy([
+                'email' => $loginUserDto->email,
+            ]);
 
             if (! $user) {
                 return ServiceResponseDto::error('Invalid credentials', 401);
@@ -89,7 +91,7 @@ class AuthService
     {
         try {
             /** @var User $user */
-            if (! ($user = $this->userRepo->findBy('slug_name', $userSlug, true)) instanceof Model) {
+            if (! ($user = $this->userRepo->findBy(['slug_name' => $userSlug]))) {
                 return ServiceResponseDto::error('Invalid Access, please login again', 401);
             }
 
@@ -121,7 +123,7 @@ class AuthService
 
     public function forgotPassword(array $credentials): ServiceResponseDto
     {
-        $user = $this->userRepo->findBy('email', $credentials['email'], true);
+        $user = $this->userRepo->findBy(['email' => $credentials['email']]);
 
         if (! $user instanceof Model) {
             return ServiceResponseDto::error('Invalid credentials', 401);

@@ -6,9 +6,16 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 // use Modules\Core\Database\Factories\RoleFactory;
 
+/**
+ * @property-read int $id
+ * @property-read string $name
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ */
 class Role extends Model
 {
     use HasFactory;
@@ -50,7 +57,7 @@ class Role extends Model
     */
 
     #[Scope]
-    public function usersByRole(Builder $q, array | string $roles): Builder
+    public function usersByRole(Builder $q, array|string $roles): Builder
     {
         return $q->with('users')->whereIn('name', (array) $roles);
     }

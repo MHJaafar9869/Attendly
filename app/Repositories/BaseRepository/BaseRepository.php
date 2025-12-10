@@ -34,7 +34,7 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $this->addQuery()->get();
     }
 
-    public function allWithRelations(string|array $relations, array $filters = []): Collection
+    public function allWithRelations(string|array $relations, array $filters = []): Builder
     {
         $query = $this->addQuery()->with($relations);
 
@@ -44,7 +44,7 @@ readonly class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        return $query->get();
+        return $query;
     }
 
     public function paginate(PaginateDto $dto): LengthAwarePaginator

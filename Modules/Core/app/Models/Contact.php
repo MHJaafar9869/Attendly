@@ -8,10 +8,22 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Core\Observers\LogObserver;
 
 // use Modules\Domain\Database\Factories\StudentContactFactory;
 
+/**
+ * @property-read int $id
+ * @property-read string $user_id
+ * @property-read int $type_id
+ * @property-read string $value
+ * @property-read int $order
+ * @property-read bool $is_active
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ * @property-read Carbon|null $deleted_at
+ */
 #[ObservedBy(LogObserver::class)]
 class Contact extends Model
 {

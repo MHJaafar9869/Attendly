@@ -2,6 +2,7 @@
 
 namespace Modules\Domain\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Core\Models\Status;
@@ -9,6 +10,10 @@ use Modules\Core\Models\User;
 
 // use Modules\Domain\Database\Factories\PayPalPaymentFactory;
 
+/**
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ */
 class PayPalPayment extends Model
 {
     use HasFactory;

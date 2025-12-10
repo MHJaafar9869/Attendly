@@ -12,13 +12,15 @@ use Illuminate\Queue\SerializesModels;
 
 class ClassroomUpdatedEvent
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     /**
      * Create a new event instance.
      */
     public function __construct(
-        public readonly int|string $classroomId,
+        public readonly int | string $classroomId,
         public readonly array $studentIds = []
     ) {}
 

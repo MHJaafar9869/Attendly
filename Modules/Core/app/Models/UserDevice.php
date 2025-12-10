@@ -7,9 +7,19 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 // use Modules\Core\Database\Factories\UserDeviceFactory;
 
+/**
+ * @property-read string $id
+ * @property-read string $user_id
+ * @property-read string $device_name
+ * @property-read string|null $device_token
+ * @property-read Carbon|null $last_used_at
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ */
 class UserDevice extends Model
 {
     use HasFactory;
@@ -33,7 +43,7 @@ class UserDevice extends Model
 
     // protected static function newFactory(): UserDeviceFactory
     // {
-    //     // return UserDeviceFactory::new();
+    // return UserDeviceFactory::new();
     // }
 
     /*
@@ -74,16 +84,5 @@ class UserDevice extends Model
     {
         return $query->where('last_used_at', '<', now()->subDays($days))
             ->orWhereNull('last_used_at');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Helpers
-    |--------------------------------------------------------------------------
-    */
-
-    public function updateLastUsed()
-    {
-        return $this->touch('last_used_at');
     }
 }

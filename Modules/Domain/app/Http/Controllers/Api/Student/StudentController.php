@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Domain\Http\Controllers\Api\Student;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Core\Traits\ResponseJson;
@@ -40,7 +41,7 @@ class StudentController extends Controller
      * Show a specific student.
      * GET /api/v1/students/{id}
      */
-    public function show(int | string $id): JsonResponse
+    public function show(int|string $id): JsonResponse
     {
         $data = $this->studentRepo->findWithRelations(
             id: $id,
@@ -51,7 +52,7 @@ class StudentController extends Controller
             ]
         );
 
-        if (! $data) {
+        if (! $data instanceof Model) {
             return $this->respondError('Student not found', 404);
         }
 
@@ -73,7 +74,7 @@ class StudentController extends Controller
      * Update an existing student.
      * PUT /api/v1/students/{id}
      */
-    public function update(UpdateStudentRequest $request, int | string $id): JsonResponse
+    public function update(UpdateStudentRequest $request, int|string $id): JsonResponse
     {
         $data = $this->studentRepo->update($id, $request->validated());
 
@@ -84,7 +85,7 @@ class StudentController extends Controller
      * Delete a student.
      * DELETE /api/v1/students/{id}
      */
-    public function destroy(int | string $id): JsonResponse
+    public function destroy(int|string $id): JsonResponse
     {
         $this->studentRepo->delete($id);
 
@@ -95,7 +96,7 @@ class StudentController extends Controller
      * Restore a deleted student.
      * PATCH /api/v1/students/{id}
      */
-    public function restore(int | string $id): JsonResponse
+    public function restore(int|string $id): JsonResponse
     {
         $this->studentRepo->restore($id);
 
@@ -106,7 +107,7 @@ class StudentController extends Controller
      * Delete a student permanently.
      * DELETE /api/v1/students/{id}/force
      */
-    public function forceDelete(int | string $id): JsonResponse
+    public function forceDelete(int|string $id): JsonResponse
     {
         $this->studentRepo->forceDelete($id);
 

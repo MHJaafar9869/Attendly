@@ -2,6 +2,10 @@ name: fix-code-syntax
 
 on:
   push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
 
 jobs:
   fix-code-syntax:
@@ -50,4 +54,4 @@ jobs:
         if: steps.git_diff.outputs.changed == 'true'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "chore: fix code style"
+          commit_message: "chore: fix code style [skip ci]"

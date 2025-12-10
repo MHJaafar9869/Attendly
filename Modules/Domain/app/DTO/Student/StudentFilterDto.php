@@ -21,11 +21,7 @@ class StudentFilterDto
             isBanned: $data['is_banned'] ?? null,
             gender: $data['gender'] ?? null,
             attended: $data['attended'] ?? null,
+            paginate: $data['paginate'] ?? false
         );
-    }
-
-    public function setPaginate(bool $paginate): void
-    {
-        $this->paginate = $paginate;
     }
 }

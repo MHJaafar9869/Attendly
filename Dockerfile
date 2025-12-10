@@ -13,8 +13,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN apt-get update && \
     apt-get install -y \
-        gosu \
-        # Tool for privilege escalation.
         curl \
         # Tool for transferring data via URLs.
         git \
@@ -72,12 +70,16 @@ COPY Docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-
-
 FROM dunglas/frankenphp:1.9-php8.4-bookworm AS final
 
 ARG HOST_UID
 ARG HOST_GID
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=UTC \
+    XDG_CONFIG_HOME=/var/www/html/config \
+    XDG_DATA_HOME=/var/www/html/data \
+    XDEBUG_MODE=off
 
 WORKDIR /var/www/html
 
@@ -101,4 +103,4 @@ USER appuser
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
+# CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]

@@ -8,7 +8,7 @@ class CreateClassroomDto
 {
     public function __construct(
         public readonly string $teacherId,
-        public readonly string|int $subjectId,
+        public readonly string | int $subjectId,
         public readonly string $startAt,
         public readonly string $endAt,
         public readonly float $lat,

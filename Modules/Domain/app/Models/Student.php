@@ -12,11 +12,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Modules\Core\Models\User;
 use Modules\Core\Observers\LogObserver;
 
 // use Modules\Domain\Database\Factories\StudentFactory;
 
+/**
+ * @property-read string $id
+ * @property-read string $user_id
+ * @property-read string $student_code
+ * @property-read string $gender
+ * @property-read int|null $academic_level_id
+ * @property-read string|null $address
+ * @property-read string|null $city
+ * @property-read int|null $governorate_id
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ * @property-read Carbon|null $deleted_at
+ * @property-read int $warning_count
+ * @property-read bool $is_banned
+ */
 #[ObservedBy([LogObserver::class])]
 final class Student extends Model
 {
@@ -118,7 +134,7 @@ final class Student extends Model
     }
 
     #[Scope]
-    public function byGovernorate(Builder $query, int | string $governorateId): Builder
+    public function byGovernorate(Builder $query, int|string $governorateId): Builder
     {
         if (! $governorateId) {
             return $query;

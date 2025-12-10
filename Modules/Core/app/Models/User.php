@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
@@ -26,6 +27,27 @@ use Modules\Domain\Models\Student;
 use Modules\Domain\Models\Teacher;
 
 // use Modules\Core\Database\Factories\UserFactory;
+/**
+ * @property-read string $id
+ * @property string $first_name
+ * @property string $last_name
+ * @property string|null $slug_name
+ * @property string $email
+ * @property string $password
+ * @property int|null $status_id
+ * @property int $token_version
+ * @property string|null $otp
+ * @property Carbon|null $otp_expires_at
+ * @property string|null $two_factor_secret
+ * @property array|null $two_factor_recovery_codes
+ * @property bool $is_logged_in
+ * @property Carbon|null $last_visited_at
+ * @property Carbon|null $email_verified_at
+ * @property string|null $remember_token
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
+ */
 #[ObservedBy(LogObserver::class)]
 class User extends Authenticatable implements FilamentUser, HasName
 {

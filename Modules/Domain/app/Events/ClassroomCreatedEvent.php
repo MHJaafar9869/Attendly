@@ -20,7 +20,7 @@ class ClassroomCreatedEvent
      * Create a new event instance.
      */
     public function __construct(
-        public readonly int|string $classroomId,
+        public readonly int | string $classroomId,
         public readonly array $studentIds = []
     ) {}
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Core\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Core\Http\Requests\User\StoreUserRequest;
@@ -35,7 +36,7 @@ class UserController extends Controller
         );
     }
 
-    public function show(int | string $id): JsonResponse
+    public function show(int|string $id): JsonResponse
     {
         $data = $this->userRepo->findWithRelations($id, [
             'roles:id,name',
@@ -44,7 +45,7 @@ class UserController extends Controller
             'images:id,image_path,image_url,image_alt,type',
         ]);
 
-        if (! $data) {
+        if (! $data instanceof Model) {
             return $this->respondError('User not found', 404);
         }
 
@@ -61,17 +62,22 @@ class UserController extends Controller
         return $this->respondWithData(UserResource::make($data), 'User created successfully', 201);
     }
 
-    public function update(UpdateUserRequest $request, int | string $id): JsonResponse
+    public function update(UpdateUserRequest $request, int|string $id): JsonResponse
     {
         $data = $this->userRepo->update($id, $request->validated());
 
         return $this->respondWithData(UserResource::make($data), 'User updated successfully');
     }
 
-    public function destroy(int | string $id): JsonResponse
+    public function destroy(int|string $id): JsonResponse
     {
         $this->userRepo->delete($id);
 
         return $this->respondSuccess('User deleted successfully');
+    }
+
+    public function searchUsers()
+    {
+        // ...
     }
 }

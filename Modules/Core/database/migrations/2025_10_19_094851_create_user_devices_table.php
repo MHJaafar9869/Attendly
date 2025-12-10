@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_devices', function (Blueprint $table) {
-            $table->ulid('id')->primary();
-            $table->ulid('user_id');
+            $table->id();
+            $table->foreignUlid('user_id')->constrained();
             $table->string('device_name');
             $table->string('device_token')->nullable();
             $table->timestamp('last_used_at')->nullable();

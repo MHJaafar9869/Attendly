@@ -20,8 +20,7 @@ class PermissionMiddleware
      */
     public function handle(Request $request, Closure $next, string $permission): Response
     {
-        $user = sanctumUser();
-        if ($user && $user->hasPermission($permission)) {
+        if (sanctumUser()?->hasPermission($permission)) {
             return $next($request);
         }
 

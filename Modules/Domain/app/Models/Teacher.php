@@ -2,7 +2,9 @@
 
 namespace Modules\Domain\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,10 +16,22 @@ use Modules\Core\Observers\LogObserver;
 
 // use Modules\Domain\Database\Factories\TeacherFactory;
 
+/**
+ * @property-read string $id
+ * @property-read string $user_id
+ * @property-read string $teacher_code
+ * @property-read int|null $teacher_type_id
+ * @property-read int|null $status_id
+ * @property-read string|null $approved_by
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ * @property-read Carbon|null $deleted_at
+ */
 #[ObservedBy(LogObserver::class)]
 class Teacher extends Model
 {
     use HasFactory;
+    use HasUlids;
 
     /**
      * The attributes that are mass assignable.
@@ -32,7 +46,7 @@ class Teacher extends Model
 
     // protected static function newFactory(): TeacherFactory
     // {
-    //     // return TeacherFactory::new();
+    // return TeacherFactory::new();
     // }
 
     /*

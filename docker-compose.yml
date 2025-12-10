@@ -25,13 +25,14 @@ services:
               - ./public:/var/www/html/public
               - ./bootstrap:/var/www/html/bootstrap
               - ./Modules:/var/www/html/Modules
+              - .env.docker:/var/www/html/.env
+
               # Named Volume for Storage (Best practice for performance/permissions)
               - ./storage:/var/www/html/storage
 
               # Configuration/Scripts (Bind Mounts)
               - ./Docker/entrypoint.sh:/usr/local/bin/entrypoint.sh
               - ./Docker/Caddyfile:/etc/caddy/Caddyfile
-              - .env.docker:/usr/local/bin/.env
         restart: unless-stopped
         depends_on:
             mysql:

@@ -4,12 +4,13 @@ use Illuminate\Support\Facades\Route;
 use Modules\Core\Http\Controllers\Api\Auth\AuthController;
 use Modules\Core\Http\Controllers\Api\Setting\SettingController;
 use Modules\Core\Http\Controllers\Api\User\UserController;
-use Modules\Domain\Http\Controllers\Api\ClassroomController;
+use Modules\Domain\Http\Controllers\Api\Classroom\ClassroomController;
 use Modules\Domain\Http\Controllers\Api\Student\StudentController;
+use Modules\Domain\Http\Controllers\Api\Teacher\TeacherController;
 
 Route::prefix('v1')->group(function () {
     // Test Route: /api/v1/test
-    Route::get('/test', fn () => response()->json(['message' => 'This is a test']));
+    Route::get('/test', fn () => response()->json(['message' => 'Hello World'], 200));
 
     /*
     |--------------------------------------------------------------------------
@@ -44,14 +45,12 @@ Route::prefix('v1')->group(function () {
         |--------------------------------------------------------------------------
         */
 
+        Route::apiResource('users', UserController::class);
         Route::prefix('users')->controller(UserController::class)->group(function () {
-            Route::get('/', 'index')->middleware('permission:view_users');
-            Route::get('/{id}', 'show')->middleware('permission:view_users');
-            Route::post('/', 'store')->middleware('permission:create_users');
-            Route::put('/{id}', 'update')->middleware('permission:update_users');
-            Route::delete('/{id}', 'destroy')->middleware('permission:delete_users');
             Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_users');
             Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_users');
+            Route::get('/search', 'searchUsers'); // TODO
+            Route::get('/analytics', 'analytics'); // TODO
         });
 
         /*
@@ -60,15 +59,26 @@ Route::prefix('v1')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::prefix('students')->middleware('role:super_admin,admin')->controller(StudentController::class)->group(function () {
-            Route::get('/', 'index')->middleware('permission:view_students');
-            Route::get('/{id}', 'show')->middleware('permission:view_students');
-            Route::post('/', 'store')->middleware('permission:create_students');
-            Route::put('/{id}', 'update')->middleware('permission:update_students');
-            Route::delete('/{id}', 'destroy')->middleware('permission:delete_students');
+        Route::apiResource('students', StudentController::class);
+        Route::prefix('students')->controller(StudentController::class)->group(function () {
             Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_students');
             Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_students');
-            Route::get('/search', 'searchStudents')->middleware('permission:view_students');
+            Route::get('/search', 'searchStudents');
+            Route::get('/analytics', 'analytics'); // TODO
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        |  Teacher -- TODO
+        |--------------------------------------------------------------------------
+        */
+
+        Route::apiResource('teachers', TeacherController::class);
+        Route::prefix('teachers')->controller(TeacherController::class)->group(function () {
+            Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_teachers');
+            Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_teachers');
+            Route::get('/search', 'searchStudents');
+            Route::get('/analytics', 'analytics');
         });
 
         /*
@@ -77,7 +87,12 @@ Route::prefix('v1')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::prefix('classrooms')->controller(ClassroomController::class)->group(function () {});
+        Route::apiResource('classrooms', ClassroomController::class);
+        Route::prefix('classrooms')->controller(ClassroomController::class)->group(function () {
+            Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_classrooms');
+            Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_classrooms');
+            Route::get('/search', 'searchClassrooms');
+        });
 
         /*
         |--------------------------------------------------------------------------
@@ -86,29 +101,52 @@ Route::prefix('v1')->group(function () {
         */
 
         Route::prefix('admin')->middleware('role:super_admin,admin')->group(function () {
-            Route::prefix('students')->group(function () {
-                Route::get('/', fn () => 'hello-students')->middleware('permission:view_students');
-            });
+            /*
+            |--------------------------------------------------------------------------
+            |  Users
+            |--------------------------------------------------------------------------
+            */
 
-            Route::prefix('teachers')->group(function () {
-                Route::get('/', fn () => 'hello-teachers')->middleware('permission:view_teachers');
+            Route::prefix('users')->get('/analytics', ['analytics']);
+
+            /*
+            |--------------------------------------------------------------------------
+            |  Students
+            |--------------------------------------------------------------------------
+            */
+
+            Route::prefix('students')->get('/analytics', ['analytics']);
+
+            /*
+            |--------------------------------------------------------------------------
+            |  Teachers
+            |--------------------------------------------------------------------------
+            */
+
+            Route::prefix('teachers')->get('/analytics', ['analytics']);
+
+            /*
+            |--------------------------------------------------------------------------
+            |  Classrooms
+            |--------------------------------------------------------------------------
+            */
+
+            Route::prefix('classrooms')->get('/analytics', ['analytics']);
+
+            /*
+            |--------------------------------------------------------------------------
+            |  Settings
+            |--------------------------------------------------------------------------
+            */
+
+            Route::middleware('role:super_admin')->group(function () {
+                Route::apiResource('settings', SettingController::class);
+                Route::prefix('settings')->controller(SettingController::class)->group(function () {
+                    Route::patch('/{id}', 'restore');
+                    Route::delete('/{id}/force', 'forceDelete');
+                });
             });
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        |  Settings
-        |--------------------------------------------------------------------------
-        */
-
-        Route::middleware('role:super_admin,admin')->prefix('settings')->controller(SettingController::class)->group(function () {
-            Route::get('/', 'index')->middleware('permission:view_settings');
-            Route::get('/{id}', 'show')->middleware('permission:view_settings');
-            Route::post('/', 'store')->middleware('permission:create_settings');
-            Route::put('/{id}', 'update')->middleware('permission:update_settings');
-            Route::delete('/{id}', 'destroy')->middleware('permission:delete_settings');
-            Route::patch('/{id}', 'restore')->middleware('permission:restore_settings');
-            Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_settings');
-        });
     });
 });

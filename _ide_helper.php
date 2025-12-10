@@ -2477,7 +2477,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Get the currently authenticated user.
          *
-         * @return \App\Models\User|null
+         * @return \Modules\Core\Models\User|null
          * @static
          */
         public static function user()
@@ -2515,7 +2515,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Determine if the current user is authenticated. If not, throw an exception.
          *
-         * @return \App\Models\User
+         * @return \Modules\Core\Models\User
          * @throws \Illuminate\Auth\AuthenticationException
          * @static
          */

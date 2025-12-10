@@ -7,9 +7,9 @@ namespace Modules\Domain\DTO\Student;
 class UpdateClassroomDto
 {
     public function __construct(
-        public readonly int|string $id,
+        public readonly int | string $id,
         public readonly ?string $teacherId = null,
-        public readonly int|string|null $subjectId = null,
+        public readonly int | string | null $subjectId = null,
         public readonly ?string $startAt = null,
         public readonly ?string $endAt = null,
         public readonly ?float $lat = null,
@@ -18,7 +18,7 @@ class UpdateClassroomDto
         public readonly ?array $studentsIds = null
     ) {}
 
-    public static function fromRequest(array $data, int|string $id): self
+    public static function fromRequest(array $data, int | string $id): self
     {
         return new self(
             id: $id,

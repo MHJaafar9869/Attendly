@@ -8,10 +8,20 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Core\Observers\LogObserver;
 
 // use Modules\Domain\Database\Factories\AcademicLevelFactory;
 
+/**
+ * @property-read int $id
+ * @property-read int $year_number
+ * @property-read string $group_code
+ * @property-read string $display_name
+ * @property-read int|null $major_id
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ */
 #[ObservedBy(LogObserver::class)]
 class AcademicLevel extends Model
 {
@@ -29,7 +39,7 @@ class AcademicLevel extends Model
 
     // protected static function newFactory(): AcademicLevelFactory
     // {
-    //     // return AcademicLevelFactory::new();
+    // return AcademicLevelFactory::new();
     // }
 
     /*

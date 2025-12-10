@@ -1,0 +1,102 @@
+name: Build and deploy
+
+on:
+  workflow_run:
+    workflows:
+      - fix-code-syntax
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  check_success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - run: echo "Style fix workflow passed, proceeding to build."
+  build:
+    needs: check_success
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Install Dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Install Node-js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Cache NPM dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install NPM Packages and Build Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            vendor
+            public/build
+            bootstrap/cache
+
+      # - name: Test With PHPStan
+      #   run: ./vendor/bin/phpstan analyze
+
+      # - name: Test With PHPUnit
+      #   run: ./vendor/bin/phpunit
+
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download build artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: build-artifacts
+
+  #     - name: Synchronize Files To Server
+  #       uses: easingthemes/ssh-deploy@v2.1.5
+  #       with:
+  #         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         SOURCE: "."
+  #         REMOTE_HOST: ${{ secrets.VPS_HOST }}
+  #         REMOTE_USER: ${{ secrets.VPS_USER }}
+  #         TARGET: "/var/www/html/my_project"
+  #         ARGS: "-avz --delete --exclude-from=.rsyncignore"
+
+  #     - name: Run Remote Commands
+  #       uses: appleboy/ssh-action@v0.1.6
+  #       with:
+  #         host: ${{ secrets.VPS_HOST }}
+  #         username: ${{ secrets.VPS_USER }}
+  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         script: |
+  #           cd /var/www/html/my_project
+  #           php artisan migrate --force
+  #           php artisan optimize:clear
+  #           php artisan optimize

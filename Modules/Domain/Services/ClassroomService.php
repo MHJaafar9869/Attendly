@@ -6,10 +6,12 @@ namespace Modules\Domain\Services;
 
 use Illuminate\Support\Facades\Cache;
 use Modules\Core\DTO\ResponseDto\ServiceResponseDto;
+use Modules\Domain\DTO\Classroom\ClassroomFilterDto;
 use Modules\Domain\DTO\Student\CreateClassroomDto;
 use Modules\Domain\DTO\Student\UpdateClassroomDto;
 use Modules\Domain\Repositories\Classroom\ClassroomRepositoryInterface;
 use Modules\Domain\Transformers\Classroom\ClassroomResource;
+use Throwable;
 
 final readonly class ClassroomService
 {
@@ -32,7 +34,7 @@ final readonly class ClassroomService
     {
         try {
             $response = $this->classroomRepo->createClassroom($dto);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             return ServiceResponseDto::error('Error occurred. Please try again', 500);
         }
 
@@ -46,13 +48,27 @@ final readonly class ClassroomService
     {
         try {
             $response = $this->classroomRepo->updateClassroom($dto);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             return ServiceResponseDto::error('Error occurred. Please try again', 500);
         }
 
         return ServiceResponseDto::success()
             ->setMessage($response->message)
             ->setData(ClassroomResource::make($response->data))
+            ->setStatus($response->statusCode);
+    }
+
+    public function searchClassrooms(ClassroomFilterDto $dto): ServiceResponseDto
+    {
+        try {
+            $response = $this->classroomRepo->searchClassrooms($dto);
+        } catch (Throwable $th) {
+            return ServiceResponseDto::error('Error occurred. Please try again', 500);
+        }
+
+        return ServiceResponseDto::success()
+            ->setMessage($response->message)
+            ->setData(ClassroomResource::collection($response->data))
             ->setStatus($response->statusCode);
     }
 }

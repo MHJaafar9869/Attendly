@@ -2,6 +2,7 @@
 
 namespace Modules\Domain\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,14 @@ use Modules\Core\Observers\LogObserver;
 
 // use Modules\Domain\Database\Factories\DepartmentFactory;
 
+/**
+ * @property-read int $id
+ * @property-read string $name
+ * @property-read string|null $slug
+ * @property-read string|null $description
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ */
 #[ObservedBy(LogObserver::class)]
 class Department extends Model
 {

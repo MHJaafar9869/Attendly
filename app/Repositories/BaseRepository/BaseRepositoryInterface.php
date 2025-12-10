@@ -22,7 +22,7 @@ interface BaseRepositoryInterface
 
     public function all(): Collection;
 
-    public function allWithRelations(string|array $relations, array $filters = []): Collection;
+    public function allWithRelations(string|array $relations, array $filters = []): Builder;
 
     public function paginate(PaginateDto $dto): LengthAwarePaginator;
 

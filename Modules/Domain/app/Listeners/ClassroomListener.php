@@ -18,7 +18,7 @@ class ClassroomListener implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(ClassroomCreatedEvent|ClassroomUpdatedEvent $event): void
+    public function handle(ClassroomCreatedEvent | ClassroomUpdatedEvent $event): void
     {
         if ($event->studentIds === []) {
             return;

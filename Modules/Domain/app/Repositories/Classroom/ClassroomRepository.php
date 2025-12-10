@@ -5,8 +5,14 @@ declare(strict_types=1);
 namespace Modules\Domain\Repositories\Classroom;
 
 use App\Repositories\BaseRepository\BaseRepository;
+use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Modules\Core\DTO\ResponseDto\RepositoryResponseDto;
+use Modules\Core\Pipelines\DateRangeFilter;
+use Modules\Core\Pipelines\OrderByFilter;
+use Modules\Core\Pipelines\RelationFilter;
+use Modules\Domain\DTO\Classroom\ClassroomFilterDto;
 use Modules\Domain\DTO\Student\CreateClassroomDto;
 use Modules\Domain\DTO\Student\UpdateClassroomDto;
 use Modules\Domain\Events\ClassroomCreatedEvent;
@@ -14,7 +20,7 @@ use Modules\Domain\Events\ClassroomUpdatedEvent;
 use Modules\Domain\Models\Classroom;
 use Modules\Domain\Models\Student;
 
-class ClassroomRepository extends BaseRepository implements ClassroomRepositoryInterface
+readonly class ClassroomRepository extends BaseRepository implements ClassroomRepositoryInterface
 {
     public function __construct(Classroom $model)
     {
@@ -110,4 +116,44 @@ class ClassroomRepository extends BaseRepository implements ClassroomRepositoryI
                 ->setStatus(200);
         });
     } // End Method: updateClassroom
+
+    public function searchClassrooms(ClassroomFilterDto $dto): RepositoryResponseDto
+    {
+        $key = hash('sha1', json_encode($dto->toArray()));
+
+        $query = $this->allWithRelations(
+            [
+                'teacher:id,user_id',
+                'subject:id,name',
+                'students:id,student_code',
+                'students.user:id,first_name',
+            ]
+        );
+
+        $pipes = [
+            new RelationFilter('teacher', $dto->teacher, 'teacher_code'),
+            new RelationFilter('subject', $dto->subject, 'name'),
+            new DateRangeFilter('start_at', $dto->startMin, $dto->startMax),
+            new DateRangeFilter('end_at', $dto->endMin, $dto->endMax),
+            new OrderByFilter($dto->orderBy, $dto->orderDir),
+        ];
+
+        Pipeline::send($query)
+            ->through($pipes)
+            ->thenReturn();
+
+        $cachecd = Cache::flexible(
+            key: "classroom:{$key}:{$dto->page}",
+            ttl: [10, 30],
+            callback: fn () => Pipeline::send($query)
+                ->through($pipes)
+                ->thenReturn()
+                ->paginate(15, ['*'], 'classrooms', $dto->page)
+        );
+
+        return RepositoryResponseDto::success()
+            ->setData($cachecd)
+            ->setStatus(200)
+            ->setMessage('Classrooms retrieved successfully');
+    }
 }

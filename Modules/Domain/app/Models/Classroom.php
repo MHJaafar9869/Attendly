@@ -11,11 +11,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 use Modules\Core\Observers\AuditObserver;
 use Modules\Core\Observers\LogObserver;
 
 // use Modules\Domain\Database\Factories\ClassroomFactory;
 
+/**
+ * @property-read string $id
+ * @property-read string $teacher_id
+ * @property-read int $subject_id
+ * @property-read Carbon $start_at
+ * @property-read Carbon $end_at
+ * @property-read float $lat
+ * @property-read float $lng
+ * @property-read int $radius
+ * @property-read string|null $created_by
+ * @property-read string|null $updated_by
+ * @property-read string|null $deleted_by
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ * @property-read Carbon|null $deleted_at
+ */
 #[ObservedBy([LogObserver::class, AuditObserver::class])]
 class Classroom extends Model
 {
