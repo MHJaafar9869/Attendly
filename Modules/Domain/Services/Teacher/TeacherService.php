@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Domain\Services\Teacher;
 
-use App\DTO\Teacher\TeacherFilterDto;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Pipeline;
 use Modules\Core\DTO\Elequent\PaginateDto;
@@ -13,6 +12,7 @@ use Modules\Core\Pipelines\OrderByFilter;
 use Modules\Core\Pipelines\RelationFilter;
 use Modules\Core\Pipelines\SearchFilter;
 use Modules\Core\Services\BaseService;
+use Modules\Domain\DTO\Teacher\TeacherFilterDto;
 use Modules\Domain\Repositories\Teacher\TeacherRepositoryInterface;
 use Modules\Domain\Transformers\Teacher\TeacherResource;
 

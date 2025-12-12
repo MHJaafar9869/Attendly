@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Modules\Domain\Http\Controllers\Api\Teacher;
 
-use App\DTO\Teacher\TeacherFilterDto;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Core\DTO\Elequent\PaginateDto;
 use Modules\Core\Traits\ResponseJson;
+use Modules\Domain\DTO\Teacher\TeacherFilterDto;
 use Modules\Domain\Http\Requests\Teacher\StoreTeacherRequest;
 use Modules\Domain\Http\Requests\Teacher\UpdateTeacherRequest;
 use Modules\Domain\Repositories\Teacher\TeacherRepositoryInterface;

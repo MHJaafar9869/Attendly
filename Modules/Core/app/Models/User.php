@@ -41,7 +41,7 @@ use Modules\Domain\Models\Teacher;
  * @property-read Carbon|null $otp_expires_at
  * @property-read string|null $two_factor_secret
  * @property-read array|null $two_factor_recovery_codes
- * @property-read bool $is_logged_in
+ * @property-write bool $is_logged_in
  * @property-read Carbon|null $last_visited_at
  * @property-read Carbon|null $email_verified_at
  * @property-read string|null $remember_token
@@ -235,7 +235,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     */
 
     #[Scope]
-    public function byRole(Builder $query, array | string $roles): Builder
+    public function byRole(Builder $query, array|string $roles): Builder
     {
         return $query->whereHas(
             'roles',
@@ -244,7 +244,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     #[Scope]
-    public function byStatus(Builder $query, array | string $status): Builder
+    public function byStatus(Builder $query, array|string $status): Builder
     {
         return $query->whereHas(
             'status',
