@@ -37,6 +37,7 @@ Thumbs.db
 /storage/app
 /storage/framework
 /storage/logs
+/storage/rector
 
 # Homestead configs
 Homestead.json
