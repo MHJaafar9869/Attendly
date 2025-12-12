@@ -155,7 +155,7 @@ final readonly class AuthService extends BaseService
             $path = $this->uploadFile($dto->file, "$role/{$user->slugName}/{$dto->type}");
 
             $trimSlugSuffix = preg_replace('/-[A-Za-z0-9]{8}$/', '', $user->slugName);
-            $alt = normalize('-', ' ', $trimSlugSuffix).' '.normalize('_', ' ', $dto->type);
+            $alt = normalize('-', ' ', $trimSlugSuffix) . ' ' . normalize('_', ' ', $dto->type);
 
             $imageDto = ImageUploadData::make(
                 path: $path,

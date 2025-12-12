@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DTO\Teacher;
+namespace Modules\Domain\DTO\Teacher;
 
 final readonly class TeacherFilterDto
 {
