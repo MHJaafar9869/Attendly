@@ -6,6 +6,8 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rules\Password;
+use Modules\Core\Enums\RoleIDEnum;
+use Modules\Core\Enums\Status\StatusIDEnum;
 use Modules\Core\Rules\StrongPassword;
 
 class RegisterRequest extends FormRequest
@@ -20,7 +22,33 @@ class RegisterRequest extends FormRequest
 
     public function prepareForValidation(): void
     {
-        $this->merge(['role_id' => 6]);
+        $path = $this->path();
+        $data = $this->all();
+
+        if (str_contains($path, 'api/v1/auth/teachers/register')) {
+            $statusId = StatusIDEnum::TEACHER_PENDING->value;
+            $roleId = RoleIDEnum::TEACHER->value;
+        } elseif (str_contains($path, 'api/v1/auth/students/register')) {
+            $statusId = StatusIDEnum::STUDENT_PENDING->value;
+            $roleId = RoleIDEnum::STUDENT->value;
+        }
+
+        if (isset($data['email'])) {
+            $data['email'] = strtolower(trim($data['email']));
+        }
+
+        if (isset($data['first_name'])) {
+            $data['first_name'] = trim($data['first_name']);
+        }
+
+        if (isset($data['last_name'])) {
+            $data['last_name'] = trim($data['last_name']);
+        }
+
+        $data['role_id'] = $roleId;
+        $data['status_id'] = $statusId;
+
+        $this->merge($data);
     }
 
     /**
@@ -38,7 +66,8 @@ class RegisterRequest extends FormRequest
                 Password::defaults(),
                 new StrongPassword(name: $this->input('first_name') . ' ' . $this->input('last_name')),
             ],
-            'role_id' => 'required|integer',
+            'role_id' => 'required|integer|exists:roles,id',
+            'status_id' => 'required|integer|exists:statuses,id',
         ];
     }
 

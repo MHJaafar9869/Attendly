@@ -2,9 +2,9 @@
 
 namespace Modules\Domain\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Modules\Core\Models\Status;
 use Modules\Core\Models\User;
 

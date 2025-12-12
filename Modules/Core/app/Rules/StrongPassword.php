@@ -29,8 +29,8 @@ class StrongPassword implements ValidationRule
         foreach ($parts as $part) {
             $part = trim($part);
 
-            if (strlen($part) >= $this->minLengthMatch) {
-                for ($i = 0; $i <= strlen($part) - $this->minLengthMatch; $i++) {
+            if (\strlen($part) >= $this->minLengthMatch) {
+                for ($i = 0; $i <= \strlen($part) - $this->minLengthMatch; $i++) {
                     $substring = substr($part, $i, $this->minLengthMatch);
 
                     if (stripos($value, $substring) !== false) {

@@ -30,8 +30,10 @@ class ImageMime implements ValidationRule
         $mimeType = finfo_file($finfo, $value->getRealPath());
         finfo_close($finfo);
 
-        if (! in_array($mimeType, $this->allowedMimes)) {
+        if (! \in_array($mimeType, $this->allowedMimes)) {
             $fail('The file must be a valid image: ' . implode(', ', $this->allowedMimes));
+
+            return;
         }
     }
 }

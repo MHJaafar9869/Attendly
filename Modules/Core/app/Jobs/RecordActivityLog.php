@@ -8,7 +8,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use Modules\Core\Models\ActivityLog;
 
 class RecordActivityLog implements ShouldQueue
 {
@@ -28,11 +27,9 @@ class RecordActivityLog implements ShouldQueue
     public function handle(): void
     {
         DB::transaction(function () {
-            if (isset($this->data[0]) && is_array($this->data[0])) {
-                ActivityLog::insert($this->data);
-            } else {
-                ActivityLog::create($this->data);
-            }
+            DB::table('activity_logs')->insert($this->data);
+            DB::afterCommit(fn () => logger()->info('Activities Recorded Successfully: #' . \count($this->data)));
+            DB::afterRollBack(fn () => logger()->alert('Failed To Record Activities: #' . (\count($this->data) ?? 0)));
         });
     }
 }

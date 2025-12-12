@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Domain\DTO\Classroom;
 
-class ClassroomFilterDto
+final readonly class ClassroomFilterDto
 {
     public function __construct(
         public readonly ?string $teacher = null,

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Modules\Domain\DTO\Student;
+namespace Modules\Domain\DTO\Classroom;
 
-class CreateClassroomDto
+final readonly class CreateClassroomDto
 {
     public function __construct(
         public readonly string $teacherId,

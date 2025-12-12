@@ -12,12 +12,12 @@ class RoleSeeder extends Seeder
         $now = now();
 
         $roles = [
-            ['name' => 'super_admin'],
-            ['name' => 'admin'],
-            ['name' => 'accountant'],
-            ['name' => 'teacher'],
-            ['name' => 'supervisor'],
-            ['name' => 'student'],
+            ['name' => 'super_admin'], // 1
+            ['name' => 'admin'], // 2
+            ['name' => 'accountant'], // 3
+            ['name' => 'teacher'], // 4
+            ['name' => 'supervisor'], // 5
+            ['name' => 'student'], // 6
         ];
 
         data_set($roles, '*.created_at', $now);

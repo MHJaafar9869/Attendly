@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Domain\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -8,7 +10,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
-use Modules\Core\Models\User;
 use Modules\Domain\Emails\ClassroomEmail;
 use Modules\Domain\Models\Classroom;
 use Modules\Domain\Models\Student;
@@ -33,7 +34,6 @@ class SendClassroomEmailsJob implements ShouldQueue
      */
     public function handle(): void
     {
-        /** @var Classroom|null $classroom */
         $classroom = Classroom::query()->find($this->classroomId);
 
         if (! $classroom) {
@@ -45,7 +45,6 @@ class SendClassroomEmailsJob implements ShouldQueue
             ->whereIn('id', $this->studentIds)
             ->chunk(100, function ($students) use ($classroom) {
                 foreach ($students as $student) {
-                    /** @var User|null $user */
                     $user = $student->user;
 
                     if (! $user) {

@@ -29,24 +29,25 @@ use Modules\Domain\Models\Teacher;
 // use Modules\Core\Database\Factories\UserFactory;
 /**
  * @property-read string $id
- * @property string $first_name
- * @property string $last_name
- * @property string|null $slug_name
- * @property string $email
- * @property string $password
- * @property int|null $status_id
- * @property int $token_version
- * @property string|null $otp
- * @property Carbon|null $otp_expires_at
- * @property string|null $two_factor_secret
- * @property array|null $two_factor_recovery_codes
- * @property bool $is_logged_in
- * @property Carbon|null $last_visited_at
- * @property Carbon|null $email_verified_at
- * @property string|null $remember_token
- * @property Carbon $created_at
- * @property Carbon $updated_at
- * @property Carbon|null $deleted_at
+ * @property-read string $first_name
+ * @property-read string $last_name
+ * @property-read string|null $slug_name
+ * @property-read string $email
+ * @property-read string $password
+ * @property-read string $gender
+ * @property-read int|null $status_id
+ * @property-read int $token_version
+ * @property-read string|null $otp
+ * @property-read Carbon|null $otp_expires_at
+ * @property-read string|null $two_factor_secret
+ * @property-read array|null $two_factor_recovery_codes
+ * @property-read bool $is_logged_in
+ * @property-read Carbon|null $last_visited_at
+ * @property-read Carbon|null $email_verified_at
+ * @property-read string|null $remember_token
+ * @property-read Carbon $created_at
+ * @property-read Carbon $updated_at
+ * @property-read Carbon|null $deleted_at
  */
 #[ObservedBy(LogObserver::class)]
 class User extends Authenticatable implements FilamentUser, HasName
@@ -66,6 +67,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         'slug_name',
         'email',
         'password',
+        'gender',
         'status_id',
         'device',
         'last_visited_at',
@@ -233,7 +235,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     */
 
     #[Scope]
-    public function byRole(Builder $query, array|string $roles): Builder
+    public function byRole(Builder $query, array | string $roles): Builder
     {
         return $query->whereHas(
             'roles',
@@ -242,7 +244,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     #[Scope]
-    public function byStatus(Builder $query, array|string $status): Builder
+    public function byStatus(Builder $query, array | string $status): Builder
     {
         return $query->whereHas(
             'status',

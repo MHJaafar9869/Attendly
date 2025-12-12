@@ -97,7 +97,7 @@ class Classroom extends Model
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(Student::class, 'student_classrooms')
-            ->withPivot(['attended', 'is_late'])
+            ->withPivot(['attended'])
             ->withTimestamps();
     }
 
@@ -149,7 +149,7 @@ class Classroom extends Model
     public function duration(): Attribute
     {
         return Attribute::make(
-            get: fn () => ($this->start_at && $this->end_at)
+            get: fn (): ?float => ($this->start_at && $this->end_at)
                 ? $this->end_at->diffInMinutes($this->start_at)
                 : null
         );
@@ -157,11 +157,11 @@ class Classroom extends Model
 
     public function location(): Attribute
     {
-        return Attribute::make(get: fn () => ['lat' => $this->lat, 'lng' => $this->lng]);
+        return Attribute::make(get: fn (): array => ['lat' => $this->lat, 'lng' => $this->lng]);
     }
 
     public function subjectName(): Attribute
     {
-        return Attribute::make(get: fn () => $this->subject->name);
+        return Attribute::make(get: fn (): ?string => $this->subject->name);
     }
 }

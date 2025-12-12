@@ -13,7 +13,7 @@ class StoreStudentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->check() && sanctumUser()->email_verified_at !== null;
     }
 
     /**
@@ -23,12 +23,9 @@ class StoreStudentRequest extends FormRequest
     {
         return [
             'user_id' => ['required', 'string', 'max:255', 'exists:users,id'],
-            'student_code' => ['required', 'string', 'max:255', 'unique:students,student_code'],
-            'hashed_national_id' => ['required', 'string', 'max:255'],
-            'gender' => ['required', 'string'],
+            'national_id' => ['required', 'string', 'max:255'],
+            'gender' => ['required', 'string', 'in:male,female'],
             'academic_level_id' => ['nullable', 'integer', 'exists:academic_levels,id'],
-            'warning_count' => ['required', 'integer'],
-            'is_banned' => ['required', 'boolean'],
             'address' => ['nullable', 'string'],
             'city' => ['nullable', 'string', 'max:255'],
             'governorate_id' => ['nullable', 'integer', 'exists:governorates,id'],

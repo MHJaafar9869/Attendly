@@ -12,17 +12,17 @@ use Modules\Core\DTO\Auth\LoginUserDto;
 use Modules\Core\DTO\Auth\RegisterUserDto;
 use Modules\Core\DTO\Auth\ResetPasswordDto;
 use Modules\Core\DTO\Auth\UserImageDto;
+use Modules\Core\DTO\Auth\VerifyOTPDto;
 use Modules\Core\DTO\ImageDto\ImageUploadData;
 use Modules\Core\DTO\ResponseDto\ServiceResponseDto;
-use Modules\Core\Enums\Status\StatusIDEnum;
 use Modules\Core\Models\User;
 use Modules\Core\Repositories\Role\RoleRepositoryInterface;
 use Modules\Core\Repositories\Status\StatusRepositoryInterface;
 use Modules\Core\Repositories\User\UserRepositoryInterface;
+use Modules\Core\Services\BaseService;
 use Modules\Core\Traits\UploadFile;
-use Throwable;
 
-class AuthService
+final readonly class AuthService extends BaseService
 {
     use UploadFile;
 
@@ -48,16 +48,10 @@ class AuthService
                 return ServiceResponseDto::error('Invalid credentials', 401);
             }
 
-            if (! $user->email_verified_at) {
-                return ServiceResponseDto::error('Email is not verified');
-            }
-
             $response = $this->userRepo->login($user);
 
         } catch (Exception $e) {
-            return app()->environment('local')
-                ? ServiceResponseDto::error('Failed due: ' . $e->getMessage(), 500)
-                : ServiceResponseDto::error('Login failed. Please try again', 500);
+            return $this->getErrorResponse($e, 500, 'Login failed. Please try again');
         }
 
         return ServiceResponseDto::response($response);
@@ -66,32 +60,19 @@ class AuthService
     public function register(RegisterUserDto $registerUserDto): ServiceResponseDto
     {
         try {
-            if (! $statusId = $this->statusRepo->findAndSelect(StatusIDEnum::USER_PENDING->value, 'id')->id) {
-                return ServiceResponseDto::error('Status not found');
-            }
-
-            if (! $roleId = $this->roleRepo->findAndSelect($registerUserDto->roleId, 'id')->id) {
-                return ServiceResponseDto::error('Role not found');
-            }
-
-            $registerUserDto->setRoleId($roleId);
-            $registerUserDto->setStatusId($statusId);
-
             $response = $this->userRepo->register($registerUserDto);
-        } catch (Throwable $th) {
-            return app()->environment('local')
-                ? ServiceResponseDto::error('Failed due: ' . $th->getMessage(), 500)
-                : ServiceResponseDto::error('Registration failed. Please try again later.', 500);
+        } catch (Exception $e) {
+            return $this->getErrorResponse($e, 500, 'Registration failed. Please try again later');
         }
 
         return ServiceResponseDto::response($response);
     }
 
-    public function verifyOtp(string $userSlug, string $otp): ServiceResponseDto
+    public function verifyOtp(VerifyOTPDto $dto): ServiceResponseDto
     {
         try {
             /** @var User $user */
-            if (! ($user = $this->userRepo->findBy(['slug_name' => $userSlug]))) {
+            if (! ($user = $this->userRepo->findBy(['slug_name' => $dto->userSlug]))) {
                 return ServiceResponseDto::error('Invalid Access, please login again', 401);
             }
 
@@ -103,19 +84,14 @@ class AuthService
                 return ServiceResponseDto::error('OTP expired or invalid');
             }
 
-            if (! Hash::check($otp, $user->otp)) {
+            if (! Hash::check($dto->otp, $user->otp)) {
                 return ServiceResponseDto::error('Invalid otp please try again');
             }
 
-            if (! $statusId = $this->statusRepo->find(StatusIDEnum::USER_ACTIVE->value)->value('id')) {
-                return ServiceResponseDto::error('error updating status');
-            }
+            $response = $this->userRepo->verifyOtp($user, $dto->statusId);
 
-            $response = $this->userRepo->verifyOtp($user, $statusId);
-        } catch (Throwable $th) {
-            return app()->environment('local')
-                ? ServiceResponseDto::error('Failed due: ' . $th->getMessage(), 500)
-                : ServiceResponseDto::error('OTP verification failed. Please try again later.', 500);
+        } catch (Exception $e) {
+            return $this->getErrorResponse($e, 500, 'OTP verification failed. Please try again later');
         }
 
         return ServiceResponseDto::response($response);
@@ -156,8 +132,8 @@ class AuthService
             if ($status === Password::INVALID_TOKEN) {
                 return ServiceResponseDto::error('Invalid or expired reset token', 422);
             }
-        } catch (Throwable $th) {
-            return ServiceResponseDto::error('Error occurred. Please try again', 500);
+        } catch (Exception $e) {
+            return $this->getErrorResponse($e, 500);
         }
 
         return ServiceResponseDto::success('Password updated successfully');
@@ -166,14 +142,20 @@ class AuthService
     public function uploadUserImage(UserImageDto $dto): ServiceResponseDto
     {
         try {
-            if (! ($user = sanctumUser()) instanceof User) {
+            if (! $user = sanctumUser()) {
                 return ServiceResponseDto::error('Invalid Access', 400);
             }
 
-            $path = $this->uploadFile($dto->file, "users/{$user->slugName}/{$dto->type}");
+            $role = match (true) {
+                $user->hasRole('teacher') => 'teacher',
+                $user->hasRole('student') => 'student',
+                default => 'user'
+            };
+
+            $path = $this->uploadFile($dto->file, "$role/{$user->slugName}/{$dto->type}");
 
             $trimSlugSuffix = preg_replace('/-[A-Za-z0-9]{8}$/', '', $user->slugName);
-            $alt = normalize('-', ' ', $trimSlugSuffix) . ' ' . normalize('_', ' ', $dto->type);
+            $alt = normalize('-', ' ', $trimSlugSuffix).' '.normalize('_', ' ', $dto->type);
 
             $imageDto = ImageUploadData::make(
                 path: $path,
@@ -186,9 +168,7 @@ class AuthService
 
             $response = $this->userRepo->uploadUserImage($imageDto);
         } catch (Exception $e) {
-            return app()->environment('local')
-                ? ServiceResponseDto::error('Failed due: ' . $e->getMessage(), 500)
-                : ServiceResponseDto::error('Error occurred. Please try again', 500);
+            return $this->getErrorResponse($e, 500);
         }
 
         return ServiceResponseDto::response($response);

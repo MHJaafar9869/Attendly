@@ -9,7 +9,6 @@ if (! function_exists('sanctumUser')) {
      */
     function sanctumUser(): ?User
     {
-        /** @var User|null $guard */
         $guard = auth('sanctum')?->user();
 
         return $guard;

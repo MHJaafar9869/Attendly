@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Cache;
 use Modules\Core\DTO\Elequent\PaginateDto;
 use Modules\Core\Traits\ResponseJson;
 use Modules\Domain\DTO\Classroom\ClassroomFilterDto;
-use Modules\Domain\DTO\Student\CreateClassroomDto;
-use Modules\Domain\DTO\Student\UpdateClassroomDto;
+use Modules\Domain\DTO\Classroom\CreateClassroomDto;
+use Modules\Domain\DTO\Classroom\UpdateClassroomDto;
 use Modules\Domain\Http\Requests\Classroom\StoreClassroomRequest;
 use Modules\Domain\Http\Requests\Classroom\UpdateClassroomRequest;
 use Modules\Domain\Repositories\Classroom\ClassroomRepositoryInterface;
-use Modules\Domain\Services\ClassroomService;
+use Modules\Domain\Services\Classroom\ClassroomService;
 use Modules\Domain\Transformers\Classroom\ClassroomResource;
 
 class ClassroomController extends Controller
@@ -41,11 +41,11 @@ class ClassroomController extends Controller
     }
 
     // GET /api/v1/classrooms/{id}
-    public function show(int|string $id): JsonResponse
+    public function show(int | string $id): JsonResponse
     {
-        $data = $this->classroomService->getClass($id);
+        $response = $this->classroomService->getClass($id);
 
-        return $this->respondWithData(ClassroomResource::make($data), 'Classroom retrieved successfully');
+        return $this->respondDto($response);
     }
 
     // POST /api/v1/classrooms
@@ -59,7 +59,7 @@ class ClassroomController extends Controller
     }
 
     // PUT /api/v1/classrooms/{id}
-    public function update(UpdateClassroomRequest $request, int|string $id): JsonResponse
+    public function update(UpdateClassroomRequest $request, int | string $id): JsonResponse
     {
         $data = UpdateClassroomDto::fromRequest($request->validated(), $id);
 
@@ -69,7 +69,7 @@ class ClassroomController extends Controller
     }
 
     // DELETE /api/v1/classrooms/{id}
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(int | string $id): JsonResponse
     {
         $this->classroomRepo->delete($id);
 
@@ -77,7 +77,7 @@ class ClassroomController extends Controller
     }
 
     // PATCH /api/v1/classrooms/{id}
-    public function restore(int|string $id): JsonResponse
+    public function restore(int | string $id): JsonResponse
     {
         $this->classroomRepo->restore($id);
 
@@ -85,7 +85,7 @@ class ClassroomController extends Controller
     }
 
     // DELETE /api/v1/classrooms/{id}/force
-    public function forceDelete(int|string $id): JsonResponse
+    public function forceDelete(int | string $id): JsonResponse
     {
         $this->forceDelete($id);
 
@@ -96,8 +96,9 @@ class ClassroomController extends Controller
     public function searchClassrooms(Request $request): JsonResponse
     {
         $dto = ClassroomFilterDto::fromRequest($request->all());
+        $key = hash('sha1', json_encode($request->all()));
 
-        $response = $this->classroomService->searchClassrooms($dto);
+        $response = $this->classroomService->searchClassrooms($dto, $key);
 
         return $this->respondDto($response);
     }

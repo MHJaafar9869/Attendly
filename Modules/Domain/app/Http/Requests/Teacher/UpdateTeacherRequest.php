@@ -6,14 +6,14 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateTeacherRequest extends FormRequest
+final readonly class UpdateTeacherRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->check() && sanctumUser()->email_verified_at !== null;
     }
 
     /**
@@ -22,11 +22,10 @@ class UpdateTeacherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['sometimes', 'required', 'string', 'max:255', 'exists:users,id'],
-            'teacher_code' => ['sometimes', 'required', 'string', 'max:255', 'unique:teachers,teacher_code,' . $this->route('teacher') . ',id'],
-            'teacher_type_id' => ['sometimes', 'required', 'integer'],
-            'status_id' => ['sometimes', 'required', 'integer', 'exists:statuses,id'],
-            'approved_by' => ['nullable', 'sometimes', 'string', 'max:255'],
+            'user_id' => ['sometimes', 'nullable', 'string', 'max:255', 'exists:users,id'],
+            'teacher_code' => ['sometimes', 'nullable', 'string', 'max:255', 'unique:teachers,teacher_code,' . $this->route('teacher') . ',id'],
+            'teacher_type_id' => ['sometimes', 'nullable', 'integer'],
+            'status_id' => ['sometimes', 'nullable', 'integer', 'exists:statuses,id'],
         ];
     }
 

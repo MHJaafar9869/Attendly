@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Core\Console\ClearLogs;
 use Modules\Core\Console\MakeModuleService;
+use Modules\Core\Repositories\Image\ImageRepository;
+use Modules\Core\Repositories\Image\ImageRepositoryInterface;
 use Modules\Core\Repositories\Permission\PermissionRepository;
 use Modules\Core\Repositories\Permission\PermissionRepositoryInterface;
 use Modules\Core\Repositories\Role\RoleRepository;
@@ -58,6 +60,7 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->bind(TypeRepositoryInterface::class, TypeRepository::class);
         $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
         $this->app->bind(SettingRepositoryInterface::class, SettingRepository::class);
+        $this->app->bind(ImageRepositoryInterface::class, ImageRepository::class);
     }
 
     /**

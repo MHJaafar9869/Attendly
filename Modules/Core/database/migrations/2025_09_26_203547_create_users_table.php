@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
 
+            $table->enum('gender', ['male', 'female']);
             $table->foreignIdFor(Status::class)->nullable()->constrained()->nullOnDelete();
 
             $table->unsignedBigInteger('token_version')->default(1)->invisible();

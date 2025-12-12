@@ -20,8 +20,10 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('auth')->controller(AuthController::class)->group(function () {
         Route::post('login', 'login');
-        Route::post('register', 'register');
-        Route::post('{user:slug}/verify-otp', 'verifyOtp');
+        Route::post('teachers/register', 'register');
+        Route::post('students/register', 'register');
+        Route::post('teachers/{user:slug}/verify-otp', 'verifyOtp');
+        Route::post('students/{user:slug}/verify-otp', 'verifyOtp');
         Route::post('forgot-password', 'forgotPassword');
         Route::post('reset-password/{token}', 'resetPassword')->name('password.reset');
         Route::middleware('auth:sanctum')->group(function () {
@@ -45,11 +47,11 @@ Route::prefix('v1')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::apiResource('users', UserController::class);
+        Route::apiResource('users', UserController::class)->except(['store', 'update']);
         Route::prefix('users')->controller(UserController::class)->group(function () {
             Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_users');
             Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_users');
-            Route::get('/search', 'searchUsers'); // TODO
+            Route::get('/search', 'searchUsers');
             Route::get('/analytics', 'analytics'); // TODO
         });
 
@@ -69,7 +71,7 @@ Route::prefix('v1')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        |  Teacher -- TODO
+        |  Teacher
         |--------------------------------------------------------------------------
         */
 
@@ -77,8 +79,8 @@ Route::prefix('v1')->group(function () {
         Route::prefix('teachers')->controller(TeacherController::class)->group(function () {
             Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_teachers');
             Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_teachers');
-            Route::get('/search', 'searchStudents');
-            Route::get('/analytics', 'analytics');
+            Route::get('/search', 'searchTeachers');
+            Route::get('/analytics', 'analytics'); // TODO
         });
 
         /*
@@ -107,7 +109,7 @@ Route::prefix('v1')->group(function () {
             |--------------------------------------------------------------------------
             */
 
-            Route::prefix('users')->get('/analytics', ['analytics']);
+            Route::prefix('users')->get('/analytics', ['usersAnalytics']);
 
             /*
             |--------------------------------------------------------------------------
@@ -115,7 +117,7 @@ Route::prefix('v1')->group(function () {
             |--------------------------------------------------------------------------
             */
 
-            Route::prefix('students')->get('/analytics', ['analytics']);
+            Route::prefix('students')->get('/analytics', ['studentsAnalytics']);
 
             /*
             |--------------------------------------------------------------------------
@@ -123,7 +125,7 @@ Route::prefix('v1')->group(function () {
             |--------------------------------------------------------------------------
             */
 
-            Route::prefix('teachers')->get('/analytics', ['analytics']);
+            Route::prefix('teachers')->get('/analytics', ['teachersAnalytics']);
 
             /*
             |--------------------------------------------------------------------------
@@ -131,7 +133,7 @@ Route::prefix('v1')->group(function () {
             |--------------------------------------------------------------------------
             */
 
-            Route::prefix('classrooms')->get('/analytics', ['analytics']);
+            Route::prefix('classrooms')->get('/analytics', ['classroomsAnalytics']);
 
             /*
             |--------------------------------------------------------------------------

@@ -50,7 +50,7 @@ class Contact extends Model
 
     // protected static function newFactory(): StudentContactFactory
     // {
-    //     // return StudentContactFactory::new();
+    // return StudentContactFactory::new();
     // }
 
     /*

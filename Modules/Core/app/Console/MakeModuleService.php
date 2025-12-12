@@ -71,7 +71,9 @@ declare(strict_types=1);
 
 namespace {$namespace};
 
-final readonly class {$className}
+use Modules\Core\Services\BaseService;
+
+final readonly class {$className} extends BaseService
 {
     public function __construct(
         // ...

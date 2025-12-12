@@ -22,7 +22,7 @@ use Modules\Core\Observers\LogObserver;
  * @property-read string $id
  * @property-read string $user_id
  * @property-read string $student_code
- * @property-read string $gender
+ * @property-read string $national_id
  * @property-read int|null $academic_level_id
  * @property-read string|null $address
  * @property-read string|null $city
@@ -46,9 +46,8 @@ final class Student extends Model
     protected $fillable = [
         'user_id',
         'student_code',
-        'gender',
 
-        'hashed_national_id',
+        'national_id',
         'academic_level_id',
 
         'address',
@@ -62,7 +61,7 @@ final class Student extends Model
     protected function casts(): array
     {
         return [
-            'hashed_national_id' => 'hashed',
+            'national_id' => 'hashed',
             'phone' => 'encrypted',
             'secondary_phone' => 'encrypted',
             'address' => 'encrypted',
@@ -105,7 +104,7 @@ final class Student extends Model
     public function classrooms(): BelongsToMany
     {
         return $this->belongsToMany(Classroom::class, 'student_classrooms')
-            ->withPivot('attended', 'is_late')
+            ->withPivot('attended')
             ->withTimestamps();
     }
 
@@ -116,7 +115,7 @@ final class Student extends Model
     */
 
     #[Scope]
-    public function byGender(Builder $query, string $gender): Builder
+    public function byGender(Builder $query, ?string $gender): Builder
     {
         return \in_array($gender, ['male', 'female'])
             ? $query->where('gender', $gender)
@@ -124,9 +123,9 @@ final class Student extends Model
     }
 
     #[Scope]
-    public function byCity(Builder $query, string $city): Builder
+    public function byCity(Builder $query, ?string $city): Builder
     {
-        if ($city === '' || $city === '0') {
+        if (! $city) {
             return $query;
         }
 
@@ -134,7 +133,7 @@ final class Student extends Model
     }
 
     #[Scope]
-    public function byGovernorate(Builder $query, int|string $governorateId): Builder
+    public function byGovernorate(Builder $query, ?int $governorateId): Builder
     {
         if (! $governorateId) {
             return $query;
@@ -151,6 +150,6 @@ final class Student extends Model
 
     public function username(): Attribute
     {
-        return Attribute::make(get: fn () => "{$this->user->first_name} {$this->user->last_name}" ?? null);
+        return Attribute::make(get: fn (): ?string => "{$this->user->first_name} {$this->user->last_name}" ?? null);
     }
 }

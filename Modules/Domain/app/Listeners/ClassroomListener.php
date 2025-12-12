@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Domain\Listeners;
 
 // use Illuminate\Queue\InteractsWithQueue;

@@ -6,9 +6,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Modules\Core\Jobs\RecordActivityLog;
+use Modules\Core\Models\User;
 use Throwable;
 
-class LogObserver
+final class LogObserver
 {
     protected static array $stack = [];
 
@@ -20,6 +21,10 @@ class LogObserver
 
     public function created($model): void
     {
+        if ($model instanceof User) {
+            exit;
+        }
+
         $this->record('created', $model);
     }
 
@@ -48,8 +53,8 @@ class LogObserver
             $current = collect($model->getAttributes());
 
             if ($trackables === ['all']) {
-                $original->except(['created_at', 'updated_at', 'deleted_at']);
-                $current->except(['created_at', 'updated_at', 'deleted_at']);
+                $original = $original->except(['created_at', 'updated_at', 'deleted_at']);
+                $current = $current->except(['created_at', 'updated_at', 'deleted_at']);
             } elseif ($trackables !== []) {
                 $original->only($trackables);
                 $current->only($trackables);

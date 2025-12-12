@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace Modules\Core\DTO\ResponseDto;
 
+use Illuminate\Http\Resources\Json\ResourceCollection;
+
 final readonly class ServiceResponseDto
 {
     public function __construct(
         public bool $success,
         public string $message,
         public int $statusCode = 200,
-        public mixed $data = null,
+        public ResourceCollection | array | null $data = null,
         public mixed $token = null
     ) {}
 
     public static function success(
         string $message = 'Operation successful',
-        mixed $data = null,
+        ResourceCollection | array | null $data = null,
         int $statusCode = 200
     ): self {
         return new self(
@@ -30,7 +32,7 @@ final readonly class ServiceResponseDto
     public static function error(
         string $message = 'Operation failed',
         int $statusCode = 400,
-        mixed $data = null
+        ResourceCollection | array | null $data = null
     ): self {
         return new self(
             success: false,

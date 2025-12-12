@@ -14,6 +14,7 @@ use Modules\Core\Repositories\Role\RoleRepositoryInterface;
 use Modules\Core\Repositories\Status\StatusRepositoryInterface;
 use Modules\Core\Traits\HasImages;
 use Modules\Core\Traits\ResponseArray;
+use Modules\Core\Transformers\User\UserResource;
 use OTPHP\TOTP;
 
 final readonly class UserRepository extends BaseRepository implements UserRepositoryInterface
@@ -48,7 +49,13 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
                     'type' => 'bearer',
                     'token' => $token,
                 ],
-                'user' => $user->load(['roles:id,name', 'roles.permissions:id,name', 'status']),
+                'user' => UserResource::make(
+                    $user->load([
+                        'roles:id,name',
+                        'roles.permissions:id,name',
+                        'status:id,name,text_color,bg_color',
+                    ])
+                ),
             ]);
     }
 
@@ -77,7 +84,13 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
                         'type' => 'bearer',
                         'token' => $token,
                     ],
-                    'user' => $user->load(['roles:id,name', 'roles.permissions:id,name', 'status'] ?? null),
+                    'user' => UserResource::make(
+                        $user->load([
+                            'roles:id,name',
+                            'roles.permissions:id,name',
+                            'status:id,name,text_color,bg_color',
+                        ])
+                    ),
                 ]);
         });
     }
@@ -154,13 +167,11 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
         $otp = TOTP::createFromSecret($secret);
         $code = trim($code);
 
-        // ---- Standard 6-digit TOTP ----
-        if (ctype_digit($code) && strlen($code) === 6) {
+        if (ctype_digit($code) && \strlen($code) === 6) {
             if (! $otp->verify($code)) {
                 return RepositoryResponseDto::error('Invalid code');
             }
 
-            // Sanctum token after successful 2FA
             $token = $user->createToken('2fa-auth')->plainTextToken;
 
             return RepositoryResponseDto::success()
@@ -174,7 +185,6 @@ final readonly class UserRepository extends BaseRepository implements UserReposi
                 ]);
         }
 
-        // ---- Recovery Code ----
         if ($user->verifyRecoveryCode($code)) {
 
             // Sanctum token after recovery code

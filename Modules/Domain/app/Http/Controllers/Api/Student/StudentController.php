@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Modules\Domain\Http\Controllers\Api\Student;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Core\DTO\Elequent\PaginateDto;
 use Modules\Core\Traits\ResponseJson;
 use Modules\Domain\DTO\Student\StudentFilterDto;
 use Modules\Domain\Http\Requests\Student\StoreStudentRequest;
 use Modules\Domain\Http\Requests\Student\UpdateStudentRequest;
 use Modules\Domain\Repositories\Student\StudentRepositoryInterface;
+use Modules\Domain\Services\Student\StudentService;
 use Modules\Domain\Transformers\Student\StudentResource;
 
 class StudentController extends Controller
@@ -20,7 +21,8 @@ class StudentController extends Controller
     use ResponseJson;
 
     public function __construct(
-        protected StudentRepositoryInterface $studentRepo
+        protected StudentRepositoryInterface $studentRepo,
+        protected readonly StudentService $studentService
     ) {
         //
     }
@@ -29,11 +31,16 @@ class StudentController extends Controller
      * List all students.
      * GET /api/v1/students
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return $this->respondWithData(
-            data: StudentResource::collection($this->studentRepo->paginatedStudents()),
-            message: 'Student list retrieved successfully'
+        $dto = PaginateDto::fromRequest($request->only(['per_page', 'page', 'page_name', 'columns']));
+        $key = hash('sha1', json_encode($request->all()));
+
+        $response = $this->studentService->getStudents($dto, $key);
+
+        return $this->respondWithPagination(
+            $response->data,
+            $response->message,
         );
     }
 
@@ -41,22 +48,11 @@ class StudentController extends Controller
      * Show a specific student.
      * GET /api/v1/students/{id}
      */
-    public function show(int|string $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
-        $data = $this->studentRepo->findWithRelations(
-            id: $id,
-            relations: [
-                'user',
-                'governorate',
-                'classrooms',
-            ]
-        );
+        $response = $this->studentService->getStudent($id);
 
-        if (! $data instanceof Model) {
-            return $this->respondError('Student not found', 404);
-        }
-
-        return $this->respondWithData(StudentResource::make($data), 'Student retrieved successfully');
+        return $this->respondDto($response);
     }
 
     /**
@@ -74,7 +70,7 @@ class StudentController extends Controller
      * Update an existing student.
      * PUT /api/v1/students/{id}
      */
-    public function update(UpdateStudentRequest $request, int|string $id): JsonResponse
+    public function update(UpdateStudentRequest $request, string $id): JsonResponse
     {
         $data = $this->studentRepo->update($id, $request->validated());
 
@@ -85,7 +81,7 @@ class StudentController extends Controller
      * Delete a student.
      * DELETE /api/v1/students/{id}
      */
-    public function destroy(int|string $id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         $this->studentRepo->delete($id);
 
@@ -96,7 +92,7 @@ class StudentController extends Controller
      * Restore a deleted student.
      * PATCH /api/v1/students/{id}
      */
-    public function restore(int|string $id): JsonResponse
+    public function restore(string $id): JsonResponse
     {
         $this->studentRepo->restore($id);
 
@@ -107,7 +103,7 @@ class StudentController extends Controller
      * Delete a student permanently.
      * DELETE /api/v1/students/{id}/force
      */
-    public function forceDelete(int|string $id): JsonResponse
+    public function forceDelete(string $id): JsonResponse
     {
         $this->studentRepo->forceDelete($id);
 
@@ -121,8 +117,9 @@ class StudentController extends Controller
     public function searchStudents(Request $request): JsonResponse
     {
         $dto = StudentFilterDto::fromRequest($request->all());
+        $key = hash('sha1', json_encode($request->all()));
 
-        $response = $this->studentRepo->searchStudents($dto);
+        $response = $this->studentService->searchStudents($dto, $key);
 
         return $this->respondDto($response);
     }

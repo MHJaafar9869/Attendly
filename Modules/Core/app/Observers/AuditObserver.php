@@ -37,7 +37,7 @@ class AuditObserver
 
     private function check($model, string $column): bool
     {
-        if (! sanctumUser()->check()) {
+        if (! auth()->check()) {
             return false;
         }
 

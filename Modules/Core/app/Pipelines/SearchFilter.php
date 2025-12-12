@@ -11,7 +11,7 @@ class SearchFilter
 {
     public function __construct(
         private ?string $value,
-        private array|string|null $columns = null
+        private array | string | null $columns = null
     ) {
         //
     }

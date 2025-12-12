@@ -19,8 +19,7 @@ return new class extends Migration
             $table->foreignUlid('user_id')->unique()->constrained()->cascadeOnDelete();
 
             $table->string('student_code')->unique();
-            $table->string('hashed_national_id')->unique();
-            $table->enum('gender', ['male', 'female']);
+            $table->string('national_id')->unique()->invisible();
             $table->foreignIdFor(AcademicLevel::class)->nullable()->constrained()->nullOnDelete();
 
             $table->unsignedInteger('warning_count')->default(0);

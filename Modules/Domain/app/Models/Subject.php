@@ -2,10 +2,11 @@
 
 namespace Modules\Domain\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Modules\Core\Observers\LogObserver;
 
 // use Modules\Domain\Database\Factories\SubjectFactory;
@@ -28,7 +29,7 @@ class Subject extends Model
 
     // protected static function newFactory(): SubjectFactory
     // {
-    //     // return SubjectFactory::new();
+    // return SubjectFactory::new();
     // }
 
     /*
@@ -39,5 +40,16 @@ class Subject extends Model
     protected function trackables(): array
     {
         return ['name'];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relations
+    |--------------------------------------------------------------------------
+    */
+
+    public function classroom(): HasMany
+    {
+        return $this->hasMany(Classroom::class);
     }
 }

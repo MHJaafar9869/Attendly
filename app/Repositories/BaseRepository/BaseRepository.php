@@ -34,7 +34,7 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $this->addQuery()->get();
     }
 
-    public function allWithRelations(string|array $relations, array $filters = []): Builder
+    public function allWithRelations(string | array $relations, array $filters = []): Builder
     {
         $query = $this->addQuery()->with($relations);
 
@@ -57,13 +57,15 @@ readonly class BaseRepository implements BaseRepositoryInterface
     }
 
     public function paginateWithRelations(
-        int $perPage,
-        string $pageName,
-        array $columns = ['*'],
-        string|array|null $relations = null,
+        PaginateDto $dto,
+        string | array | null $relations = null,
         array $filters = []
     ): LengthAwarePaginator {
-        $query = $this->addQuery()->with($relations);
+        $query = $this->addQuery();
+
+        if ($relations !== null) {
+            $query->with($relations);
+        }
 
         if (\count($filters) > 0) {
             foreach ($filters as $column => $value) {
@@ -72,23 +74,23 @@ readonly class BaseRepository implements BaseRepositoryInterface
         }
 
         return $query->paginate(
-            perPage: $perPage,
-            columns: $columns,
-            pageName: $pageName
+            perPage: $dto->perPage,
+            columns: $dto->columns,
+            pageName: $dto->pageName
         );
     }
 
-    public function select(string|array $columns): Builder
+    public function select(string | array $columns): Builder
     {
         return $this->addQuery()->select($columns);
     }
 
-    public function find(int|string $id): ?Model
+    public function find(int | string $id): ?Model
     {
         return $this->addQuery()->find($id);
     }
 
-    public function findOrFail(int|string $id): Model
+    public function findOrFail(int | string $id): Model
     {
         return $this->addQuery()->findOrFail($id);
     }
@@ -109,7 +111,7 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $this->findBy($criteria)->first();
     }
 
-    public function findAndSelect(int|string $id, string|array $columns): ?Model
+    public function findAndSelect(int | string $id, string | array $columns): ?Model
     {
         return $this->addQuery()
             ->withTrashed()
@@ -117,7 +119,7 @@ readonly class BaseRepository implements BaseRepositoryInterface
             ->find($id);
     }
 
-    public function findWithRelations(int|string $id, string|array $relations): ?Model
+    public function findWithRelations(int | string $id, string | array $relations): ?Model
     {
         return $this->addQuery()->withTrashed()->with($relations)->find($id);
     }
@@ -133,7 +135,7 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $this->addQuery()->create($data);
     }
 
-    public function update(int|string $id, array $data): Model
+    public function update(int | string $id, array $data): Model
     {
         $model = $this->findOrFail($id);
         $model->update($data);
@@ -141,7 +143,7 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $model;
     }
 
-    public function restore(int|string $id): bool
+    public function restore(int | string $id): bool
     {
         return $this->addQuery()->onlyTrashed()->findOrFail($id)->restore();
     }
@@ -157,7 +159,7 @@ readonly class BaseRepository implements BaseRepositoryInterface
     |--------------------------------------------------------------------------
     */
 
-    public function delete(int|string $id): bool
+    public function delete(int | string $id): bool
     {
         return $this->findOrFail($id)->delete();
     }
@@ -167,7 +169,7 @@ readonly class BaseRepository implements BaseRepositoryInterface
         return $this->addQuery()->whereIn('id', $ids)->delete();
     }
 
-    public function forceDelete(int|string $id): bool
+    public function forceDelete(int | string $id): bool
     {
         return $this->addQuery()->withTrashed()->findOrFail($id)->forceDelete();
     }

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Modules\Domain\DTO\Student;
+namespace Modules\Domain\DTO\Classroom;
 
-class UpdateClassroomDto
+final readonly class UpdateClassroomDto
 {
     public function __construct(
         public readonly int | string $id,

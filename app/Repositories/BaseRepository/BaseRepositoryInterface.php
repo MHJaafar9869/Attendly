@@ -22,31 +22,29 @@ interface BaseRepositoryInterface
 
     public function all(): Collection;
 
-    public function allWithRelations(string|array $relations, array $filters = []): Builder;
+    public function allWithRelations(string | array $relations, array $filters = []): Builder;
 
     public function paginate(PaginateDto $dto): LengthAwarePaginator;
 
     public function paginateWithRelations(
-        int $perPage,
-        string $pageName,
-        array $columns = ['*'],
-        string|array|null $relations = null,
+        PaginateDto $dto,
+        string | array | null $relations = null,
         array $filters = []
     ): LengthAwarePaginator;
 
-    public function find(int|string $id);
+    public function find(int | string $id);
 
-    public function findOrFail(int|string $id): Model;
+    public function findOrFail(int | string $id): Model;
 
     public function findBy(array $criteria): Builder;
 
     public function findOneBy(array $criteria): ?Model;
 
-    public function findAndSelect(int|string $id, string|array $columns): ?Model;
+    public function findAndSelect(int | string $id, string | array $columns): ?Model;
 
-    public function findWithRelations(int|string $id, string|array $relations): ?Model;
+    public function findWithRelations(int | string $id, string | array $relations): ?Model;
 
-    public function select(string|array $columns): Builder;
+    public function select(string | array $columns): Builder;
 
     /*
     |--------------------------------------------------------------------------
@@ -56,9 +54,9 @@ interface BaseRepositoryInterface
 
     public function create(array $data): Model;
 
-    public function update(int|string $id, array $data): Model;
+    public function update(int | string $id, array $data): Model;
 
-    public function restore(int|string $id): bool;
+    public function restore(int | string $id): bool;
 
     /*
     |--------------------------------------------------------------------------
@@ -66,11 +64,11 @@ interface BaseRepositoryInterface
     |--------------------------------------------------------------------------
     */
 
-    public function delete(int|string $id): bool;
+    public function delete(int | string $id): bool;
 
     public function deleteMultiple(array $ids): bool;
 
-    public function forceDelete(int|string $id): bool;
+    public function forceDelete(int | string $id): bool;
 
     public function forceDeleteMultiple(array $ids): bool;
 

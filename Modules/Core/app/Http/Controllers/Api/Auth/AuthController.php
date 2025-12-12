@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Modules\Core\Http\Controllers\Api\Auth;
 
-use App\DTO\Auth\UserImageDto;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Modules\Core\DTO\Auth\LoginUserDto;
 use Modules\Core\DTO\Auth\RegisterUserDto;
 use Modules\Core\DTO\Auth\ResetPasswordDto;
+use Modules\Core\DTO\Auth\UserImageDto;
+use Modules\Core\DTO\Auth\VerifyOTPDto;
 use Modules\Core\Http\Requests\Auth\ForgotPasswordRequest;
 use Modules\Core\Http\Requests\Auth\LoginRequest;
 use Modules\Core\Http\Requests\Auth\RegisterRequest;
@@ -19,7 +21,6 @@ use Modules\Core\Http\Requests\Auth\ResetPasswordRequest;
 use Modules\Core\Http\Requests\Auth\StoreProfilePictureRequest;
 use Modules\Core\Http\Requests\Auth\VerifyOtpRequest;
 use Modules\Core\Models\User;
-use Modules\Core\Repositories\User\UserRepositoryInterface;
 use Modules\Core\Services\UserServices\AuthService;
 use Modules\Core\Traits\ResponseJson;
 use Modules\Core\Transformers\User\UserResource;
@@ -34,7 +35,6 @@ final class AuthController extends Controller
      * @return void
      */
     public function __construct(
-        protected UserRepositoryInterface $userRepo,
         protected AuthService $authService,
     ) {
         $this->middleware('auth-user', ['only' => ['me', 'logout', 'refresh', 'storeProfileImage']]);
@@ -70,9 +70,10 @@ final class AuthController extends Controller
      * Handle OTP verification request to the application.
      * POST /api/v1/auth/{slug}/verfiy-otp { otp }
      */
-    public function verifyOtp(string $userSlug, VerifyOtpRequest $request): JsonResponse
+    public function verifyOtp(VerifyOtpRequest $request, string $userSlug): JsonResponse
     {
-        $response = $this->authService->verifyOtp($userSlug, $request->validated('otp'));
+        $dto = VerifyOTPDto::fromRequest($request->validated(), $userSlug);
+        $response = $this->authService->verifyOtp($dto);
 
         return $this->respondDto($response);
     }
@@ -81,23 +82,26 @@ final class AuthController extends Controller
      * Get the authenticated User.
      * GET /api/v1/auth/me
      */
-    public function me(): JsonResponse
+    public function me(Request $request): JsonResponse
     {
-        $user = Cache::flexible(
-            key: 'users:' . sanctumUser()->id,
+        $user = $request->user();
+
+        $response = Cache::flexible(
+            key: "users:{$user?->id}",
             ttl: [30, 60],
-            callback: fn () => sanctumUser()->load(
+            callback: fn () => $user->load(
                 [
                     'images:id,image_path,image_url,type',
                     'roles:id,name',
-                    'roles.permissions:id,name',
+                    'contacts:id,type_id,value,is_active',
+                    'contacts.type:id,name',
                 ]
             )
         );
 
-        $message = \sprintf('User %s data retrieved', $user->first_name);
+        $message = \sprintf('User %s data retrieved', $response->first_name);
 
-        return $this->respondWithData(UserResource::make($user), $message);
+        return $this->respondWithData(UserResource::make($response), $message);
     }
 
     /**

@@ -49,8 +49,48 @@ class StatusSeeder extends Seeder
             ],
         ];
 
+        $teacherStatuses = [
+            [
+                'name' => 'pending_approval',
+                'context' => 'teacher',
+                'bg_color' => '#f59e0b', // amber
+                'text_color' => '#78350f', // darker amber
+                'description' => 'Teacher application is pending admin approval.',
+            ],
+            [
+                'name' => 'approved',
+                'context' => 'teacher',
+                'bg_color' => '#10b981', // green
+                'text_color' => '#064e3b', // darker green
+                'description' => 'Teacher application has been approved and is active.',
+            ],
+            [
+                'name' => 'rejected',
+                'context' => 'teacher',
+                'bg_color' => '#ef4444', // red
+                'text_color' => '#7f1d1d', // deep red
+                'description' => 'Teacher application has been rejected by admin.',
+            ],
+            [
+                'name' => 'inactive',
+                'context' => 'teacher',
+                'bg_color' => '#6b7280', // gray
+                'text_color' => '#1f2937', // dark gray
+                'description' => 'Teacher account is inactive.',
+            ],
+            [
+                'name' => 'suspended',
+                'context' => 'teacher',
+                'bg_color' => '#ef4444', // red
+                'text_color' => '#7f1d1d', // deep red
+                'description' => 'Teacher account is suspended.',
+            ],
+        ];
+
         $statuses = [
             ...$userStatuses,
+
+            ...$teacherStatuses,
         ];
 
         data_set($statuses, '*.created_at', $now);

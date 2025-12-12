@@ -115,8 +115,8 @@ trait ResponseJson
     ): JsonResponse {
         return $this->respond(
             success: true,
-            message: $message,
             data: $data,
+            message: $message,
             status: $status,
             extra: $extra,
             paginate: true

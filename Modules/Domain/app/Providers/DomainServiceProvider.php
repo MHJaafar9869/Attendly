@@ -51,9 +51,9 @@ class DomainServiceProvider extends ServiceProvider
             $gateway = $app->make(Request::class)->input('gateway', config('services.gateways.default', 'stripe'));
 
             return $app->make(PaymentGatewayService::class)->resolve($gateway);
-            $this->app->bind(TeacherRepositoryInterface::class, TeacherRepository::class);
-            $this->app->bind(ClassroomRepositoryInterface::class, ClassroomRepository::class);
         });
+        $this->app->bind(TeacherRepositoryInterface::class, TeacherRepository::class);
+        $this->app->bind(ClassroomRepositoryInterface::class, ClassroomRepository::class);
         $this->app->bind(StudentRepositoryInterface::class, StudentRepository::class);
     }
 

@@ -5,15 +5,21 @@ namespace Modules\Domain\Http\Requests\Teacher;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Modules\Core\Enums\Status\StatusIDEnum;
 
-class StoreTeacherRequest extends FormRequest
+final readonly class StoreTeacherRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return auth()->check() && sanctumUser()->email_verified_at !== null;
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge(['status_id' => StatusIDEnum::TEACHER_PENDING->value]);
     }
 
     /**
@@ -26,7 +32,6 @@ class StoreTeacherRequest extends FormRequest
             'teacher_code' => ['required', 'string', 'max:255', 'unique:teachers,teacher_code'],
             'teacher_type_id' => ['required', 'integer'],
             'status_id' => ['required', 'integer', 'exists:statuses,id'],
-            'approved_by' => ['nullable', 'string', 'max:255'],
         ];
     }
 

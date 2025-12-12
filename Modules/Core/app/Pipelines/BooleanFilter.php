@@ -18,8 +18,8 @@ class BooleanFilter
 
     public function __invoke(Builder $query, Closure $next)
     {
-        if (\is_bool($this->value)) {
-            $query->where('is_active', $this->value);
+        if (\is_bool($this->value) && \is_string($this->column)) {
+            $query->where($this->column, $this->value);
         }
 
         return $next($query);

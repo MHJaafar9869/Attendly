@@ -2,10 +2,10 @@
 
 namespace Modules\Domain\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Modules\Core\Observers\LogObserver;
 
 // use Modules\Domain\Database\Factories\MajorFactory;
@@ -32,7 +32,7 @@ class Major extends Model
 
     // protected static function newFactory(): MajorFactory
     // {
-    //     // return MajorFactory::new();
+    // return MajorFactory::new();
     // }
 
     /*
