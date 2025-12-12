@@ -7,15 +7,15 @@ namespace Modules\Domain\DTO\Classroom;
 final readonly class ClassroomFilterDto
 {
     public function __construct(
-        public readonly ?string $teacher = null,
-        public readonly ?string $subject = null,
-        public readonly ?string $startMin = null,
-        public readonly ?string $startMax = null,
-        public readonly ?string $endMin = null,
-        public readonly ?string $endMax = null,
-        public readonly ?string $orderBy = null,
-        public readonly ?string $orderDir = null,
-        public readonly ?int $page = 1
+        public ?string $teacher = null,
+        public ?string $subject = null,
+        public ?string $startMin = null,
+        public ?string $startMax = null,
+        public ?string $endMin = null,
+        public ?string $endMax = null,
+        public ?string $orderBy = null,
+        public ?string $orderDir = null,
+        public ?int $page = 1
     ) {}
 
     public static function fromRequest(array $data): self

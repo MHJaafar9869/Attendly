@@ -7,15 +7,15 @@ namespace Modules\Domain\DTO\Classroom;
 final readonly class UpdateClassroomDto
 {
     public function __construct(
-        public readonly int | string $id,
-        public readonly ?string $teacherId = null,
-        public readonly int | string | null $subjectId = null,
-        public readonly ?string $startAt = null,
-        public readonly ?string $endAt = null,
-        public readonly ?float $lat = null,
-        public readonly ?float $lng = null,
-        public readonly ?int $radius = null,
-        public readonly ?array $studentsIds = null
+        public int | string $id,
+        public ?string $teacherId = null,
+        public int | string | null $subjectId = null,
+        public ?string $startAt = null,
+        public ?string $endAt = null,
+        public ?float $lat = null,
+        public ?float $lng = null,
+        public ?int $radius = null,
+        public ?array $studentsIds = null
     ) {}
 
     public static function fromRequest(array $data, int | string $id): self

@@ -7,14 +7,14 @@ namespace Modules\Domain\DTO\Classroom;
 final readonly class CreateClassroomDto
 {
     public function __construct(
-        public readonly string $teacherId,
-        public readonly string | int $subjectId,
-        public readonly string $startAt,
-        public readonly string $endAt,
-        public readonly float $lat,
-        public readonly float $lng,
-        public readonly int $radius,
-        public readonly array $studentsIds
+        public string $teacherId,
+        public string | int $subjectId,
+        public string $startAt,
+        public string $endAt,
+        public float $lat,
+        public float $lng,
+        public int $radius,
+        public array $studentsIds
     ) {}
 
     public static function fromRequest(array $data): self

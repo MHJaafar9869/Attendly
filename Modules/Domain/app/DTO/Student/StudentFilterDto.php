@@ -7,12 +7,12 @@ namespace Modules\Domain\DTO\Student;
 final readonly class StudentFilterDto
 {
     public function __construct(
-        public readonly ?string $searchText,
-        public readonly ?bool $isBanned,
-        public readonly ?string $gender,
-        public readonly ?bool $attended,
-        public readonly bool $paginate,
-        public readonly ?int $page
+        public ?string $searchText,
+        public ?bool $isBanned,
+        public ?string $gender,
+        public ?bool $attended,
+        public bool $paginate,
+        public ?int $page
     ) {}
 
     public static function fromRequest(array $data): self
