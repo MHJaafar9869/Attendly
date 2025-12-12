@@ -55,3 +55,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "chore: fix code style [skip ci]"
+          file_pattern: 'app/ config/ database/ public/ resources/ routes/ tests/ *.php *.json *.js *.css *.vue'
