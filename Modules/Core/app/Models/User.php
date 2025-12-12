@@ -235,7 +235,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     */
 
     #[Scope]
-    public function byRole(Builder $query, array|string $roles): Builder
+    public function byRole(Builder $query, array | string $roles): Builder
     {
         return $query->whereHas(
             'roles',
@@ -244,7 +244,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     #[Scope]
-    public function byStatus(Builder $query, array|string $status): Builder
+    public function byStatus(Builder $query, array | string $status): Builder
     {
         return $query->whereHas(
             'status',

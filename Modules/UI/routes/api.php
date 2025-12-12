@@ -52,7 +52,7 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_users');
             Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_users');
             Route::get('/search', 'searchUsers');
-            Route::get('/analytics', 'analytics'); // TODO
+            Route::get('/analytics', 'analytics');
         });
 
         /*
@@ -66,7 +66,7 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_students');
             Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_students');
             Route::get('/search', 'searchStudents');
-            Route::get('/analytics', 'analytics'); // TODO
+            Route::get('/analytics', 'analytics');
         });
 
         /*

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Modules\Core\Models\Status;
 use Modules\Core\Models\Type;
@@ -91,5 +92,10 @@ class Teacher extends Model
             ->withPivot(['assigned_by', 'role', 'assigned_at', 'unassigned_at'])
             ->withPivotValue('assigned_at', now())
             ->withTimestamps();
+    }
+
+    public function classrooms(): HasMany
+    {
+        return $this->hasMany(Classroom::class);
     }
 }

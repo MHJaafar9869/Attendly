@@ -26,6 +26,10 @@ final class UserController extends Controller
         //
     }
 
+    /**
+     * Search Users.
+     * GET /api/v1/users
+     */
     public function index(Request $request): JsonResponse
     {
         $dto = PaginateDto::fromRequest($request->only(['per_page', 'page', 'page_name', 'columns']));
@@ -36,6 +40,10 @@ final class UserController extends Controller
         return $this->respondWithPagination($response->data, $response->message);
     }
 
+    /**
+     * Show a specific user.
+     * GET /api/v1/users/{id}
+     */
     public function show(string $id): JsonResponse
     {
         $response = $this->userService->getUser($id);
@@ -43,6 +51,10 @@ final class UserController extends Controller
         return $this->respondDto($response);
     }
 
+    /**
+     * Search Users.
+     * GET /api/v1/users/search
+     */
     public function searchUsers(Request $request): JsonResponse
     {
         $dto = UserFilterDto::fromRequest($request->all());
@@ -52,6 +64,10 @@ final class UserController extends Controller
         return $this->respondDto($response);
     }
 
+    /**
+     * Delete user.
+     * POST /api/v1/users
+     */
     public function destroy(int | string $id): JsonResponse
     {
         $this->userRepo->delete($id);
@@ -59,6 +75,10 @@ final class UserController extends Controller
         return $this->respondSuccess('User deleted successfully');
     }
 
+    /**
+     * Restore user.
+     * PATCH /api/v1/users/{id}
+     */
     public function restore(string $id): JsonResponse
     {
         $this->restore($id);
@@ -66,10 +86,25 @@ final class UserController extends Controller
         return $this->respondSuccess('User restored successfully');
     }
 
+    /**
+     * Delete user permanently.
+     * DELETE /api/v1/users/{id}/force
+     */
     public function forceDelete(string $id): JsonResponse
     {
         $this->forceDelete($id);
 
-        return $this->respondSuccess('User has been permenantly deleted');
+        return $this->respondSuccess('User has been permanently deleted');
+    }
+
+    /**
+     * Get users analytics.
+     * GET /api/v1/users/analytics
+     */
+    public function analytics(): JsonResponse
+    {
+        $response = $this->userService->getUsersAnalytics();
+
+        return $this->respondDto($response);
     }
 }
