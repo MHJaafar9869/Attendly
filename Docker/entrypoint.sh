@@ -26,7 +26,7 @@ echo "[entrypoint] MySQL is ready!"
 #
 # Optional DB migrations
 #
-if [ "${AUTO_MIGRATE:-true}" = "true" ]; then
+if [ "${AUTO_FRESH_MIGRATIONS:-true}" = "true" ] && ! php artisan migrate:status --no-ansi 2>/dev/null | grep -q "Pending"; then
     echo "[entrypoint] Running DB migrations" >&2
     php artisan migrate --force || {
         echo "[entrypoint] Migration failed, exiting..." >&2
@@ -42,6 +42,7 @@ php artisan optimize:clear
 php artisan logs:clear
 
 echo "[entrypoint] Caching application"
+composer dump-autoload -o
 php artisan optimize
 
 #

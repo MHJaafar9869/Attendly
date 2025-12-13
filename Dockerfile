@@ -83,14 +83,15 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR /var/www/html
 
-RUN apt-get update && \
-    apt-get install -y \
-        netcat-traditional && \
-        rm -rf /var/lib/apt/lists/*
-
 RUN groupadd -g ${HOST_GID} appuser && \
     useradd -u ${HOST_UID} -g appuser -m -s /bin/bash appuser
 
+RUN apt-get update && apt-get install -y netcat-traditional && \
+        rm -rf /var/lib/apt/lists/*
+
+RUN install-php-extensions pdo_mysql mbstring opcache
+
+COPY --from=base /usr/local/bin/composer /usr/local/bin/composer
 COPY --from=base /usr/local/bin/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --from=base /var/www/html /var/www/html
 COPY --from=base /var/www/html/Docker/Caddyfile /etc/caddy/Caddyfile
@@ -102,5 +103,3 @@ EXPOSE 80 5173
 USER appuser
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-# CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]

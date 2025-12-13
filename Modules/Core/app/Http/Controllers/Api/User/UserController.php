@@ -96,15 +96,4 @@ final class UserController extends Controller
 
         return $this->respondSuccess('User has been permanently deleted');
     }
-
-    /**
-     * Get users analytics.
-     * GET /api/v1/users/analytics
-     */
-    public function analytics(): JsonResponse
-    {
-        $response = $this->userService->getUsersAnalytics();
-
-        return $this->respondDto($response);
-    }
 }

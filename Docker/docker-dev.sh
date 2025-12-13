@@ -106,5 +106,7 @@ read -p "Would you like to see logs? (yes/No): " answer
 first_char=$(echo "${answer:0:1}" | tr '[:upper:]' '[:lower:]')
 
 if [[ "$first_char" == "y" ]]; then
-    docker compose logs -f
+    docker compose logs -f app
+else
+    echo -e "${CYAN}[Docker] Skipping logs.${RESET}"
 fi

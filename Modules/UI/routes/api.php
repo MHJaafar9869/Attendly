@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Core\Http\Controllers\Api\Admin\AdminController;
 use Modules\Core\Http\Controllers\Api\Auth\AuthController;
 use Modules\Core\Http\Controllers\Api\Setting\SettingController;
 use Modules\Core\Http\Controllers\Api\User\UserController;
@@ -52,7 +53,6 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_users');
             Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_users');
             Route::get('/search', 'searchUsers');
-            Route::get('/analytics', 'analytics');
         });
 
         /*
@@ -66,7 +66,6 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_students');
             Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_students');
             Route::get('/search', 'searchStudents');
-            Route::get('/analytics', 'analytics');
         });
 
         /*
@@ -80,7 +79,6 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{id}/restore', 'restore')->middleware('permission:restore_teachers');
             Route::delete('/{id}/force', 'forceDelete')->middleware('permission:force_delete_teachers');
             Route::get('/search', 'searchTeachers');
-            Route::get('/analytics', 'analytics'); // TODO
         });
 
         /*
@@ -102,53 +100,54 @@ Route::prefix('v1')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::prefix('admin')->middleware('role:super_admin,admin')->group(function () {
-            /*
-            |--------------------------------------------------------------------------
-            |  Users
-            |--------------------------------------------------------------------------
-            */
+        Route::prefix('admin')->controller(AdminController::class)
+            ->middleware('role:super_admin,admin')
+            ->group(function () {
+                /*
+                |--------------------------------------------------------------------------
+                |  Users
+                |--------------------------------------------------------------------------
+                */
 
-            Route::prefix('users')->get('/analytics', ['usersAnalytics']);
+                Route::get('users/analytics', 'usersAnalytics');
 
-            /*
-            |--------------------------------------------------------------------------
-            |  Students
-            |--------------------------------------------------------------------------
-            */
+                /*
+                |--------------------------------------------------------------------------
+                |  Students
+                |--------------------------------------------------------------------------
+                */
 
-            Route::prefix('students')->get('/analytics', ['studentsAnalytics']);
+                Route::get('students/analytics', 'studentsAnalytics');
 
-            /*
-            |--------------------------------------------------------------------------
-            |  Teachers
-            |--------------------------------------------------------------------------
-            */
+                /*
+                |--------------------------------------------------------------------------
+                |  Teachers
+                |--------------------------------------------------------------------------
+                */
 
-            Route::prefix('teachers')->get('/analytics', ['teachersAnalytics']);
+                Route::get('teachers/analytics', 'teachersAnalytics');
 
-            /*
-            |--------------------------------------------------------------------------
-            |  Classrooms
-            |--------------------------------------------------------------------------
-            */
+                /*
+                |--------------------------------------------------------------------------
+                |  Classrooms
+                |--------------------------------------------------------------------------
+                */
 
-            Route::prefix('classrooms')->get('/analytics', ['classroomsAnalytics']);
+                Route::get('classrooms/analytics', 'classroomsAnalytics');
 
-            /*
-            |--------------------------------------------------------------------------
-            |  Settings
-            |--------------------------------------------------------------------------
-            */
+                /*
+                |--------------------------------------------------------------------------
+                |  Settings
+                |--------------------------------------------------------------------------
+                */
 
-            Route::middleware('role:super_admin')->group(function () {
-                Route::apiResource('settings', SettingController::class);
-                Route::prefix('settings')->controller(SettingController::class)->group(function () {
-                    Route::patch('/{id}', 'restore');
-                    Route::delete('/{id}/force', 'forceDelete');
+                Route::middleware('role:super_admin')->group(function () {
+                    Route::apiResource('settings', SettingController::class);
+                    Route::prefix('settings')->controller(SettingController::class)->group(function () {
+                        Route::patch('/{id}', 'restore');
+                        Route::delete('/{id}/force', 'forceDelete');
+                    });
                 });
             });
-        });
-
     });
 });

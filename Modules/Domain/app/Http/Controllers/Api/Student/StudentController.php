@@ -123,15 +123,4 @@ class StudentController extends Controller
 
         return $this->respondDto($response);
     }
-
-    /**
-     * Get students analytics.
-     * GET /api/v1/students/analytics
-     */
-    public function analytics(): JsonResponse
-    {
-        $response = $this->studentService->getStudentsAnalytics();
-
-        return $this->respondDto($response);
-    }
 }

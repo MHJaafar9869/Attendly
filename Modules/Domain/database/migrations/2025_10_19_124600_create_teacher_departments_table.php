@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('teacher_departments', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignUlid('department_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('department_id')->constrained()->cascadeOnDelete();
             $table->foreignUlid('teacher_id')->constrained()->cascadeOnDelete();
 
             $table->foreignUlid('assigned_by')->constrained('users')->cascadeOnDelete();

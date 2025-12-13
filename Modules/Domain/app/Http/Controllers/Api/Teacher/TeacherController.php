@@ -118,11 +118,4 @@ final class TeacherController extends Controller
 
         return $this->respondDto($response);
     }
-
-    public function analytics(): JsonResponse
-    {
-        $response = $this->teacherService->getTeachersAnalytics();
-
-        return $this->respondDto($response);
-    }
 }
